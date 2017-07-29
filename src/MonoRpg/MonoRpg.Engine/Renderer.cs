@@ -40,7 +40,7 @@ namespace MonoRpg.Engine {
 
         private Vector2 TranslateCoords(Vector2 p) {
             var x = p.X + _device.Viewport.Width / 2f;
-            var y = p.Y + _device.Viewport.Height / 2f;
+            var y = -p.Y + _device.Viewport.Height / 2f;
             return new Vector2(x,y);
         }
         public void SetTextAlignment(TextAlignment horizontal, TextAlignment vertical) {
