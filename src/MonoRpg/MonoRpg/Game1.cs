@@ -1,14 +1,16 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using MonoRpg.Engine;
 
 namespace MonoRpg {
     /// <summary>
     /// This is the main type for your game.
     /// </summary>
     public class Game1 : Game {
-        GraphicsDeviceManager graphics;
-        SpriteBatch spriteBatch;
+        private GraphicsDeviceManager graphics;
+        private Renderer _renderer;
+        private Content _content;
 
         public Game1() {
             graphics = new GraphicsDeviceManager(this);
@@ -32,8 +34,10 @@ namespace MonoRpg {
         /// all of your content.
         /// </summary>
         protected override void LoadContent() {
-            // Create a new SpriteBatch, which can be used to draw textures.
-            spriteBatch = new SpriteBatch(GraphicsDevice);
+            _content = new Content(Content);
+            _renderer = new Renderer(GraphicsDevice, _content);
+            _renderer.SetTextAlignment(TextAlignment.Center, TextAlignment.Center);
+
 
             // TODO: use this.Content to load your game content here
         }
@@ -65,10 +69,13 @@ namespace MonoRpg {
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime) {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            
 
-            // TODO: Add your drawing code here
 
+            _renderer.DrawText2D(0, 0, "Hello World");
+
+
+            _renderer.Render();
             base.Draw(gameTime);
         }
     }
