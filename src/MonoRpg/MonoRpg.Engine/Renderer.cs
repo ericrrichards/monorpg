@@ -33,6 +33,10 @@ namespace MonoRpg.Engine {
             _drawQueue.Enqueue(command);
         }
 
+        public void DrawSprite(Sprite sprite) {
+            _drawQueue.Enqueue(new DrawSpriteCommand(sprite, TranslateCoords(sprite.Position)));
+        }
+
         private static Vector2 AlignText(Vector2 p, SpriteFont font, string text) {
             var size = font.MeasureString(text);
             return p - size / 2;

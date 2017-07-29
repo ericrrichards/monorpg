@@ -4,17 +4,49 @@ using Microsoft.Xna.Framework.Input;
 using MonoRpg.Engine;
 
 namespace MonoRpg {
+    using System;
+    using System.Collections.Generic;
+
     /// <summary>
     /// This is the main type for your game.
     /// </summary>
     public class Game1 : Game {
-        private GraphicsDeviceManager graphics;
+        private readonly GraphicsDeviceManager _graphics;
         private Renderer _renderer;
         private Content _content;
 
+        private Texture2D[] _textures;
+        private Sprite _sprite;
+
+        private int _left, _top;
+        private int _tilesPerRow, _tilesPerColumn;
+        private int _tileWidth, _tileHeight;
+
+        private int[] _map = new[] {
+            0,0,0,0,4,5,6,0,
+            0,0,0,0,4,5,6,0,
+            0,0,0,0,4,5,6,0,
+            2,2,2,2,10,5,6,0,
+            8,8,8,8,8,8,9,0,
+            0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,1,2,
+        };
+        private int _mapWidth = 8;
+        private int _mapHeight = 7;
+
+        private int GetTile(int[] map, int rowSize, int x, int y) {
+            return map[x + y * rowSize];
+        }
+
         public Game1() {
-            graphics = new GraphicsDeviceManager(this);
+            _graphics = new GraphicsDeviceManager(this) {
+                PreferredBackBufferWidth = 256,
+                PreferredBackBufferHeight = 224
+            };
             Content.RootDirectory = "Content";
+            IsMouseVisible = true;
+
+
         }
 
         /// <summary>
@@ -34,10 +66,33 @@ namespace MonoRpg {
         /// all of your content.
         /// </summary>
         protected override void LoadContent() {
-            _content = new Content(Content);
+            _content = new Content(Content, GraphicsDevice);
             _renderer = new Renderer(GraphicsDevice, _content);
             _renderer.SetTextAlignment(TextAlignment.Center, TextAlignment.Center);
 
+            _textures = new[] {
+                _content.FindTexture("Content/tiles_00.png"),
+                _content.FindTexture("Content/tiles_01.png"),
+                _content.FindTexture("Content/tiles_02.png"),
+                _content.FindTexture("Content/tiles_03.png"),
+                _content.FindTexture("Content/tiles_04.png"),
+                _content.FindTexture("Content/tiles_05.png"),
+                _content.FindTexture("Content/tiles_06.png"),
+                _content.FindTexture("Content/tiles_07.png"),
+                _content.FindTexture("Content/tiles_08.png"),
+                _content.FindTexture("Content/tiles_09.png"),
+                _content.FindTexture("Content/tiles_10.png")
+            };
+            _tileWidth = _textures[0].Width;
+            _tileHeight = _textures[0].Height;
+
+            _sprite = new Sprite();
+
+            _left = -_graphics.PreferredBackBufferWidth / 2 + _tileWidth / 2;
+            _top = _graphics.PreferredBackBufferHeight / 2 - _tileHeight / 2;
+
+            _tilesPerRow = (int)Math.Ceiling(_graphics.PreferredBackBufferWidth / (double)_tileWidth);
+            _tilesPerColumn = (int)Math.Ceiling((_graphics.PreferredBackBufferHeight / (double)_tileHeight));
 
             // TODO: use this.Content to load your game content here
         }
@@ -69,10 +124,18 @@ namespace MonoRpg {
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime) {
-            
+
+            for (int j = 0; j < _mapHeight; j++) {
 
 
-            _renderer.DrawText2D(0, 0, "Hello World");
+                for (int i = 0; i < _mapWidth; i++) {
+                    var tile = GetTile(_map, _mapWidth, i, j);
+                    var texture = _textures[tile];
+                    _sprite.Texture = texture;
+                    _sprite.Position = new Vector2(_left + i * _tileWidth, _top - j * _tileHeight);
+                    _renderer.DrawSprite(_sprite);
+                }
+            }
 
 
             _renderer.Render();
