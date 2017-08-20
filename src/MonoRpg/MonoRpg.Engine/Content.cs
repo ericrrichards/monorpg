@@ -7,6 +7,10 @@
     using Microsoft.Xna.Framework.Content;
     using Microsoft.Xna.Framework.Graphics;
 
+    using MonoRpg.Engine.Tiled;
+
+    using Newtonsoft.Json;
+
     public class Content {
         private const string DEFAULT_FONT = "default";
 
@@ -43,6 +47,8 @@
                 return tex;
             }
         }
+
+        public TiledMap LoadMap(string mapFile) { return JsonConvert.DeserializeObject<TiledMap>(File.ReadAllText(mapFile)); }
         
     }
 }

@@ -7,6 +7,8 @@ namespace MonoRpg {
     using System;
     using System.Collections.Generic;
 
+    using MonoRpg.Engine.Tiled;
+
     /// <summary>
     /// This is the main type for your game.
     /// </summary>
@@ -15,14 +17,12 @@ namespace MonoRpg {
         private Renderer _renderer;
         private Content _content;
 
-        private Texture2D[] _textures;
         private Sprite _sprite;
 
         private int _left, _top;
-        private int _tilesPerRow, _tilesPerColumn;
         private int _tileWidth, _tileHeight;
 
-        private int[] _map = new[] {
+        private List<int> _map = new List<int> {
             0,0,0,0,4,5,6,0,
             0,0,0,0,4,5,6,0,
             0,0,0,0,4,5,6,0,
@@ -31,13 +31,14 @@ namespace MonoRpg {
             0,0,0,0,0,0,0,0,
             0,0,0,0,0,0,1,2,
         };
-        private int _mapWidth = 8;
-        private int _mapHeight = 7;
+        private int _mapWidth;
+        private int _mapHeight;
         private Texture2D _textureAtlas;
         private List<Rectangle> _uvs;
+        private TiledMap _tiledMap;
 
-        private int GetTile(int[] map, int rowSize, int x, int y) {
-            return map[x + y * rowSize];
+        private int GetTile(IReadOnlyList<int> map, int rowSize, int x, int y) {
+            return map[x + y * rowSize] - 1; // Tiled uses 1 as the first ID, instead of 0 like everything else in the world does.
         }
 
         public Game1() {
@@ -72,23 +73,17 @@ namespace MonoRpg {
             _renderer = new Renderer(GraphicsDevice, _content);
             _renderer.SetTextAlignment(TextAlignment.Center, TextAlignment.Center);
 
-            _textures = new[] {
-                _content.FindTexture("Content/tiles_00.png"),
-                _content.FindTexture("Content/tiles_01.png"),
-                _content.FindTexture("Content/tiles_02.png"),
-                _content.FindTexture("Content/tiles_03.png"),
-                _content.FindTexture("Content/tiles_04.png"),
-                _content.FindTexture("Content/tiles_05.png"),
-                _content.FindTexture("Content/tiles_06.png"),
-                _content.FindTexture("Content/tiles_07.png"),
-                _content.FindTexture("Content/tiles_08.png"),
-                _content.FindTexture("Content/tiles_09.png"),
-                _content.FindTexture("Content/tiles_10.png")
-            };
-            _tileWidth = _textures[0].Width;
-            _tileHeight = _textures[0].Height;
 
-            _textureAtlas = _content.FindTexture("Content/atlas.png");
+            _tiledMap = _content.LoadMap("Content/example_map.json");
+
+            _tileWidth = _tiledMap.TileSets[0].TileWidth;
+            _tileHeight = _tiledMap.TileSets[0].TileHeight;
+            _mapWidth = _tiledMap.Width;
+            _mapHeight = _tiledMap.Height;
+            _map = _tiledMap.Layers[0].Data;
+
+
+            _textureAtlas = _content.FindTexture("Content/"  + _tiledMap.TileSets[0].Image);
             _uvs = GenerateUVs(_textureAtlas, _tileWidth);
 
             _sprite = new Sprite();
@@ -97,8 +92,9 @@ namespace MonoRpg {
             _left = -_graphics.PreferredBackBufferWidth / 2 + _tileWidth / 2;
             _top = _graphics.PreferredBackBufferHeight / 2 - _tileHeight / 2;
 
-            _tilesPerRow = (int)Math.Ceiling(_graphics.PreferredBackBufferWidth / (double)_tileWidth);
-            _tilesPerColumn = (int)Math.Ceiling((_graphics.PreferredBackBufferHeight / (double)_tileHeight));
+
+            
+
 
             // TODO: use this.Content to load your game content here
         }
@@ -132,8 +128,6 @@ namespace MonoRpg {
         protected override void Draw(GameTime gameTime) {
 
             for (int j = 0; j < _mapHeight; j++) {
-
-
                 for (int i = 0; i < _mapWidth; i++) {
                     var tile = GetTile(_map, _mapWidth, i, j);
                     _sprite.SetUVs(_uvs[tile]);
@@ -148,6 +142,8 @@ namespace MonoRpg {
             _renderer.Render();
             base.Draw(gameTime);
         }
+
+        
 
         public List<Rectangle> GenerateUVs(Texture2D texture, int tileSize) { return GenerateUVs(texture, tileSize, tileSize); }
         public List<Rectangle> GenerateUVs(Texture2D texture, int tileWidth, int tileHeight) {

@@ -100,6 +100,9 @@
     <None Include="app.config" />
     <None Include="app.manifest" />
     <None Include="Content\default.spritefont" />
+    <None Include="Content\example_map.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MonoRpg.Engine\MonoRpg.Engine.csproj">
