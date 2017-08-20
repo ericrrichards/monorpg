@@ -9,9 +9,12 @@ namespace MonoRpg.Engine {
         public int Width => Texture.Width;
         public int Height => Texture.Height;
 
+        public Rectangle? SourceRectangle { get; private set; }
+
         public Sprite() {
             
         }
 
+        public void SetUVs(Rectangle sourceRect) { SourceRectangle = sourceRect; }
     }
 }

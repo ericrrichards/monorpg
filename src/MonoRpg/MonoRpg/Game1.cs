@@ -33,6 +33,8 @@ namespace MonoRpg {
         };
         private int _mapWidth = 8;
         private int _mapHeight = 7;
+        private Texture2D _textureAtlas;
+        private List<Rectangle> _uvs;
 
         private int GetTile(int[] map, int rowSize, int x, int y) {
             return map[x + y * rowSize];
@@ -86,7 +88,11 @@ namespace MonoRpg {
             _tileWidth = _textures[0].Width;
             _tileHeight = _textures[0].Height;
 
+            _textureAtlas = _content.FindTexture("Content/atlas.png");
+            _uvs = GenerateUVs(_textureAtlas, _tileWidth);
+
             _sprite = new Sprite();
+            _sprite.Texture = _textureAtlas;
 
             _left = -_graphics.PreferredBackBufferWidth / 2 + _tileWidth / 2;
             _top = _graphics.PreferredBackBufferHeight / 2 - _tileHeight / 2;
@@ -130,8 +136,9 @@ namespace MonoRpg {
 
                 for (int i = 0; i < _mapWidth; i++) {
                     var tile = GetTile(_map, _mapWidth, i, j);
-                    var texture = _textures[tile];
-                    _sprite.Texture = texture;
+                    _sprite.SetUVs(_uvs[tile]);
+
+
                     _sprite.Position = new Vector2(_left + i * _tileWidth, _top - j * _tileHeight);
                     _renderer.DrawSprite(_sprite);
                 }
@@ -140,6 +147,30 @@ namespace MonoRpg {
 
             _renderer.Render();
             base.Draw(gameTime);
+        }
+
+        public List<Rectangle> GenerateUVs(Texture2D texture, int tileSize) { return GenerateUVs(texture, tileSize, tileSize); }
+        public List<Rectangle> GenerateUVs(Texture2D texture, int tileWidth, int tileHeight) {
+            var uvs = new List<Rectangle>();
+
+            float texWidth = texture.Width;
+            float texHeight = texture.Height;
+            var cols = texWidth / tileWidth;
+            var rows = texHeight / tileHeight;
+
+            var u0 = 0;
+            var v0 = 0;
+            for (var j = 0; j < rows; j++) {
+                for (var i = 0; i < cols; i++) {
+                    uvs.Add(new Rectangle(u0, v0, tileWidth, tileHeight));
+                    u0 += tileWidth;
+                }
+                u0 = 0;
+                v0 += tileHeight;
+            }
+
+
+            return uvs;
         }
     }
 }
