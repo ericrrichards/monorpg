@@ -1,5 +1,7 @@
-﻿namespace MonoRpg.Engine.Tiled {
-    using System.Collections.Generic;
+﻿using System.Collections.Generic;
+namespace MonoRpg.Engine.Tiled {
+
+    
 
     public class TiledMap {
         public int Width { get; set; }

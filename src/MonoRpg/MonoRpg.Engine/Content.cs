@@ -1,8 +1,8 @@
-﻿namespace MonoRpg.Engine {
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Net.Mime;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+namespace MonoRpg.Engine {
+    
 
     using Microsoft.Xna.Framework.Content;
     using Microsoft.Xna.Framework.Graphics;
@@ -33,6 +33,9 @@
         public Texture2D FindTexture(string texture) {
             if (Textures.ContainsKey(texture)) {
                 return Textures[texture];
+            }
+            if (!File.Exists(texture) && !texture.Contains(_manager.RootDirectory)) {
+                return FindTexture(Path.Combine(_manager.RootDirectory, texture));
             }
             try {
                 var tex = _manager.Load<Texture2D>(texture);
