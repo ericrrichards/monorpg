@@ -6,22 +6,39 @@ namespace MonoRpg.Engine {
         public Character Character { get; }
         public Map Map { get; }
         public Entity Entity { get; }
+        public float FrameResetSpeed { get; set; }
+        public float FrameCount { get; set; }
 
         public WaitState(Character character, Map map) : base("wait") {
             Character = character;
             Map = map;
             Entity = character.Entity;
             Controller = character.Controller;
+            FrameResetSpeed = 0.05f;
+            FrameCount = 0;
         }
 
+        
+
         public override void Enter(EnterParameters enterParams) {
-            Entity.SetFrame(Entity.StartFrame);
+            FrameCount = 0;
         }
 
         public override void Render(Renderer renderer) {  }
         public override void Exit() {  }
 
         public override void Update(float dt) {
+            if (FrameCount >= 0) {
+                FrameCount = FrameCount + dt;
+                if (FrameCount > FrameResetSpeed) {
+                    FrameCount = -1;
+                    Entity.SetFrame(Entity.StartFrame);
+                }
+            }
+
+
+
+
             var ks = Keyboard.GetState();
             if (ks.IsKeyDown(Keys.Left)) {
                 Controller.Change("move", new MoveParams(-1, 0));

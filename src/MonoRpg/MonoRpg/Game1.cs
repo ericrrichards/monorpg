@@ -66,7 +66,14 @@ namespace MonoRpg {
                 TileX = 10,
                 TileY = 2
             };
-            _hero = new Character(new Entity(heroDef), _map);
+            var frames = new List<List<int>> {
+                new List<int>{0, 1,2,3},
+                new List<int>{4,5,6,7},
+                new List<int>{8,9,10,11},
+                new List<int>{12,13,14,15}
+            };
+
+            _hero = new Character(new Entity(heroDef), _map, frames);
             _hero.Controller.Change("wait");
 
 
