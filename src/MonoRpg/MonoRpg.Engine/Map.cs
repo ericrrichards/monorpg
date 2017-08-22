@@ -35,6 +35,8 @@ namespace MonoRpg.Engine {
         public List<Rectangle> UVs { get; set; }
         public int BlockingTile { get; set; }
 
+        public List<Dictionary<int, Trigger>> Triggers { get; set; }
+
         public int LayerCount {
             get {
                 Debug.Assert(MapDef.Layers.Count %3 == 0);
@@ -52,6 +54,11 @@ namespace MonoRpg.Engine {
             Tiles = Layer.Data;
             TileWidth = mapDef.TileSets[0].TileWidth;
             TileHeight = mapDef.TileSets[0].TileHeight;
+
+            Triggers = new List<Dictionary<int, Trigger>>();
+            for (var i = 0; i < LayerCount; i++) {
+                Triggers.Add(new Dictionary<int, Trigger>());
+            }
 
             Sprite.Texture = TextureAtlas;
 
@@ -101,11 +108,25 @@ namespace MonoRpg.Engine {
 
         private int GetTile(int x, int y, int layer=0) {
             var tiles = MapDef.Layers[layer].Data;
-            var index = x + y * Width;
+            var index = CoordToIndex(x, y);
             if (index < 0 || index >= tiles.Count)
                 throw new IndexOutOfRangeException();
             else
                 return tiles[index] - 1; // Tiled uses 1 as the first ID, instead of 0 like everything else in the world does.
+        }
+
+        public Trigger GetTrigger(int layer, int x, int y) {
+            var triggers = Triggers[layer];
+            var index = CoordToIndex(x, y);
+            if (triggers.ContainsKey(index)) {
+                return triggers[index];
+            }
+            return null;
+        }
+
+        public int CoordToIndex(int x, int y) {
+            var index = x + y * Width;
+            return index;
         }
 
         public void Goto(int x, int y) {

@@ -28,13 +28,14 @@ namespace MonoRpg.Engine {
         public override void Exit() {  }
 
         public override void Update(float dt) {
-            if (FrameCount >= 0) {
-                FrameCount = FrameCount + dt;
-                if (FrameCount > FrameResetSpeed) {
-                    FrameCount = -1;
-                    Entity.SetFrame(Entity.StartFrame);
-                }
-            }
+            //if (FrameCount >= 0) {
+            //    FrameCount = FrameCount + dt;
+            //    if (FrameCount > FrameResetSpeed) {
+            //        FrameCount = -1;
+            //        Entity.SetFrame(Entity.StartFrame);
+            //        Character.Facing = Facing.Down;
+            //    }
+            //}
 
 
 

@@ -45,12 +45,16 @@ namespace MonoRpg {
 
             if (data.X == -1) {
                 frames = Character.LeftAnimation;
+                Character.Facing = Facing.Left;
             } else if (data.X == 1) {
                 frames = Character.RightAnimation;
+                Character.Facing = Facing.Right;
             } else if (data.Y == -1) {
                 frames = Character.UpAnimation;
+                Character.Facing = Facing.Up;
             } else if (data.Y == 1) {
                 frames = Character.DownAnimation;
+                Character.Facing = Facing.Down;
             }
             Animation.SetFrames(frames);
 
@@ -72,9 +76,18 @@ namespace MonoRpg {
         }
 
         public override void Exit() {
+            Trigger trigger;
+            if (MoveX != 0 || MoveY != 0) {
+                trigger = Map.GetTrigger(Entity.Layer, Entity.TileX, Entity.TileY);
+                trigger?.OnExit.Execute(trigger, Entity);
+            }
+
             Entity.TileX += MoveX;
             Entity.TileY += MoveY;
             Entity.Teleport(Map);
+
+            trigger = Map.GetTrigger(Entity.Layer, Entity.TileX, Entity.TileY);
+            trigger?.OnEnter.Execute(trigger, Entity);
         }
 
         public override void Render(Renderer renderer) { }

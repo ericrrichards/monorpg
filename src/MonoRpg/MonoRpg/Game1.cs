@@ -19,6 +19,11 @@ namespace MonoRpg {
 
         private Map _map;
         private Character _hero;
+        private TeleportAction _upDoorTeleport;
+        private TeleportAction _downDoorTeleport;
+        private Trigger _triggerTop;
+        private Trigger _triggerBot;
+        private Trigger _potTrigger;
 
         public Game1() {
             _graphics = new GraphicsDeviceManager(this) {
@@ -79,7 +84,23 @@ namespace MonoRpg {
 
 
 
-            Teleport(_hero.Entity, _map);
+            
+
+
+            _upDoorTeleport = new TeleportAction(_map, 11, 3);
+            _upDoorTeleport.Execute(null, _hero.Entity);
+
+            _downDoorTeleport = new TeleportAction(_map, 10, 11);
+
+
+            _triggerTop = new Trigger(_downDoorTeleport);
+            _triggerBot = new Trigger(_upDoorTeleport);
+            _potTrigger = new Trigger(onUse:_downDoorTeleport);
+
+            _map.Triggers[0].Add(_map.CoordToIndex(10, 12), _triggerBot);
+            _map.Triggers[0].Add(_map.CoordToIndex(11, 2), _triggerTop);
+
+            _map.Triggers[0].Add(_map.CoordToIndex(10, 3), _potTrigger);
         }
 
         
@@ -106,7 +127,9 @@ namespace MonoRpg {
             _hero.Controller.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
 
             if (ks.IsKeyDown(Keys.Space)) {
-                _map.GotoTile(0, 0);
+                var (x, y) = _hero.GetFacedTileCoords();
+                var trigger = _map.GetTrigger(_hero.Entity.Layer, x, y);
+                trigger?.OnUse.Execute(trigger, _hero.Entity);
             }
             var playerPos = _hero.Entity.Sprite.Position;
             _map.CamX = (int)Math.Floor(playerPos.X);

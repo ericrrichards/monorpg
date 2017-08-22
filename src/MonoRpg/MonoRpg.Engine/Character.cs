@@ -14,9 +14,11 @@ namespace MonoRpg.Engine {
         public List<int> RightAnimation => Animations[1];
         public List<int> DownAnimation => Animations[2];
         public List<int> LeftAnimation => Animations[3];
+        public Facing Facing { get; set; }
 
 
-        public Character(Entity entity, Map map, List<List<int>> animations) {
+
+        public Character(Entity entity, Map map, List<List<int>> animations, Facing facing=Facing.Down) {
             Animations = animations ??
                 new List<List<int>> {
                     new List<int>{entity.StartFrame},
@@ -33,6 +35,33 @@ namespace MonoRpg.Engine {
             MoveState = new MoveState(this, map);
 
             Controller.Change(WaitState.Name);
+            Facing = facing;
         }
+
+        public (int x, int y) GetFacedTileCoords() {
+            int xInc=0, yInc=0;
+            switch (Facing) {
+                case Facing.Up:
+                    yInc = -1;
+                    break;
+                case Facing.Right:
+                    xInc = 1;
+                    break;
+                case Facing.Down:
+                    yInc = 1;
+                    break;
+                case Facing.Left:
+                    xInc = -1;
+                    break;
+            }
+            return (Entity.TileX + xInc, Entity.TileY + yInc);
+        }
+    }
+
+    public enum Facing {
+        Up = 0,
+        Right = 1,
+        Down = 2,
+        Left = 3
     }
 }
