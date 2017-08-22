@@ -1,4 +1,4 @@
-namespace MonoRpg {
+namespace MonoRpg.States {
     using System.Collections.Generic;
 
     using Microsoft.Xna.Framework;
@@ -44,16 +44,16 @@ namespace MonoRpg {
             var frames = new List<int>{Entity.StartFrame};
 
             if (data.X == -1) {
-                frames = Character.LeftAnimation;
+                frames = Character.Animations[Animations.Left];
                 Character.Facing = Facing.Left;
             } else if (data.X == 1) {
-                frames = Character.RightAnimation;
+                frames = Character.Animations[Animations.Right];
                 Character.Facing = Facing.Right;
             } else if (data.Y == -1) {
-                frames = Character.UpAnimation;
+                frames = Character.Animations[Animations.Up];
                 Character.Facing = Facing.Up;
             } else if (data.Y == 1) {
-                frames = Character.DownAnimation;
+                frames = Character.Animations[Animations.Down];
                 Character.Facing = Facing.Down;
             }
             Animation.SetFrames(frames);
@@ -71,7 +71,7 @@ namespace MonoRpg {
                 MoveX = 0;
                 MoveY = 0;
                 Entity.SetFrame(Animation.CurrentFrame);
-                Controller.Change("wait");
+                Controller.Change(Character.DefaultState);
             }
         }
 
@@ -104,7 +104,7 @@ namespace MonoRpg {
             Entity.Sprite.Position = new Vector2(x,y);
 
             if (Tween.Finished) {
-                Controller.Change("wait");
+                Controller.Change(Character.DefaultState);
             }
         }
     }

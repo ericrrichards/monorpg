@@ -5,6 +5,11 @@ using MonoRpg.Engine;
 namespace MonoRpg {
     using System;
     using System.Collections.Generic;
+    using System.IO;
+
+    using MonoRpg.Engine.Tiled;
+
+    using Newtonsoft.Json;
 
     using System = MonoRpg.Engine.System;
 
@@ -15,7 +20,7 @@ namespace MonoRpg {
         private readonly GraphicsDeviceManager _graphics;
         private Renderer _renderer;
         private Content _content;
-        
+
 
         private Map _map;
         private Character _hero;
@@ -24,6 +29,7 @@ namespace MonoRpg {
         private Trigger _triggerTop;
         private Trigger _triggerBot;
         private Trigger _potTrigger;
+        private Character _npc;
 
         public Game1() {
             _graphics = new GraphicsDeviceManager(this) {
@@ -33,8 +39,8 @@ namespace MonoRpg {
             System.Init(_graphics);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
-
-
+            EntityDefs.Load("Content/entityDefs.json");
+            
         }
 
         /// <summary>
@@ -58,33 +64,40 @@ namespace MonoRpg {
             System.Content = _content;
             _renderer = new Renderer(GraphicsDevice, _content);
             _renderer.SetTextAlignment(TextAlignment.Center, TextAlignment.Center);
-            
-            _map = new Map(_content.LoadMap("Content/small_room.json"));
-            _map.GotoTile(5,5);
-            // TODO: use this.Content to load your game content here
-
-            var heroDef = new EntityDef {
-                Texture = "walk_cycle.png", 
-                Width = 16,
-                Height = 24,
-                StartFrame = 8,
-                TileX = 11,
-                TileY = 3,
-                Layer = 0
-            };
-            var frames = new List<List<int>> {
-                new List<int>{0, 1,2,3},
-                new List<int>{4,5,6,7},
-                new List<int>{8,9,10,11},
-                new List<int>{12,13,14,15}
-            };
-
-            _hero = new Character(new Entity(heroDef), _map, frames);
-            _hero.Controller.Change("wait");
-
-
 
             
+
+            var tiledMap = _content.LoadMap("Content/small_room.json");
+
+            tiledMap.OnWake = new List<MapAction> {
+                new MapAction {
+                    ID = "AddNPC",
+                    Params = new AddNPCParams{
+                        Character = "strolling_npc",
+                        X = 11,
+                        Y = 5
+                    }
+                },
+                new MapAction {
+                    ID="AddNPC",
+                    Params = new AddNPCParams{
+                        Character = "strolling_npc",
+                        X = 4,
+                        Y = 5
+                    }
+                }
+            };
+
+
+            _map = new Map(tiledMap);
+            _map.GotoTile(5, 5);
+
+            _hero = new Character(EntityDefs.Instance.Characters["hero"], _map);
+            _npc = new Character(EntityDefs.Instance.Characters["strolling_npc"], _map);
+            new TeleportAction(_map, 11, 5).Execute(null, _npc.Entity);
+
+
+
 
 
             _upDoorTeleport = new TeleportAction(_map, 11, 3);
@@ -95,7 +108,7 @@ namespace MonoRpg {
 
             _triggerTop = new Trigger(_downDoorTeleport);
             _triggerBot = new Trigger(_upDoorTeleport);
-            _potTrigger = new Trigger(onUse:_downDoorTeleport);
+            _potTrigger = new Trigger(onUse: _downDoorTeleport);
 
             _map.Triggers[0].Add(_map.CoordToIndex(10, 12), _triggerBot);
             _map.Triggers[0].Add(_map.CoordToIndex(11, 2), _triggerTop);
@@ -103,7 +116,7 @@ namespace MonoRpg {
             _map.Triggers[0].Add(_map.CoordToIndex(10, 3), _potTrigger);
         }
 
-        
+
 
         /// <summary>
         /// UnloadContent will be called once per game and is the place to unload
@@ -124,7 +137,9 @@ namespace MonoRpg {
                 Exit();
 
             _renderer.Translate(-_map.CamX, -_map.CamY);
-            _hero.Controller.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
+            var dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            _hero.Controller.Update(dt);
+            _npc.Controller.Update(dt);
 
             if (ks.IsKeyDown(Keys.Space)) {
                 var (x, y) = _hero.GetFacedTileCoords();
@@ -134,7 +149,7 @@ namespace MonoRpg {
             var playerPos = _hero.Entity.Sprite.Position;
             _map.CamX = (int)Math.Floor(playerPos.X);
             _map.CamY = (int)Math.Floor(playerPos.Y);
-                
+
 
             base.Update(gameTime);
         }
@@ -150,16 +165,19 @@ namespace MonoRpg {
                 if (i == _hero.Entity.Layer) {
                     _renderer.DrawSprite(_hero.Entity.Sprite);
                 }
+                if (i == _npc.Entity.Layer) {
+                    _renderer.DrawSprite(_npc.Entity.Sprite);
+                }
             }
-            
+
             _renderer.Render();
-            
+
             base.Draw(gameTime);
         }
-        
+
         private void Teleport(Entity entity, Map map) {
             var pos = map.GetTileFoot(entity.TileX, entity.TileY);
-            entity.Sprite.Position = new Vector2(pos.X, pos.Y + entity.Height/2);
+            entity.Sprite.Position = new Vector2(pos.X, pos.Y + entity.Height / 2);
         }
     }
 }

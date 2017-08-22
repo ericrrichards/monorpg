@@ -1,45 +1,44 @@
-namespace MonoRpg.Engine {
+﻿namespace MonoRpg.Engine {
     using global::System;
     using global::System.Collections.Generic;
+    using global::System.Diagnostics;
 
     public class Character {
-        public Entity Entity { get; set; }
-        public WaitState WaitState { get; }
-        public MoveState MoveState { get; }
+        public string DefaultState { get; set; }
+
         public StateMachine Controller { get; set; }
 
-        public List<List<int>> Animations { get; set; }
-
-        public List<int> UpAnimation => Animations[0];
-        public List<int> RightAnimation => Animations[1];
-        public List<int> DownAnimation => Animations[2];
-        public List<int> LeftAnimation => Animations[3];
+        public Entity Entity { get; private set; }
+        public Dictionary<Animations, List<int>> Animations { get; private set; }
         public Facing Facing { get; set; }
+        public Character(CharacterDef def, Map map) {
+            Debug.Assert(EntityDefs.Instance.Entities.ContainsKey(def.Entity));
+            var entityDef = EntityDefs.Instance.Entities[def.Entity];
 
+            Entity = new Entity(entityDef);
+            Animations = def.Animations;
+            Facing = def.Facing;
+            var states = new Dictionary<string, Func<State>>();
+            Controller = new StateMachine(states);
 
+            foreach (var stateName in def.Controller) {
+                Debug.Assert(EntityDefs.Instance.CharacterStates.ContainsKey(stateName));
+                var state = EntityDefs.Instance.CharacterStates[stateName];
+                Debug.Assert(!states.ContainsKey(stateName));
+                var instance = (State)Activator.CreateInstance(state, this, map);
+                states[instance.Name] = () => instance;
+            }
+            Controller.States = states;
 
-        public Character(Entity entity, Map map, List<List<int>> animations, Facing facing=Facing.Down) {
-            Animations = animations ??
-                new List<List<int>> {
-                    new List<int>{entity.StartFrame},
-                    new List<int> { entity.StartFrame },
-                    new List<int> { entity.StartFrame },
-                    new List<int>{entity.StartFrame}
-                };
-            Entity = entity;
-            Controller = new StateMachine(new Dictionary<string, Func<State>> {
-                { "wait", ()=>WaitState },
-                { "move", ()=>MoveState }
-            });
-            WaitState = new WaitState(this, map);
-            MoveState = new MoveState(this, map);
+            Controller.Change(def.State);
+            DefaultState = def.State;
 
-            Controller.Change(WaitState.Name);
-            Facing = facing;
         }
 
+        
+
         public (int x, int y) GetFacedTileCoords() {
-            int xInc=0, yInc=0;
+            int xInc = 0, yInc = 0;
             switch (Facing) {
                 case Facing.Up:
                     yInc = -1;
@@ -56,12 +55,5 @@ namespace MonoRpg.Engine {
             }
             return (Entity.TileX + xInc, Entity.TileY + yInc);
         }
-    }
-
-    public enum Facing {
-        Up = 0,
-        Right = 1,
-        Down = 2,
-        Left = 3
     }
 }

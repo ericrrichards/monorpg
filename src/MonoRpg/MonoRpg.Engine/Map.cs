@@ -36,6 +36,8 @@ namespace MonoRpg.Engine {
         public int BlockingTile { get; set; }
 
         public List<Dictionary<int, Trigger>> Triggers { get; set; }
+        public List<Dictionary<int, Entity>> Entities { get; set; }
+        public List<Dictionary<int, Character>> NPCs { get; set; }
 
         public int LayerCount {
             get {
@@ -59,6 +61,9 @@ namespace MonoRpg.Engine {
             for (var i = 0; i < LayerCount; i++) {
                 Triggers.Add(new Dictionary<int, Trigger>());
             }
+
+
+
 
             Sprite.Texture = TextureAtlas;
 

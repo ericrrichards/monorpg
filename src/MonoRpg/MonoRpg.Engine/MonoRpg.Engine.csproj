@@ -49,16 +49,20 @@
   <ItemGroup>
     <Compile Include="Action.cs" />
     <Compile Include="Animation.cs" />
+    <Compile Include="Animations.cs" />
     <Compile Include="Character.cs" />
+    <Compile Include="CharacterDef.cs" />
     <Compile Include="Content.cs" />
     <Compile Include="DrawSpriteCommand.cs" />
     <Compile Include="DrawTextCommand.cs" />
     <Compile Include="Entity.cs" />
+    <Compile Include="EntityDef.cs" />
+    <Compile Include="EntityDefs.cs" />
     <Compile Include="Enums.cs" />
+    <Compile Include="Facing.cs" />
     <Compile Include="IDrawCommand.cs" />
     <Compile Include="Map.cs" />
     <Compile Include="MoveParams.cs" />
-    <Compile Include="MoveState.cs" />
     <Compile Include="Renderer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Sprite.cs" />
@@ -71,7 +75,6 @@
     <Compile Include="Tiled\TileSet.cs" />
     <Compile Include="Trigger.cs" />
     <Compile Include="Tween.cs" />
-    <Compile Include="WaitState.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
