@@ -35,6 +35,13 @@ namespace MonoRpg.Engine {
         public List<Rectangle> UVs { get; set; }
         public int BlockingTile { get; set; }
 
+        public int LayerCount {
+            get {
+                Debug.Assert(MapDef.Layers.Count %3 == 0);
+                return MapDef.Layers.Count / 3;
+            }
+        }
+
         public Map(TiledMap mapDef) {
             MapDef = mapDef;
             TextureAtlas = System.Content.FindTexture(mapDef.TileSets[0].Image);
@@ -84,13 +91,21 @@ namespace MonoRpg.Engine {
         }
 
         public bool IsBlocked(int layer, int tileX, int tileY) {
-            var tile = GetTile(tileX, tileY, layer + 1);
-            return tile == BlockingTile;
+            try {
+                var tile = GetTile(tileX, tileY, layer + 2);
+                return tile == BlockingTile;
+            } catch (IndexOutOfRangeException) {
+                return true;
+            }
         }
 
         private int GetTile(int x, int y, int layer=0) {
             var tiles = MapDef.Layers[layer].Data;
-            return tiles[x + y * Width] - 1; // Tiled uses 1 as the first ID, instead of 0 like everything else in the world does.
+            var index = x + y * Width;
+            if (index < 0 || index >= tiles.Count)
+                throw new IndexOutOfRangeException();
+            else
+                return tiles[index] - 1; // Tiled uses 1 as the first ID, instead of 0 like everything else in the world does.
         }
 
         public void Goto(int x, int y) {
@@ -109,16 +124,32 @@ namespace MonoRpg.Engine {
 
 
         public void Render(Renderer renderer) {
+            RenderLayer(renderer, 0);
+        }
+
+        public void RenderLayer(Renderer renderer, int layer) {
+            var layerIndex = layer * 3;
+
             var (left, bottom) = PointToTile(CamX - System.ScreenWidth / 2, CamY - System.ScreenHeight / 2);
             var (right, top) = PointToTile(CamX + System.ScreenWidth / 2, CamY + System.ScreenHeight / 2);
 
+
             for (var j = top; j <= bottom; j++) {
                 for (var i = left; i <= right; i++) {
-                    var tile = GetTile(i, j);
-                    var uvs = UVs[tile];
-                    Sprite.SetUVs(uvs);
+                    var tile = GetTile(i, j, layerIndex);
+                    Rectangle uvs;
                     Sprite.Position = new Vector2(X + i * TileWidth, Y - j * TileHeight);
-                    renderer.DrawSprite(Sprite);
+                    if (tile >= 0) {
+                        uvs = UVs[tile];
+                        Sprite.SetUVs(uvs);
+                        renderer.DrawSprite(Sprite);
+                    }
+                    tile = GetTile(i, j, layerIndex+1);
+                    if (tile >= 0) {
+                        uvs = UVs[tile];
+                        Sprite.SetUVs(uvs);
+                        renderer.DrawSprite(Sprite);
+                    }
                 }
             }
         }

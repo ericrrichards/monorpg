@@ -63,8 +63,9 @@ namespace MonoRpg {
                 Width = 16,
                 Height = 24,
                 StartFrame = 8,
-                TileX = 10,
-                TileY = 2
+                TileX = 11,
+                TileY = 3,
+                Layer = 0
             };
             var frames = new List<List<int>> {
                 new List<int>{0, 1,2,3},
@@ -120,9 +121,14 @@ namespace MonoRpg {
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime) {
-
-            _map.Render(_renderer);
-            _renderer.DrawSprite(_hero.Entity.Sprite);
+            var layerCount = _map.LayerCount;
+            for (int i = 0; i < layerCount; i++) {
+                _map.RenderLayer(_renderer, i);
+                if (i == _hero.Entity.Layer) {
+                    _renderer.DrawSprite(_hero.Entity.Sprite);
+                }
+            }
+            
             _renderer.Render();
             
             base.Draw(gameTime);

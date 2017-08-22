@@ -20,6 +20,7 @@ namespace MonoRpg.Engine {
         public List<Rectangle> UVs { get; set; }
         public float X { get; set; }
         public float Y { get; set; }
+        public int Layer { get; set; }
 
         public Entity(EntityDef def) {
             Sprite = new Sprite();
@@ -29,6 +30,7 @@ namespace MonoRpg.Engine {
             TileX = def.TileX;
             TileY = def.TileY;
             StartFrame = def.StartFrame;
+            Layer = def.Layer;
 
             Sprite.Texture = Texture;
             UVs = Texture.GenerateUVs(Width, Height);
@@ -52,5 +54,6 @@ namespace MonoRpg.Engine {
         public int TileX { get; set; }
         public int TileY { get; set; }
         public int StartFrame { get; set; }
+        public int Layer { get; set; }
     }
 }
