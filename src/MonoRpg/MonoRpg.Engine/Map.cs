@@ -54,17 +54,17 @@ namespace MonoRpg.Engine {
             UVs = TextureAtlas.GenerateUVs( TileWidth, TileHeight );
         }
 
-        private (int x, int y) PointToTile(float x, float y) {
-            x += TileWidth / 2f;
-            y -= TileHeight / 2f;
+        private (int x, int y) PointToTile(int x, int y) {
+            x += TileWidth / 2;
+            y -= TileHeight / 2;
 
             x = Math.Max(X, x);
             y = Math.Min(Y, y);
             x = Math.Min(X + WidthInPixels - 1, x);
             y = Math.Max(Y - HeightInPixels + 1, y);
 
-            var tileX = (int)Math.Floor((x - X) / TileWidth);
-            var tileY = (int)Math.Floor((Y - y) / TileHeight);
+            var tileX = (int)Math.Floor((double)(x - X) / TileWidth);
+            var tileY = (int)Math.Floor((double)(Y - y) / TileHeight);
 
             return (tileX, tileY);
         }
@@ -72,6 +72,14 @@ namespace MonoRpg.Engine {
             return Tiles[x + y * Width] - 1; // Tiled uses 1 as the first ID, instead of 0 like everything else in the world does.
         }
 
+        public void Goto(int x, int y) {
+            CamX = x - System.ScreenWidth / 2;
+            CamY = -y  + System.ScreenHeight / 2;
+        }
+
+        public void GotoTile(int x, int y) {
+            Goto(x * TileWidth + TileWidth/2, y*TileHeight + TileHeight/2);
+        }
 
 
 
@@ -79,8 +87,8 @@ namespace MonoRpg.Engine {
             var (left, bottom) = PointToTile(CamX - System.ScreenWidth / 2, CamY - System.ScreenHeight / 2);
             var (right, top )= PointToTile(CamX + System.ScreenWidth / 2, CamY + System.ScreenHeight / 2);
 
-            for (var j = top; j < bottom; j++) {
-                for (var i = left; i < right; i++) {
+            for (var j = top; j <= bottom; j++) {
+                for (var i = left; i <= right; i++) {
                     var tile = GetTile(i, j);
                     var uvs = UVs[tile];
                     Sprite.SetUVs(uvs);

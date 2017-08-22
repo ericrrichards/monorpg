@@ -18,6 +18,12 @@ namespace MonoRpg.Engine {
         private readonly Queue<IDrawCommand> _drawQueue = new Queue<IDrawCommand>();
         private readonly Content _content;
 
+        private Vector2 Translation { get; set; }
+
+        public void Translate(int x, int y) {
+            Translation = new Vector2(x, -y);
+        }
+
         public Renderer(GraphicsDevice device, Content content) {
             _content = content;
             _device = device;
@@ -45,7 +51,7 @@ namespace MonoRpg.Engine {
         private Vector2 TranslateCoords(Vector2 p) {
             var x = p.X + _device.Viewport.Width / 2f;
             var y = -p.Y + _device.Viewport.Height / 2f;
-            return new Vector2(x,y);
+            return new Vector2(x,y) + Translation;
         }
         public void SetTextAlignment(TextAlignment horizontal, TextAlignment vertical) {
             if (vertical == TextAlignment.Left || vertical == TextAlignment.Right) {

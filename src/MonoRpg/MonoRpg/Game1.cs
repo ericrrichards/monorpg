@@ -23,8 +23,8 @@ namespace MonoRpg {
 
         public Game1() {
             _graphics = new GraphicsDeviceManager(this) {
-                PreferredBackBufferWidth = 256,
-                PreferredBackBufferHeight = 224
+                PreferredBackBufferWidth = 800,
+                PreferredBackBufferHeight = 600
             };
             System.Init(_graphics);
             Content.RootDirectory = "Content";
@@ -73,10 +73,27 @@ namespace MonoRpg {
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime) {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+            var ks = Keyboard.GetState();
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || ks.IsKeyDown(Keys.Escape))
                 Exit();
 
-            // TODO: Add your update logic here
+            _renderer.Translate(-_map.CamX, -_map.CamY);
+            if (ks.IsKeyDown(Keys.Left)) {
+                _map.CamX -= 1;
+            } else if (ks.IsKeyDown(Keys.Right)) {
+                _map.CamX += 1;
+            }
+            if (ks.IsKeyDown(Keys.Up)) {
+                _map.CamY += 1;
+            } else if (ks.IsKeyDown(Keys.Down)) {
+                _map.CamY -= 1;
+            }
+
+            if (ks.IsKeyDown(Keys.Space)) {
+                _map.GotoTile(10, 10);
+            }
+                
+                
 
             base.Update(gameTime);
         }
