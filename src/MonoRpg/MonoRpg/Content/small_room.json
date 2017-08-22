@@ -1,0 +1,37 @@
+{ "height":12,
+ "layers":[
+        {
+         "data":[1, 2, 3, 4, 2, 2, 3, 4, 5, 6, 10, 11, 12, 13, 14, 15, 13, 13, 14, 15, 16, 17, 21, 22, 94, 73, 73, 73, 73, 73, 73, 73, 73, 73, 73, 70, 94, 73, 73, 73, 73, 73, 73, 73, 73, 73, 73, 81, 94, 73, 73, 73, 1, 48, 48, 11, 73, 73, 73, 70, 94, 73, 73, 73, 23, 29, 29, 33, 73, 73, 73, 70, 94, 73, 73, 73, 45, 48, 48, 55, 73, 73, 73, 70, 94, 73, 73, 73, 73, 73, 73, 73, 73, 73, 73, 70, 94, 73, 73, 73, 73, 73, 73, 73, 73, 73, 73, 70, 94, 73, 73, 73, 73, 73, 73, 73, 73, 73, 73, 70, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 52, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 63, 66],
+         "height":12,
+         "name":"Tile Layer 1",
+         "opacity":1,
+         "type":"tilelayer",
+         "visible":true,
+         "width":12,
+         "x":0,
+         "y":0
+        }],
+ "nextobjectid":1,
+ "orientation":"orthogonal",
+ "renderorder":"right-down",
+ "tiledversion":"1.0.2",
+ "tileheight":16,
+ "tilesets":[
+        {
+         "columns":11,
+         "firstgid":1,
+         "image":"rpg_indoor.png",
+         "imageheight":192,
+         "imagewidth":176,
+         "margin":0,
+         "name":"rpg_indoor",
+         "spacing":0,
+         "tilecount":132,
+         "tileheight":16,
+         "tilewidth":16
+        }],
+ "tilewidth":16,
+ "type":"map",
+ "version":1,
+ "width":12
+}

@@ -51,7 +51,7 @@ namespace MonoRpg.Engine {
             WidthInPixels = Width * TileWidth;
             HeightInPixels = Height * TileHeight;
 
-            UVs = TextureAtlas.GenerateUVs( TileWidth, TileHeight );
+            UVs = TextureAtlas.GenerateUVs(TileWidth, TileHeight);
         }
 
         private (int x, int y) PointToTile(int x, int y) {
@@ -68,31 +68,35 @@ namespace MonoRpg.Engine {
 
             return (tileX, tileY);
         }
-        private int GetTile( int x, int y) {
+        private int GetTile(int x, int y) {
             return Tiles[x + y * Width] - 1; // Tiled uses 1 as the first ID, instead of 0 like everything else in the world does.
         }
 
         public void Goto(int x, int y) {
             CamX = x - System.ScreenWidth / 2;
-            CamY = -y  + System.ScreenHeight / 2;
+            CamY = -y + System.ScreenHeight / 2;
         }
 
         public void GotoTile(int x, int y) {
-            Goto(x * TileWidth + TileWidth/2, y*TileHeight + TileHeight/2);
+            Goto(x * TileWidth + TileWidth / 2, y * TileHeight + TileHeight / 2);
+        }
+
+        public Point GetTileFoot(int x, int y) {
+            return new Point(X + x * TileWidth, Y - y * TileHeight - TileHeight / 2);
         }
 
 
 
         public void Render(Renderer renderer) {
             var (left, bottom) = PointToTile(CamX - System.ScreenWidth / 2, CamY - System.ScreenHeight / 2);
-            var (right, top )= PointToTile(CamX + System.ScreenWidth / 2, CamY + System.ScreenHeight / 2);
+            var (right, top) = PointToTile(CamX + System.ScreenWidth / 2, CamY + System.ScreenHeight / 2);
 
             for (var j = top; j <= bottom; j++) {
                 for (var i = left; i <= right; i++) {
                     var tile = GetTile(i, j);
                     var uvs = UVs[tile];
                     Sprite.SetUVs(uvs);
-                    Sprite.Position = new Vector2(X + i* TileWidth, Y - j * TileHeight);
+                    Sprite.Position = new Vector2(X + i * TileWidth, Y - j * TileHeight);
                     renderer.DrawSprite(Sprite);
                 }
             }

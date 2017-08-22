@@ -1,12 +1,10 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoRpg.Engine;
 
 namespace MonoRpg {
+    using System;
     using System.Collections.Generic;
-
-    using MonoRpg.Engine.Tiled;
 
     using System = MonoRpg.Engine.System;
 
@@ -20,6 +18,7 @@ namespace MonoRpg {
         
 
         private Map _map;
+        private Character _hero;
 
         public Game1() {
             _graphics = new GraphicsDeviceManager(this) {
@@ -55,9 +54,27 @@ namespace MonoRpg {
             _renderer = new Renderer(GraphicsDevice, _content);
             _renderer.SetTextAlignment(TextAlignment.Center, TextAlignment.Center);
             
-            _map = new Map(_content.LoadMap("Content/larger_map.json"));
+            _map = new Map(_content.LoadMap("Content/small_room.json"));
+            _map.GotoTile(5,5);
             // TODO: use this.Content to load your game content here
+
+            var heroDef = new EntityDef {
+                Texture = "walk_cycle.png", 
+                Width = 16,
+                Height = 24,
+                StartFrame = 8,
+                TileX = 10,
+                TileY = 2
+            };
+            _hero = new Character(new Entity(heroDef), _map);
+            _hero.Controller.Change("wait");
+
+
+
+            Teleport(_hero.Entity, _map);
         }
+
+        
 
         /// <summary>
         /// UnloadContent will be called once per game and is the place to unload
@@ -78,21 +95,14 @@ namespace MonoRpg {
                 Exit();
 
             _renderer.Translate(-_map.CamX, -_map.CamY);
-            if (ks.IsKeyDown(Keys.Left)) {
-                _map.CamX -= 1;
-            } else if (ks.IsKeyDown(Keys.Right)) {
-                _map.CamX += 1;
-            }
-            if (ks.IsKeyDown(Keys.Up)) {
-                _map.CamY += 1;
-            } else if (ks.IsKeyDown(Keys.Down)) {
-                _map.CamY -= 1;
-            }
+            _hero.Controller.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
 
             if (ks.IsKeyDown(Keys.Space)) {
-                _map.GotoTile(10, 10);
+                _map.GotoTile(0, 0);
             }
-                
+            var playerPos = _hero.Entity.Sprite.Position;
+            _map.CamX = (int)Math.Floor(playerPos.X);
+            _map.CamY = (int)Math.Floor(playerPos.Y);
                 
 
             base.Update(gameTime);
@@ -105,9 +115,15 @@ namespace MonoRpg {
         protected override void Draw(GameTime gameTime) {
 
             _map.Render(_renderer);
-
+            _renderer.DrawSprite(_hero.Entity.Sprite);
             _renderer.Render();
+            
             base.Draw(gameTime);
+        }
+        
+        private void Teleport(Entity entity, Map map) {
+            var pos = map.GetTileFoot(entity.TileX, entity.TileY);
+            entity.Sprite.Position = new Vector2(pos.X, pos.Y + entity.Height/2);
         }
     }
 }
