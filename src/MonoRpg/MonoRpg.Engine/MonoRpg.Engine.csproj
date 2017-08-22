@@ -66,6 +66,8 @@
     <Compile Include="System.cs" />
     <Compile Include="Texture2DExtensions.cs" />
     <Compile Include="Tiled\TiledMap.cs" />
+    <Compile Include="Tiled\TileLayer.cs" />
+    <Compile Include="Tiled\TileSet.cs" />
     <Compile Include="Tween.cs" />
     <Compile Include="WaitState.cs" />
   </ItemGroup>

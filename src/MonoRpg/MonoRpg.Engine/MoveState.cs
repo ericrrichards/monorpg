@@ -60,6 +60,15 @@ namespace MonoRpg {
             PixelX = (int)pixelPos.X;
             PixelY = (int)pixelPos.Y;
             Tween = new Tween(0, TileWidth, MoveSpeed);
+
+            var targetX = Entity.TileX + data.X;
+            var targetY = Entity.TileY + data.Y;
+            if (Map.IsBlocked(0, targetX, targetY)) {
+                MoveX = 0;
+                MoveY = 0;
+                Entity.SetFrame(Animation.CurrentFrame);
+                Controller.Change("wait");
+            }
         }
 
         public override void Exit() {

@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace MonoRpg.Engine {
+    using global::System.Diagnostics;
+
     using Microsoft.Xna.Framework;
     using Microsoft.Xna.Framework.Graphics;
 
@@ -31,6 +33,7 @@ namespace MonoRpg.Engine {
         public int WidthInPixels { get; set; }
         public int HeightInPixels { get; set; }
         public List<Rectangle> UVs { get; set; }
+        public int BlockingTile { get; set; }
 
         public Map(TiledMap mapDef) {
             MapDef = mapDef;
@@ -52,7 +55,18 @@ namespace MonoRpg.Engine {
             HeightInPixels = Height * TileHeight;
 
             UVs = TextureAtlas.GenerateUVs(TileWidth, TileHeight);
+
+            foreach (var tileSet in mapDef.TileSets) {
+                if (tileSet.Name == "collision_graphic") {
+                    BlockingTile = tileSet.FirstGid-1;
+                    break;
+                }
+            }
+            Debug.Assert(BlockingTile > 0);
+
         }
+
+        
 
         private (int x, int y) PointToTile(int x, int y) {
             x += TileWidth / 2;
@@ -68,8 +82,15 @@ namespace MonoRpg.Engine {
 
             return (tileX, tileY);
         }
-        private int GetTile(int x, int y) {
-            return Tiles[x + y * Width] - 1; // Tiled uses 1 as the first ID, instead of 0 like everything else in the world does.
+
+        public bool IsBlocked(int layer, int tileX, int tileY) {
+            var tile = GetTile(tileX, tileY, layer + 1);
+            return tile == BlockingTile;
+        }
+
+        private int GetTile(int x, int y, int layer=0) {
+            var tiles = MapDef.Layers[layer].Data;
+            return tiles[x + y * Width] - 1; // Tiled uses 1 as the first ID, instead of 0 like everything else in the world does.
         }
 
         public void Goto(int x, int y) {

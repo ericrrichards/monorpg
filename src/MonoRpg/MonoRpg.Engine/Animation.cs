@@ -7,7 +7,7 @@ namespace MonoRpg.Engine {
 
         public int Index { get; set; }
 
-        public float SPF { get; set; }
+        public float SecPerFrame { get; set; }
 
         public float Time { get; set; }
 
@@ -16,17 +16,17 @@ namespace MonoRpg.Engine {
         public int CurrentFrame => Frames[Index];
         public bool Finished => Loop == false && Index >= Frames.Count;
 
-        public Animation(List<int> frames, bool loop = true, float spf = 0.12f) {
+        public Animation(List<int> frames, bool loop = true, float secPerFrame = 0.12f) {
             Frames = frames ?? new List<int> { 0 };
             Index = 0;
-            SPF = spf;
+            SecPerFrame = secPerFrame;
             Time = 0.0f;
             Loop = loop;
         }
 
         public void Update(float dt) {
             Time += dt;
-            if (Time > SPF) {
+            if (Time > SecPerFrame) {
                 Index++;
                 Time = 0;
 
