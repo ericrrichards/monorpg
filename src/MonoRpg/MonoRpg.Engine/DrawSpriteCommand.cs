@@ -7,6 +7,7 @@
         private readonly Vector2 _position;
         private readonly Rectangle? _sourceRect;
         private readonly Vector2 _scale;
+        public bool PixelArt { get; set; }
 
         public DrawSpriteCommand(Sprite sprite, Vector2 position) : this(sprite, position, Vector2.One) {
             
@@ -19,11 +20,14 @@
             _position = position + new Vector2(-width / 2f, -height / 2f);
             _sourceRect = sprite.SourceRectangle;
             _scale = scale;
+            PixelArt = sprite.PixelArt;
         }
 
         public void Draw(SpriteBatch spriteBatch) {
             //spriteBatch.Draw(_texture, _position, _sourceRect, Color.White);
             spriteBatch.Draw(_texture, _position, _sourceRect, Color.White, 0f, Vector2.Zero, _scale, SpriteEffects.None, 0f);
         }
+
+        
     }
 }

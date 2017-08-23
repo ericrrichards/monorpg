@@ -11,6 +11,7 @@ namespace MonoRpg.Engine {
 
         public Rectangle? SourceRectangle { get; private set; }
         public Vector2 Scale { get; set; }
+        public bool PixelArt { get; set; }
 
         public Sprite() {
             Scale = Vector2.One;

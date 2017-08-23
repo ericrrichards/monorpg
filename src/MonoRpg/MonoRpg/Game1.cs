@@ -27,7 +27,7 @@ namespace MonoRpg {
 
         private Map _map;
         private Character _hero;
-        private Panel _panel;
+        private Textbox _textBox;
 
         public Game1() {
             _graphics = new GraphicsDeviceManager(this) {
@@ -111,12 +111,17 @@ namespace MonoRpg {
 
             _hero.Entity.SetTilePosition(11, 3, 0, _map);
 
-            _panel = new Panel(new PanelParams { Texture = _content.FindTexture("simple_panel.png"), Size = 3 });
-            var left = -100;
-            var top = 0;
-            var right = 100;
-            var bottom = -100;
-            _panel.Position(left, top, right, bottom);
+            _textBox = new Textbox(new TextboxParams {
+                Text = "Hello",
+                TextScale = 2,
+                Size = new Rectangle(-100, 32, 200, 64),
+                TextBounds = new Vector4(10, -10, -10, 10),
+                PanelArgs = new PanelParams {
+                    Size = 3,
+                    Texture = _content.FindTexture("gradient_panel.png")
+                }
+            });
+            
         }
 
 
@@ -173,8 +178,7 @@ namespace MonoRpg {
                 _map.RenderLayer(_renderer, i, heroEntity);
 
             }
-            GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;
-            _panel.Render(_renderer);
+            _textBox.Render(_renderer);
 
             _renderer.Render();
 

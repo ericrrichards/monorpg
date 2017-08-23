@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MonoRpg.Engine.UI {
     using Microsoft.Xna.Framework;
@@ -13,6 +10,18 @@ namespace MonoRpg.Engine.UI {
         public int TileSize { get; set; }
         public List<Rectangle> UVs { get; set; }
         public Texture2D Texture { get; private set; }
+        private bool _pixelArt;
+        public bool PixelArt {
+            get {
+                return _pixelArt;
+            }
+            set {
+                _pixelArt = value;
+                foreach (var sprite in Tiles) {
+                    sprite.PixelArt = value;
+                }
+            }
+        }
 
         public Panel(PanelParams parameters) {
             Texture = parameters.Texture;
@@ -24,6 +33,7 @@ namespace MonoRpg.Engine.UI {
                 sprite.SetUVs(r);
                 Tiles.Add(sprite);
             }
+            PixelArt = true;
 
         }
 
@@ -65,6 +75,12 @@ namespace MonoRpg.Engine.UI {
                 }
             }
 
+        }
+
+        public void CenterPosition(int x, int y, int width, int height) {
+            var hWidth = width / 2;
+            var hHeight = height / 2;
+            Position(x-hWidth, y+hHeight, x+ hWidth, y- hHeight);
         }
 
         public void Render(Renderer renderer) {
