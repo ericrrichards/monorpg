@@ -38,18 +38,18 @@ namespace MonoRpg.Engine {
 
         public List<Dictionary<int, Trigger>> Triggers { get; set; }
         public Dictionary<int, Dictionary<int, Entity>> Entities { get; set; }
-        public List< Character> NPCs { get; set; }
+        public List<Character> NPCs { get; set; }
 
         public int LayerCount {
             get {
-                Debug.Assert(MapDef.Layers.Count %3 == 0);
+                Debug.Assert(MapDef.Layers.Count % 3 == 0);
                 return MapDef.Layers.Count / 3;
             }
         }
-        private static readonly Dictionary<string, Action<Map,MapActionParameters>> Actions = new Dictionary<string, Action<Map, MapActionParameters>> {
+        private static readonly Dictionary<string, Action<Map, MapActionParameters>> Actions = new Dictionary<string, Action<Map, MapActionParameters>> {
             {"AddNPC", AddNPC }
         };
-        
+
 
         public Map(TiledMap mapDef) {
             MapDef = mapDef;
@@ -84,7 +84,7 @@ namespace MonoRpg.Engine {
 
             foreach (var tileSet in mapDef.TileSets) {
                 if (tileSet.Name == "collision_graphic") {
-                    BlockingTile = tileSet.FirstGid-1;
+                    BlockingTile = tileSet.FirstGid - 1;
                     break;
                 }
             }
@@ -97,7 +97,7 @@ namespace MonoRpg.Engine {
 
         }
 
-        
+
 
         private (int x, int y) PointToTile(int x, int y) {
             x += TileWidth / 2;
@@ -117,13 +117,14 @@ namespace MonoRpg.Engine {
         public bool IsBlocked(int layer, int tileX, int tileY) {
             try {
                 var tile = GetTile(tileX, tileY, layer + 2);
-                return tile == BlockingTile;
+                var entity = GetEntity(tileX, tileY, layer);
+                return tile == BlockingTile || entity != null;
             } catch (IndexOutOfRangeException) {
                 return true;
             }
         }
 
-        private int GetTile(int x, int y, int layer=0) {
+        private int GetTile(int x, int y, int layer = 0) {
             var tiles = MapDef.Layers[layer].Data;
             var index = CoordToIndex(x, y);
             if (index < 0 || index >= tiles.Count)
@@ -162,10 +163,10 @@ namespace MonoRpg.Engine {
 
 
         public void Render(Renderer renderer) {
-            RenderLayer(renderer, 0 );
+            RenderLayer(renderer, 0);
         }
 
-        public void RenderLayer(Renderer renderer, int layer, Entity hero=null) {
+        public void RenderLayer(Renderer renderer, int layer, Entity hero = null) {
             var layerIndex = layer * 3;
 
             var (left, bottom) = PointToTile(CamX - System.ScreenWidth / 2, CamY - System.ScreenHeight / 2);
@@ -182,7 +183,7 @@ namespace MonoRpg.Engine {
                         Sprite.SetUVs(uvs);
                         renderer.DrawSprite(Sprite);
                     }
-                    tile = GetTile(i, j, layerIndex+1);
+                    tile = GetTile(i, j, layerIndex + 1);
                     if (tile >= 0) {
                         uvs = UVs[tile];
                         Sprite.SetUVs(uvs);

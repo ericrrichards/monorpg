@@ -72,19 +72,19 @@ namespace MonoRpg.States {
                 MoveY = 0;
                 Entity.SetFrame(Animation.CurrentFrame);
                 Controller.Change(Character.DefaultState);
+                return;
             }
+            if (MoveX != 0 || MoveY != 0) {
+                var trigger = Map.GetTrigger(Entity.Layer, Entity.TileX, Entity.TileY);
+                trigger?.OnExit.Execute(trigger, Entity);
+            }
+            Entity.SetTilePosition(Entity.TileX+MoveX, Entity.TileY+MoveY, Entity.Layer, Map);
+            Entity.Sprite.Position = pixelPos;
         }
 
         public override void Exit() {
-            Trigger trigger;
-            if (MoveX != 0 || MoveY != 0) {
-                trigger = Map.GetTrigger(Entity.Layer, Entity.TileX, Entity.TileY);
-                trigger?.OnExit.Execute(trigger, Entity);
-            }
-            Entity.SetTilePosition(Entity.TileX + MoveX, Entity.TileY + MoveY, Entity.Layer, Map);
-            
 
-            trigger = Map.GetTrigger(Entity.Layer, Entity.TileX, Entity.TileY);
+            var trigger = Map.GetTrigger(Entity.Layer, Entity.TileX, Entity.TileY);
             trigger?.OnEnter.Execute(trigger, Entity);
         }
 
