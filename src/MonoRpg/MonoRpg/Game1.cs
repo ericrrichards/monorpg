@@ -29,7 +29,6 @@ namespace MonoRpg {
         private Trigger _triggerTop;
         private Trigger _triggerBot;
         private Trigger _potTrigger;
-        private Character _npc;
 
         public Game1() {
             _graphics = new GraphicsDeviceManager(this) {
@@ -93,17 +92,16 @@ namespace MonoRpg {
             _map.GotoTile(5, 5);
 
             _hero = new Character(EntityDefs.Instance.Characters["hero"], _map);
-            _npc = new Character(EntityDefs.Instance.Characters["strolling_npc"], _map);
-            new TeleportAction(_map, 11, 5).Execute(null, _npc.Entity);
 
 
 
 
 
-            _upDoorTeleport = new TeleportAction(_map, 11, 3);
-            _upDoorTeleport.Execute(null, _hero.Entity);
+            _upDoorTeleport = new TeleportAction(_map, 11, 3, 0);
+            _downDoorTeleport = new TeleportAction(_map, 10, 11, 0);
+            _hero.Entity.SetTilePosition(11, 3, 0, _map);
 
-            _downDoorTeleport = new TeleportAction(_map, 10, 11);
+            
 
 
             _triggerTop = new Trigger(_downDoorTeleport);
@@ -139,7 +137,9 @@ namespace MonoRpg {
             _renderer.Translate(-_map.CamX, -_map.CamY);
             var dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
             _hero.Controller.Update(dt);
-            _npc.Controller.Update(dt);
+            foreach (var npc in _map.NPCs) {
+                npc.Controller.Update(dt);
+            }
 
             if (ks.IsKeyDown(Keys.Space)) {
                 var (x, y) = _hero.GetFacedTileCoords();
@@ -161,13 +161,12 @@ namespace MonoRpg {
         protected override void Draw(GameTime gameTime) {
             var layerCount = _map.LayerCount;
             for (int i = 0; i < layerCount; i++) {
-                _map.RenderLayer(_renderer, i);
+                Entity heroEntity = null;
                 if (i == _hero.Entity.Layer) {
-                    _renderer.DrawSprite(_hero.Entity.Sprite);
+                    heroEntity = _hero.Entity;
                 }
-                if (i == _npc.Entity.Layer) {
-                    _renderer.DrawSprite(_npc.Entity.Sprite);
-                }
+                _map.RenderLayer(_renderer, i, heroEntity);
+                
             }
 
             _renderer.Render();

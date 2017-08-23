@@ -4,29 +4,19 @@
         public int TileX { get; set; }
 
         public int TileY { get; set; }
-        public Action(Map map, int tileX, int tileY) {
+        public int Layer { get; set; }
+        public Action(Map map, int tileX, int tileY, int layer) {
             Map = map;
             TileX = tileX;
             TileY = tileY;
+            Layer = layer;
         }
 
         public abstract void Execute(Trigger trigger, Entity entity);
     }
 
     public class EmptyAction : Action {
-        public EmptyAction() : base(null, 0, 0) { }
+        public EmptyAction() : base(null, 0, 0, 0) { }
         public override void Execute(Trigger trigger, Entity entity) {  }
-    }
-
-    
-
-    public class TeleportAction : Action {
-        public TeleportAction(Map map, int tileX, int tileY) : base(map, tileX, tileY) { }
-
-        public override void Execute(Trigger trigger, Entity entity) {
-            entity.TileX = TileX;
-            entity.TileY = TileY;
-            entity.Teleport(Map);
-        }
     }
 }

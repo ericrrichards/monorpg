@@ -1,5 +1,6 @@
 namespace MonoRpg.Engine {
     using global::System.Collections.Generic;
+    using global::System.Diagnostics;
 
     using Microsoft.Xna.Framework;
     using Microsoft.Xna.Framework.Graphics;
@@ -41,7 +42,24 @@ namespace MonoRpg.Engine {
             Sprite.SetUVs(UVs[frame]);
         }
 
-        public void Teleport( Map map) {
+        public void Teleport(Map map) {
+            var pos = map.GetTileFoot(TileX, TileY);
+            Sprite.Position = new Vector2(pos.X, pos.Y + Height / 2);
+        }
+
+        public void SetTilePosition(int x, int y, int layer, Map map) {
+            if (map.GetEntity(TileX, TileY, Layer) == this) {
+                map.RemoveEntity(this);
+            }
+
+            if (map.GetEntity(x, y, layer) != null) {
+                Debug.Assert(false);
+            }
+
+            TileX = x;
+            TileY = y ;
+            Layer = layer;
+            map.AddEntity(this);
             var pos = map.GetTileFoot(TileX, TileY);
             Sprite.Position = new Vector2(pos.X, pos.Y + Height / 2);
         }

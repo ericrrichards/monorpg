@@ -81,10 +81,8 @@ namespace MonoRpg.States {
                 trigger = Map.GetTrigger(Entity.Layer, Entity.TileX, Entity.TileY);
                 trigger?.OnExit.Execute(trigger, Entity);
             }
-
-            Entity.TileX += MoveX;
-            Entity.TileY += MoveY;
-            Entity.Teleport(Map);
+            Entity.SetTilePosition(Entity.TileX + MoveX, Entity.TileY + MoveY, Entity.Layer, Map);
+            
 
             trigger = Map.GetTrigger(Entity.Layer, Entity.TileX, Entity.TileY);
             trigger?.OnEnter.Execute(trigger, Entity);

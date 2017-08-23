@@ -29,7 +29,8 @@ namespace MonoRpg.Engine.Tiled {
 
     public class AddNPCParams : MapActionParameters {
         public string Character { get; set; }
-        public int X { get; set; }
-        public int Y { get; set; }
+        public int? X { get; set; }
+        public int? Y { get; set; }
+        public int? Layer { get; set; }
     }
 }

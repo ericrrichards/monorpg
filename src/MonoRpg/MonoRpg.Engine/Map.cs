@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace MonoRpg.Engine {
     using global::System.Diagnostics;
+    using global::System.Security.AccessControl;
 
     using Microsoft.Xna.Framework;
     using Microsoft.Xna.Framework.Graphics;
@@ -36,8 +37,8 @@ namespace MonoRpg.Engine {
         public int BlockingTile { get; set; }
 
         public List<Dictionary<int, Trigger>> Triggers { get; set; }
-        public List<Dictionary<int, Entity>> Entities { get; set; }
-        public List<Dictionary<int, Character>> NPCs { get; set; }
+        public Dictionary<int, Dictionary<int, Entity>> Entities { get; set; }
+        public List< Character> NPCs { get; set; }
 
         public int LayerCount {
             get {
@@ -45,6 +46,10 @@ namespace MonoRpg.Engine {
                 return MapDef.Layers.Count / 3;
             }
         }
+        private static readonly Dictionary<string, Action<Map,MapActionParameters>> Actions = new Dictionary<string, Action<Map, MapActionParameters>> {
+            {"AddNPC", AddNPC }
+        };
+        
 
         public Map(TiledMap mapDef) {
             MapDef = mapDef;
@@ -58,6 +63,8 @@ namespace MonoRpg.Engine {
             TileHeight = mapDef.TileSets[0].TileHeight;
 
             Triggers = new List<Dictionary<int, Trigger>>();
+            Entities = new Dictionary<int, Dictionary<int, Entity>>();
+            NPCs = new List<Character>();
             for (var i = 0; i < LayerCount; i++) {
                 Triggers.Add(new Dictionary<int, Trigger>());
             }
@@ -82,6 +89,11 @@ namespace MonoRpg.Engine {
                 }
             }
             Debug.Assert(BlockingTile > 0);
+
+            foreach (var mapAction in mapDef.OnWake) {
+                var action = Actions[mapAction.ID];
+                action(this, mapAction.Params);
+            }
 
         }
 
@@ -150,10 +162,10 @@ namespace MonoRpg.Engine {
 
 
         public void Render(Renderer renderer) {
-            RenderLayer(renderer, 0);
+            RenderLayer(renderer, 0 );
         }
 
-        public void RenderLayer(Renderer renderer, int layer) {
+        public void RenderLayer(Renderer renderer, int layer, Entity hero=null) {
             var layerIndex = layer * 3;
 
             var (left, bottom) = PointToTile(CamX - System.ScreenWidth / 2, CamY - System.ScreenHeight / 2);
@@ -177,7 +189,70 @@ namespace MonoRpg.Engine {
                         renderer.DrawSprite(Sprite);
                     }
                 }
+                var entLayer = Entities.ContainsKey(layer) ? Entities[layer] : new Dictionary<int, Entity>();
+                var drawList = new List<Entity> { };
+                if (hero != null) {
+                    drawList.Add(hero);
+                }
+
+                foreach (var entity in entLayer) {
+                    drawList.Add(entity.Value);
+                }
+                drawList = drawList.OrderBy(e => e.TileY).ToList();
+                foreach (var entity in drawList) {
+                    renderer.DrawSprite(entity.Sprite);
+                }
             }
+        }
+
+
+
+        private static void AddNPC(Map map, MapActionParameters args) {
+            var npc = args as AddNPCParams;
+            if (npc == null) {
+                return;
+            }
+            Debug.Assert(EntityDefs.Instance.Characters.ContainsKey(npc.Character));
+            var charDef = EntityDefs.Instance.Characters[npc.Character];
+            var character = new Character(charDef, map);
+
+            var x = npc.X ?? character.Entity.TileX;
+            var y = npc.Y ?? character.Entity.TileY;
+            var layer = npc.Layer ?? character.Entity.Layer;
+
+            character.Entity.SetTilePosition(x, y, layer, map);
+
+            map.NPCs.Add(character);
+
+        }
+
+        public Entity GetEntity(int x, int y, int layer) {
+            if (!Entities.ContainsKey(layer)) {
+                return null;
+            }
+            var index = CoordToIndex(x, y);
+            if (!Entities[layer].ContainsKey(index)) {
+                return null;
+            }
+            return Entities[layer][index];
+        }
+
+        public void AddEntity(Entity entity) {
+            if (!Entities.ContainsKey(entity.Layer)) {
+                Entities[entity.Layer] = new Dictionary<int, Entity>();
+            }
+            var layer = Entities[entity.Layer];
+            var index = CoordToIndex(entity.TileX, entity.TileY);
+            Debug.Assert(!layer.ContainsKey(index) || layer[index] == entity);
+            layer[index] = entity;
+        }
+
+        public void RemoveEntity(Entity entity) {
+            Debug.Assert(Entities.ContainsKey(entity.Layer));
+            var layer = Entities[entity.Layer];
+            var index = CoordToIndex(entity.TileX, entity.TileY);
+            Debug.Assert(entity == layer[index]);
+            layer.Remove(index);
         }
     }
 }
