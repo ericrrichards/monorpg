@@ -7,7 +7,10 @@ namespace MonoRpg {
     using System.Collections.Generic;
     using System.IO;
 
+    using Microsoft.Xna.Framework.Graphics;
+
     using MonoRpg.Engine.Tiled;
+    using MonoRpg.Engine.UI;
 
     using Newtonsoft.Json;
 
@@ -24,20 +27,18 @@ namespace MonoRpg {
 
         private Map _map;
         private Character _hero;
-        private Trigger _triggerTop;
-        private Trigger _triggerBot;
-        private Trigger _potTrigger;
+        private Panel _panel;
 
         public Game1() {
             _graphics = new GraphicsDeviceManager(this) {
-                PreferredBackBufferWidth = 800,
-                PreferredBackBufferHeight = 600
+                PreferredBackBufferWidth = 640,
+                PreferredBackBufferHeight = 512
             };
             System.Init(_graphics);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
             EntityDefs.Load("Content/entityDefs.json");
-            
+
         }
 
         /// <summary>
@@ -61,8 +62,8 @@ namespace MonoRpg {
             System.Content = _content;
             _renderer = new Renderer(GraphicsDevice, _content);
             _renderer.SetTextAlignment(TextAlignment.Center, TextAlignment.Center);
+            //_renderer.ClearColor = Color.White;
 
-            
 
             var mapDef = _content.LoadMap("Content/small_room.json");
 
@@ -107,8 +108,15 @@ namespace MonoRpg {
 
 
 
-            
+
             _hero.Entity.SetTilePosition(11, 3, 0, _map);
+
+            _panel = new Panel(new PanelParams { Texture = _content.FindTexture("simple_panel.png"), Size = 3 });
+            var left = -100;
+            var top = 0;
+            var right = 100;
+            var bottom = -100;
+            _panel.Position(left, top, right, bottom);
         }
 
 
@@ -131,7 +139,7 @@ namespace MonoRpg {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || ks.IsKeyDown(Keys.Escape))
                 Exit();
 
-            _renderer.Translate(-_map.CamX, -_map.CamY);
+            //_renderer.Translate(-_map.CamX, -_map.CamY);
             var dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
             _hero.Controller.Update(dt);
             foreach (var npc in _map.NPCs) {
@@ -157,23 +165,20 @@ namespace MonoRpg {
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime) {
             var layerCount = _map.LayerCount;
-            for (int i = 0; i < layerCount; i++) {
+            for (var i = 0; i < layerCount; i++) {
                 Entity heroEntity = null;
                 if (i == _hero.Entity.Layer) {
                     heroEntity = _hero.Entity;
                 }
                 _map.RenderLayer(_renderer, i, heroEntity);
-                
+
             }
+            GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;
+            _panel.Render(_renderer);
 
             _renderer.Render();
 
             base.Draw(gameTime);
-        }
-
-        private void Teleport(Entity entity, Map map) {
-            var pos = map.GetTileFoot(entity.TileX, entity.TileY);
-            entity.Sprite.Position = new Vector2(pos.X, pos.Y + entity.Height / 2);
         }
     }
 }

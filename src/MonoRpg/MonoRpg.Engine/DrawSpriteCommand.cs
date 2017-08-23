@@ -2,22 +2,28 @@
     using Microsoft.Xna.Framework;
     using Microsoft.Xna.Framework.Graphics;
 
-    internal class DrawSpriteCommand : IDrawCommand {
+    internal struct DrawSpriteCommand : IDrawCommand {
         private readonly Texture2D _texture;
         private readonly Vector2 _position;
         private readonly Rectangle? _sourceRect;
+        private readonly Vector2 _scale;
 
-        public DrawSpriteCommand(Sprite sprite, Vector2 position) {
+        public DrawSpriteCommand(Sprite sprite, Vector2 position) : this(sprite, position, Vector2.One) {
+            
+        }
+
+        public DrawSpriteCommand(Sprite sprite, Vector2 position, Vector2 scale) {
             _texture = sprite.Texture;
             var width = sprite.SourceRectangle != null ? sprite.SourceRectangle.Value.Width : sprite.Width;
-            var height = sprite.SourceRectangle!= null ? sprite.SourceRectangle.Value.Height : sprite.Height;
-            _position = position + new Vector2(-width/2f, -height/2f);
+            var height = sprite.SourceRectangle != null ? sprite.SourceRectangle.Value.Height : sprite.Height;
+            _position = position + new Vector2(-width / 2f, -height / 2f);
             _sourceRect = sprite.SourceRectangle;
+            _scale = scale;
         }
 
         public void Draw(SpriteBatch spriteBatch) {
-
-            spriteBatch.Draw(_texture, _position, _sourceRect, Color.White);
+            //spriteBatch.Draw(_texture, _position, _sourceRect, Color.White);
+            spriteBatch.Draw(_texture, _position, _sourceRect, Color.White, 0f, Vector2.Zero, _scale, SpriteEffects.None, 0f);
         }
     }
 }

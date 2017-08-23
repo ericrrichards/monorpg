@@ -40,7 +40,7 @@ namespace MonoRpg.Engine {
         }
 
         public void DrawSprite(Sprite sprite) {
-            _drawQueue.Enqueue(new DrawSpriteCommand(sprite, TranslateCoords(sprite.Position)));
+            _drawQueue.Enqueue(new DrawSpriteCommand(sprite, TranslateCoords(sprite.Position), sprite.Scale));
         }
 
         private static Vector2 AlignText(Vector2 p, SpriteFont font, string text) {
@@ -67,7 +67,7 @@ namespace MonoRpg.Engine {
         public void Render() {
             _device.Clear(ClearColor);
 
-            _spriteBatch.Begin();
+            _spriteBatch.Begin(samplerState:SamplerState.PointClamp, blendState:BlendState.AlphaBlend);
 
             while (_drawQueue.Any()) {
                 var command = _drawQueue.Dequeue();

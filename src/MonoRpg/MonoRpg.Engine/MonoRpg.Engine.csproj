@@ -74,6 +74,7 @@
     <Compile Include="Tiled\TileSet.cs" />
     <Compile Include="Trigger.cs" />
     <Compile Include="Tween.cs" />
+    <Compile Include="UI\Panel.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -10,8 +10,10 @@ namespace MonoRpg.Engine {
         public int Height => Texture.Height;
 
         public Rectangle? SourceRectangle { get; private set; }
+        public Vector2 Scale { get; set; }
 
         public Sprite() {
+            Scale = Vector2.One;
             
         }
 
