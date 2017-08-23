@@ -76,7 +76,7 @@ namespace MonoRpg.States {
             }
             if (MoveX != 0 || MoveY != 0) {
                 var trigger = Map.GetTrigger(Entity.Layer, Entity.TileX, Entity.TileY);
-                trigger?.OnExit.Execute(trigger, Entity);
+                trigger?.OnExit(Entity);
             }
             Entity.SetTilePosition(Entity.TileX+MoveX, Entity.TileY+MoveY, Entity.Layer, Map);
             Entity.Sprite.Position = pixelPos;
@@ -85,7 +85,7 @@ namespace MonoRpg.States {
         public override void Exit() {
 
             var trigger = Map.GetTrigger(Entity.Layer, Entity.TileX, Entity.TileY);
-            trigger?.OnEnter.Execute(trigger, Entity);
+            trigger?.OnEnter(Entity);
         }
 
         public override void Render(Renderer renderer) { }

@@ -1,17 +1,21 @@
 ﻿namespace MonoRpg.Engine {
+    using global::System;
+
     public class Trigger {
-        public Action OnEnter { get; set; }
+        public Action<Entity> OnEnter { get; }
 
-        public Action OnExit { get; set; }
+        public Action<Entity> OnExit { get; }
 
-        public Action OnUse { get; set; }
+        public Action<Entity> OnUse { get; }
 
-        public Trigger(Action onEnter = null, Action onExit = null, Action onUse = null) {
-            OnEnter = onEnter ?? new EmptyAction();
-            OnExit = onExit ?? new EmptyAction();
-            OnUse = onUse ?? new EmptyAction();
+        public Trigger(Action<Entity> onEnter = null, Action<Entity> onExit = null, Action<Entity> onUse = null) {
+            OnEnter = onEnter ?? (entity => {}) ;
+            OnExit = onExit ?? (entity => {});
+            OnUse = onUse ?? (entity => {});
         }
 
         
     }
+
+
 }

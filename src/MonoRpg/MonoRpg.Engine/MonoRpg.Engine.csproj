@@ -47,7 +47,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Action.cs" />
     <Compile Include="Animation.cs" />
     <Compile Include="Animations.cs" />
     <Compile Include="Character.cs" />
@@ -69,7 +68,6 @@
     <Compile Include="State.cs" />
     <Compile Include="StateMachine.cs" />
     <Compile Include="System.cs" />
-    <Compile Include="TeleportAction.cs" />
     <Compile Include="Texture2DExtensions.cs" />
     <Compile Include="Tiled\TiledMap.cs" />
     <Compile Include="Tiled\TileLayer.cs" />

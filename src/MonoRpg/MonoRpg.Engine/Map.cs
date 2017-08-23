@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MonoRpg.Engine {
+﻿namespace MonoRpg.Engine {
+    using global::System;
+    using global::System.Collections.Generic;
     using global::System.Diagnostics;
-    using global::System.Security.AccessControl;
+    using global::System.Linq;
 
     using Microsoft.Xna.Framework;
     using Microsoft.Xna.Framework.Graphics;
@@ -36,9 +32,11 @@ namespace MonoRpg.Engine {
         public List<Rectangle> UVs { get; set; }
         public int BlockingTile { get; set; }
 
-        public List<Dictionary<int, Trigger>> Triggers { get; set; }
+        public Dictionary<int, Dictionary<int, Trigger>> Triggers { get; set; }
         public Dictionary<int, Dictionary<int, Entity>> Entities { get; set; }
         public List<Character> NPCs { get; set; }
+        public Dictionary<string, Action<Entity>> Actions { get; set; }
+        public Dictionary<string, Trigger> TriggerTypes { get; set; }
 
         public int LayerCount {
             get {
@@ -46,8 +44,9 @@ namespace MonoRpg.Engine {
                 return MapDef.Layers.Count / 3;
             }
         }
-        private static readonly Dictionary<string, Action<Map, MapActionParameters>> Actions = new Dictionary<string, Action<Map, MapActionParameters>> {
-            {"AddNPC", AddNPC }
+        private static readonly Dictionary<string, Action<Map, MapActionParameters, Entity>> ActionFuncs = new Dictionary<string, Action<Map, MapActionParameters, Entity>> {
+            {"AddNPC", AddNPC },
+            {"Teleport", Teleport }
         };
 
 
@@ -62,13 +61,10 @@ namespace MonoRpg.Engine {
             TileWidth = mapDef.TileSets[0].TileWidth;
             TileHeight = mapDef.TileSets[0].TileHeight;
 
-            Triggers = new List<Dictionary<int, Trigger>>();
+            Triggers = new Dictionary<int, Dictionary<int, Trigger>>();
             Entities = new Dictionary<int, Dictionary<int, Entity>>();
             NPCs = new List<Character>();
-            for (var i = 0; i < LayerCount; i++) {
-                Triggers.Add(new Dictionary<int, Trigger>());
-            }
-
+            
 
 
 
@@ -90,14 +86,55 @@ namespace MonoRpg.Engine {
             }
             Debug.Assert(BlockingTile > 0);
 
+            Actions = new Dictionary<string, Action<Entity>>();
+            foreach (var mapDefAction in mapDef.Actions) {
+                Debug.Assert(ActionFuncs.ContainsKey(mapDefAction.Value.ID));
+                void Action(Entity entity) => ActionFuncs[mapDefAction.Value.ID](this, mapDefAction.Value.Params, entity);
+                Actions[mapDefAction.Key] = Action;
+            }
+            TriggerTypes = new Dictionary<string, Trigger>();
+            foreach (var triggerType in mapDef.TriggerTypes) {
+                Action<Entity> enter = null;
+                Action<Entity> exit = null;
+                Action<Entity> use = null;
+                if (triggerType.Value.OnEnter != null) {
+                    enter = Actions[triggerType.Value.OnEnter];
+                }
+                if (triggerType.Value.OnExit != null) {
+                    exit = Actions[triggerType.Value.OnExit];
+                }
+                if (triggerType.Value.OnUse != null) {
+                    use = Actions[triggerType.Value.OnUse];
+                }
+                TriggerTypes[triggerType.Key] = new Trigger(enter, exit, use);
+
+            }
+
+            foreach (var triggerDef in mapDef.Triggers) {
+                var x = triggerDef.X;
+                var y = triggerDef.Y;
+                var layer = triggerDef.Layer;
+
+                if (!Triggers.ContainsKey(layer)) {
+                    Triggers[layer] = new Dictionary<int, Trigger>();
+                }
+
+                var targetLayer = Triggers[layer];
+                Debug.Assert(TriggerTypes.ContainsKey(triggerDef.Trigger));
+                var trigger = TriggerTypes[triggerDef.Trigger];
+                targetLayer[CoordToIndex(x, y)] = trigger;
+            }
+
+
+
             foreach (var mapAction in mapDef.OnWake) {
-                var action = Actions[mapAction.ID];
-                action(this, mapAction.Params);
+                var action = ActionFuncs[mapAction.ID];
+                action(this, mapAction.Params, null);
             }
 
         }
 
-
+        
 
         private (int x, int y) PointToTile(int x, int y) {
             x += TileWidth / 2;
@@ -129,8 +166,7 @@ namespace MonoRpg.Engine {
             var index = CoordToIndex(x, y);
             if (index < 0 || index >= tiles.Count)
                 throw new IndexOutOfRangeException();
-            else
-                return tiles[index] - 1; // Tiled uses 1 as the first ID, instead of 0 like everything else in the world does.
+            return tiles[index] - 1; // Tiled uses 1 as the first ID, instead of 0 like everything else in the world does.
         }
 
         public Trigger GetTrigger(int layer, int x, int y) {
@@ -191,7 +227,7 @@ namespace MonoRpg.Engine {
                     }
                 }
                 var entLayer = Entities.ContainsKey(layer) ? Entities[layer] : new Dictionary<int, Entity>();
-                var drawList = new List<Entity> { };
+                var drawList = new List<Entity>();
                 if (hero != null) {
                     drawList.Add(hero);
                 }
@@ -208,7 +244,7 @@ namespace MonoRpg.Engine {
 
 
 
-        private static void AddNPC(Map map, MapActionParameters args) {
+        private static void AddNPC(Map map, MapActionParameters args, Entity arg3) {
             var npc = args as AddNPCParams;
             if (npc == null) {
                 return;
@@ -225,6 +261,15 @@ namespace MonoRpg.Engine {
 
             map.NPCs.Add(character);
 
+        }
+
+        private static void Teleport(Map map, MapActionParameters args, Entity entity) {
+            var teleport = args as TeleportParams;
+            if (teleport == null) {
+                return;
+            }
+            
+            entity.SetTilePosition(teleport.X, teleport.Y, entity.Layer, map);
         }
 
         public Entity GetEntity(int x, int y, int layer) {

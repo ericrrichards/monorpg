@@ -12,9 +12,15 @@ namespace MonoRpg.Engine.Tiled {
         public List<TileLayer> Layers { get; set; }
         public List<TileSet> TileSets { get; set; }
         public List<MapAction> OnWake { get; set; }
+        public Dictionary<string, MapAction> Actions { get; set; }
+        public Dictionary<string, TriggerTypeDef> TriggerTypes { get; set; }
+        public List<TriggerDef> Triggers { get; set; }
 
         public TiledMap() {
             OnWake = new List<MapAction>();
+            Actions = new Dictionary<string, MapAction>();
+            TriggerTypes = new Dictionary<string, TriggerTypeDef>();
+            Triggers = new List<TriggerDef>();
         }
     }
 
@@ -24,7 +30,7 @@ namespace MonoRpg.Engine.Tiled {
     }
 
     public class MapActionParameters {
-        
+
     }
 
     public class AddNPCParams : MapActionParameters {
@@ -32,5 +38,23 @@ namespace MonoRpg.Engine.Tiled {
         public int? X { get; set; }
         public int? Y { get; set; }
         public int? Layer { get; set; }
+    }
+
+    public class TeleportParams : MapActionParameters {
+        public int X { get; set; }
+        public int Y { get; set; }
+    }
+
+    public struct TriggerTypeDef {
+        public string OnEnter { get; set; }
+        public string OnExit { get; set; }
+        public string OnUse { get; set; }
+    }
+
+    public struct TriggerDef {
+        public string Trigger { get; set; }
+        public int X { get; set; }
+        public int Y { get; set; }
+        public int Layer { get; set; }
     }
 }

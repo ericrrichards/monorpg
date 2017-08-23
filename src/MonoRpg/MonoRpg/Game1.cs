@@ -24,8 +24,6 @@ namespace MonoRpg {
 
         private Map _map;
         private Character _hero;
-        private TeleportAction _upDoorTeleport;
-        private TeleportAction _downDoorTeleport;
         private Trigger _triggerTop;
         private Trigger _triggerBot;
         private Trigger _potTrigger;
@@ -66,9 +64,9 @@ namespace MonoRpg {
 
             
 
-            var tiledMap = _content.LoadMap("Content/small_room.json");
+            var mapDef = _content.LoadMap("Content/small_room.json");
 
-            tiledMap.OnWake = new List<MapAction> {
+            mapDef.OnWake = new List<MapAction> {
                 new MapAction {
                     ID = "AddNPC",
                     Params = new AddNPCParams{
@@ -86,9 +84,22 @@ namespace MonoRpg {
                     }
                 }
             };
+            mapDef.Actions = new Dictionary<string, MapAction> {
+                {"tele_south", new MapAction{ ID = "Teleport", Params = new TeleportParams{X =11, Y=3}} },
+                {"tele_north", new MapAction{ID = "Teleport", Params = new TeleportParams{X=10, Y = 11}} }
+            };
+            mapDef.TriggerTypes = new Dictionary<string, TriggerTypeDef> {
+                {"north_door_trigger", new TriggerTypeDef{OnEnter = "tele_north"} },
+                {"south_door_trigger", new TriggerTypeDef{OnEnter = "tele_south"} },
+
+            };
+            mapDef.Triggers = new List<TriggerDef> {
+                new TriggerDef { Trigger = "north_door_trigger", X = 11, Y = 2 },
+                new TriggerDef { Trigger = "south_door_trigger", X = 10, Y = 12 }
+            };
 
 
-            _map = new Map(tiledMap);
+            _map = new Map(mapDef);
             _map.GotoTile(5, 5);
 
             _hero = new Character(EntityDefs.Instance.Characters["hero"], _map);
@@ -96,22 +107,8 @@ namespace MonoRpg {
 
 
 
-
-            _upDoorTeleport = new TeleportAction(_map, 11, 3, 0);
-            _downDoorTeleport = new TeleportAction(_map, 10, 11, 0);
-            _hero.Entity.SetTilePosition(11, 3, 0, _map);
-
             
-
-
-            _triggerTop = new Trigger(_downDoorTeleport);
-            _triggerBot = new Trigger(_upDoorTeleport);
-            _potTrigger = new Trigger(onUse: _downDoorTeleport);
-
-            _map.Triggers[0].Add(_map.CoordToIndex(10, 12), _triggerBot);
-            _map.Triggers[0].Add(_map.CoordToIndex(11, 2), _triggerTop);
-
-            _map.Triggers[0].Add(_map.CoordToIndex(10, 3), _potTrigger);
+            _hero.Entity.SetTilePosition(11, 3, 0, _map);
         }
 
 
@@ -144,7 +141,7 @@ namespace MonoRpg {
             if (ks.IsKeyDown(Keys.Space)) {
                 var (x, y) = _hero.GetFacedTileCoords();
                 var trigger = _map.GetTrigger(_hero.Entity.Layer, x, y);
-                trigger?.OnUse.Execute(trigger, _hero.Entity);
+                trigger?.OnUse(_hero.Entity);
             }
             var playerPos = _hero.Entity.Sprite.Position;
             _map.CamX = (int)Math.Floor(playerPos.X);
