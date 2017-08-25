@@ -80,7 +80,7 @@ namespace MonoRpg.Engine.UI {
             var textLeft = left + (Bounds.X * scale);
             var top = Y + Height / 2f * scale;
             var textTop = top + Bounds.Z * scale;
-            var bottom = Y - Height / 2 * scale;
+            var bottom = Y - Height / 2f * scale;
 
             var bounds = new TextboxBounds {
                 Left = left,
@@ -153,5 +153,4 @@ namespace MonoRpg.Engine.UI {
             renderer.DrawSprite(Sprite);
         }
     }
-    
 }

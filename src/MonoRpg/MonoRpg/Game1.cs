@@ -211,8 +211,9 @@ namespace MonoRpg {
             if (avatar != null) {
                 boundsLeft = avatar.Width + padding * 2;
                 wrap = width - boundsLeft - padding;
-                var sprite = new Sprite();
-                sprite.Texture = avatar;
+                var sprite = new Sprite {
+                    Texture = avatar
+                };
                 children.Add(new SpriteChild {
                     Sprite = sprite,
                     X = avatar.Width / 2 + padding,
