@@ -1,4 +1,6 @@
 namespace MonoRpg.Engine {
+    using global::System;
+
     public delegate float TweenFunc(float timePassed, float start, float distance, float duration);
     public class Tween {
         public bool Finished { get; set; }
@@ -42,6 +44,15 @@ namespace MonoRpg.Engine {
         public static float Linear(float timePassed, float start, float distance, float duration) {
             return distance * timePassed / duration + start;
         }
-        
+
+        public static float EaseOutCirc(float timePassed, float start, float distance, float duration) {
+            timePassed = timePassed / duration - 1;
+            return distance * (float)Math.Sqrt(1 - timePassed * timePassed) + start;
+        }
+
+        public static float EaseInCirc(float timePassed, float start, float distance, float duration) {
+            timePassed /= duration;
+            return -distance * ((float)Math.Sqrt(1 - timePassed * timePassed) - 1) + start;
+        }
     }
 }

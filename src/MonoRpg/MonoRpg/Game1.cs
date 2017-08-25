@@ -28,6 +28,8 @@ namespace MonoRpg {
         private Map _map;
         private Character _hero;
         private Textbox _textBox;
+        private bool _startText;
+        private float _keyboardBuffer = 0;
 
         public Game1() {
             _graphics = new GraphicsDeviceManager(this) {
@@ -118,7 +120,7 @@ namespace MonoRpg {
                 TextBounds = new Vector4(10, -10, -10, 10),
                 PanelArgs = new PanelParams {
                     Size = 3,
-                    Texture = _content.FindTexture("gradient_panel.png")
+                    Texture = _content.FindTexture("simple_panel.png")
                 }
             });
             
@@ -150,16 +152,30 @@ namespace MonoRpg {
             foreach (var npc in _map.NPCs) {
                 npc.Controller.Update(dt);
             }
-
-            if (ks.IsKeyDown(Keys.Space)) {
-                var (x, y) = _hero.GetFacedTileCoords();
-                var trigger = _map.GetTrigger(_hero.Entity.Layer, x, y);
-                trigger?.OnUse(_hero.Entity);
+            if (!_textBox.IsDead) {
+                _textBox.Update(dt);
+            } else {
+                //_startText = false;
             }
+
+            if (ks.IsKeyDown(Keys.Space) && _keyboardBuffer <= 0) {
+                if (!_startText) {
+                    _startText = true;
+                } else {
+                    _textBox.OnClick();
+                }
+                _keyboardBuffer = 0.2f;
+
+            }
+
+
             var playerPos = _hero.Entity.Sprite.Position;
             _map.CamX = (int)Math.Floor(playerPos.X);
             _map.CamY = (int)Math.Floor(playerPos.Y);
 
+            
+
+            _keyboardBuffer -= dt;
 
             base.Update(gameTime);
         }
@@ -178,8 +194,12 @@ namespace MonoRpg {
                 _map.RenderLayer(_renderer, i, heroEntity);
 
             }
-            _textBox.Render(_renderer);
-
+            if (_startText) {
+                _textBox.Render(_renderer);
+            } else {
+                _renderer.SetTextAlignment(TextAlignment.Center, TextAlignment.Center);
+                _renderer.DrawText2D(0,0, "Press Space");
+            }
             _renderer.Render();
 
             base.Draw(gameTime);

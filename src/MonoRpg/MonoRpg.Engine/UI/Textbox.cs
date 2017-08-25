@@ -13,6 +13,8 @@ namespace MonoRpg.Engine.UI {
         public int Y { get; set; }
         public int Width { get; set; }
         public int Height { get; set; }
+        public Tween AppearTween { get; set; }
+        public bool IsDead => AppearTween.Finished && AppearTween.Value == 0;
 
         public Textbox(TextboxParams parameters) {
             parameters = parameters ?? new TextboxParams();
@@ -20,7 +22,7 @@ namespace MonoRpg.Engine.UI {
 
             Text = parameters.Text;
             TextScale = parameters.TextScale;
-            Panel = new Panel(parameters.PanelArgs){PixelArt = false};
+            Panel = new Panel(parameters.PanelArgs){PixelArt = true};
             Size = parameters.Size;
             Bounds = parameters.TextBounds;
 
@@ -28,11 +30,22 @@ namespace MonoRpg.Engine.UI {
             Y = (Size.Top + Size.Bottom) / 2;
             Width = Math.Abs(Size.Right - Size.Left);
             Height = Math.Abs(Size.Top - Size.Bottom);
+            AppearTween = new Tween(0, 1, 0.4f, Tween.EaseOutCirc);
+        }
+
+        public void Update(float dt) {
+            AppearTween.Update(dt);
+        }
+
+        public void OnClick() {
+            if (!(AppearTween.Finished && AppearTween.Value == 1) ){
+                return;
+            }
+            AppearTween = new Tween(1,0,1.2f, Tween.EaseInCirc);
         }
 
         public void Render(Renderer renderer) {
-            var scale = 1f;
-            renderer.ScaleText(TextScale * scale);
+            var scale = AppearTween.Value;
             renderer.SetTextAlignment(TextAlignment.Left, TextAlignment.Top);
 
             Panel.CenterPosition(X, Y, (int)(Width*scale), (int)(Height* scale));
@@ -43,7 +56,7 @@ namespace MonoRpg.Engine.UI {
             var top = Y + Height / 2f * scale;
             var textTop = top + Bounds.Y * scale;
 
-            renderer.DrawText2D((int)textLeft, (int)textTop, Text, Color.White);
+            renderer.DrawText2D((int)textLeft, (int)textTop, Text, Color.White, TextScale * scale);
         }
 
         

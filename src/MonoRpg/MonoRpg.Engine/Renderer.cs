@@ -33,10 +33,14 @@ namespace MonoRpg.Engine {
             HorizontalAlignment = TextAlignment.Left;
         }
 
-        public void DrawText2D(int x, int y, string text, Color color) {
+        public void DrawText2D(int x, int y, string text, Color color, float scale) {
             var position = AlignText(TranslateCoords(new Vector2(x, y)), _content.DefaultFont, text);
-            var command = new DrawTextCommand(text, position, _content.DefaultFont, color);
+            var command = new DrawTextCommand(text, position, _content.DefaultFont, color, scale);
             _drawQueue.Enqueue(command);
+        }
+
+        public void DrawText2D(int x, int y, string text, Color color) {
+            DrawText2D(x,y,text, color, 1.0f);
         }
 
         public void DrawText2D(int x, int y, string text) {
@@ -90,7 +94,9 @@ namespace MonoRpg.Engine {
         }
 
         public void Render() {
+            _device.SetRenderTarget(null);
             _device.Clear(ClearColor);
+            
             var pixelArt = new Queue<IDrawCommand>(_drawQueue.Where(dq => dq.PixelArt));
             var blended = new Queue<IDrawCommand>(_drawQueue.Where(dq => !dq.PixelArt));
 
@@ -100,8 +106,6 @@ namespace MonoRpg.Engine {
                 var command = pixelArt.Dequeue();
                 command.Draw(_spriteBatch);
             }
-
-
             _spriteBatch.End();
 
             _spriteBatch.Begin(samplerState: SamplerState.LinearClamp);
@@ -113,9 +117,8 @@ namespace MonoRpg.Engine {
 
 
             _spriteBatch.End();
-
+            _drawQueue.Clear();
         }
-
-        public void ScaleText(float scale) { }
+        
     }
 }
