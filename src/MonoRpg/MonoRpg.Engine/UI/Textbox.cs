@@ -9,7 +9,6 @@ namespace MonoRpg.Engine.UI {
         public Rectangle Size { get; set; }
         public float TextScale { get; set; }
         public Panel Panel { get; private set; }
-        public string Text { get; set; }
         public int X { get; set; }
         public int Y { get; set; }
         public int Width { get; set; }
@@ -18,12 +17,21 @@ namespace MonoRpg.Engine.UI {
         public bool IsDead => AppearTween.Finished && AppearTween.Value == 0;
         public int Wrap { get; set; }
         public List<TextboxChild> Children { get; set; }
+        public List<string> Chunks { get; set; }
+        public int ChunkIndex { get; set; }
+        public Sprite ContinueMark { get; set; }
+        public float Time { get; set; }
 
         public Textbox(TextboxParams parameters) {
             parameters = parameters ?? new TextboxParams();
 
 
-            Text = parameters.Text;
+            Chunks = parameters.Text;
+            ChunkIndex = 0;
+            ContinueMark = new Sprite {
+                Texture = System.Content.FindTexture("continue_caret.png")
+            };
+            Time = 0f;
             TextScale = parameters.TextScale;
             Panel = new Panel(parameters.PanelArgs){PixelArt = true};
             Size = parameters.Size;
@@ -41,14 +49,24 @@ namespace MonoRpg.Engine.UI {
         
 
         public void Update(float dt) {
+            Time += dt;
             AppearTween.Update(dt);
         }
 
         public void OnClick() {
-            if (!(AppearTween.Finished && AppearTween.Value == 1) ){
-                return;
+            if (ChunkIndex >= Chunks.Count-1) {
+                if (!(AppearTween.Finished && AppearTween.Value == 1)) {
+                    return;
+                }
+                AppearTween = new Tween(1, 0, 1.2f, Tween.EaseInCirc);
+            } else {
+                ChunkIndex++;
             }
-            AppearTween = new Tween(1,0,1.2f, Tween.EaseInCirc);
+
+
+
+            
+            
         }
 
         public void Render(Renderer renderer) {
@@ -62,6 +80,7 @@ namespace MonoRpg.Engine.UI {
             var textLeft = left + (Bounds.X * scale);
             var top = Y + Height / 2f * scale;
             var textTop = top + Bounds.Z * scale;
+            var bottom = Y - Height / 2 * scale;
 
             var bounds = new TextboxBounds {
                 Left = left,
@@ -70,8 +89,15 @@ namespace MonoRpg.Engine.UI {
                 TextTop = textTop,
                 Scale = scale
             };
-
-            renderer.DrawText2D((int)textLeft, (int)textTop, Text, Color.White, TextScale * scale, Wrap);
+            if (scale >= 1.0f) {
+                renderer.DrawText2D((int)textLeft, (int)textTop, Chunks[ChunkIndex], Color.White, TextScale * scale, Wrap);
+            }
+            if (ChunkIndex < Chunks.Count-1) {
+                var offset = 12 + (float)Math.Floor(Math.Sin(Time * 10)) * scale;
+                ContinueMark.Scale = new Vector2(scale, scale);
+                ContinueMark.Position = new Vector2(X, bottom + offset);
+                renderer.DrawSprite(ContinueMark);
+            }
             foreach (var child in Children) {
                 child.Render(renderer, bounds, this);
             }
@@ -89,7 +115,7 @@ namespace MonoRpg.Engine.UI {
     }
 
     public class TextboxParams {
-        public string Text { get; set; }
+        public List<string> Text { get; set; }
         public float TextScale { get; set; }
         public PanelParams PanelArgs { get; set; }
         public Rectangle Size { get; set; }

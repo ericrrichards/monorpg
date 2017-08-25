@@ -140,7 +140,7 @@ namespace MonoRpg.Engine {
             foreach (var word in words) {
                 var size = spriteFont.MeasureString(word)*scale;
 
-                if (lineWidth + size.X < maxLineWidth) {
+                if (lineWidth + size.X+spaceWidth < maxLineWidth) {
                     sb.Append(word + " ");
                     lineWidth += size.X + spaceWidth;
                 } else {
@@ -150,6 +150,40 @@ namespace MonoRpg.Engine {
             }
 
             return sb.ToString();
+        }
+
+        public List<string> ChunkText(string text, float maxLineWidth, float scale, SpriteFont font = null) {
+            //maxLineWidth = maxLineWidth * 0.9f;
+            if (font == null) {
+                font = _content.DefaultFont;
+            }
+            var words = text.Split(' ');
+            var chunks = new List<string>();
+            var lineWidth = 0f;
+            var spaceWidth = font.MeasureString(" ").X * scale;
+            var sb = new StringBuilder();
+            foreach (var word in words) {
+                var size = font.MeasureString(word) * scale;
+
+                if (lineWidth + size.X < maxLineWidth) {
+                    sb.Append(word + " ");
+                    lineWidth += size.X + spaceWidth;
+                } else {
+                    chunks.Add(sb.ToString());
+
+                    sb = new StringBuilder(word + " ");
+                    lineWidth = size.X + spaceWidth;
+                }
+            }
+            if (!string.IsNullOrEmpty(sb.ToString())) {
+                chunks.Add(sb.ToString());
+            }
+
+            return chunks;
+        }
+
+        public float TextHeight(string text, int wrap) {
+            return (int)Math.Ceiling(MeasureText(text, wrap).Y) + _content.DefaultFont.LineSpacing/2;
         }
     }
 }

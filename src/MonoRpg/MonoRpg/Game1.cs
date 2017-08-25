@@ -6,6 +6,7 @@ namespace MonoRpg {
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Text;
 
     using Microsoft.Xna.Framework.Graphics;
 
@@ -28,9 +29,7 @@ namespace MonoRpg {
         private Map _map;
         private Character _hero;
         private Textbox _textBox;
-        private bool _startText;
         private float _keyboardBuffer = 0;
-        private Textbox _textBox2;
 
         public Game1() {
             _graphics = new GraphicsDeviceManager(this) {
@@ -114,21 +113,16 @@ namespace MonoRpg {
 
             _hero.Entity.SetTilePosition(11, 3, 0, _map);
 
-            _textBox = new Textbox(new TextboxParams {
-                Text = "Hello",
-                TextScale = 2,
-                Size = new Rectangle(-100, 32, 200, 64),
-                TextBounds = new Vector4(10, -10, -10, 10),
-                PanelArgs = new PanelParams {
-                    Size = 3,
-                    Texture = _content.FindTexture("simple_panel.png")
-                }
-            });
+            _textBox = CreateFixed(_renderer, -System.ScreenWidth/2+2, -System.ScreenHeight/2 , System.ScreenWidth-4, 102,
+                "A nation can survive its fools, and even the ambitious. But it cannot survive treason from within. An enemy at the gates is less formidable, " + 
+                "for he is known and carries his banner openly. But the traitor moves amongst those within the gate freely, his sly whispers rustling through " + 
+                "all the alleys, heard in the very halls of government itself. For the traitor appears not a traitor; he speaks in accents familiar to his " + 
+                "victims, and he wears their face and their arguments, he appeals to the baseness that lies deep in the hearts of all men. He rots the soul " + 
+                "of a nation, he works secretly and unknown in the night to undermine the pillars of the city, he infects the body politic so that it can no " + 
+                "longer resist. A murderer is less to fear.",
+                new FixedTextboxParameters()
+            );
 
-            _textBox2 = CreateFixed(_renderer, -100, -100, 320, 100, "It's dangerous to go alone! Take this.", new FixedTextboxParameters {
-                Title = "Charles:",
-                Avatar = _content.FindTexture("avatar.png")
-            });
 
         }
 
@@ -158,31 +152,22 @@ namespace MonoRpg {
             foreach (var npc in _map.NPCs) {
                 npc.Controller.Update(dt);
             }
-            if (!_textBox.IsDead) {
-                _textBox.Update(dt);
-            } else {
-                _startText = false;
-            }
-
-            if (ks.IsKeyDown(Keys.Space) && _keyboardBuffer <= 0) {
-                if (!_startText) {
-                    _startText = true;
-                } else {
-                    _textBox.OnClick();
-                }
-                _keyboardBuffer = 0.2f;
-
-            }
+            
 
 
             var playerPos = _hero.Entity.Sprite.Position;
             _map.CamX = (int)Math.Floor(playerPos.X);
             _map.CamY = (int)Math.Floor(playerPos.Y);
-
+            if (!_textBox.IsDead) {
+                _textBox.Update(dt);
+            }
+            if (ks.IsKeyDown(Keys.Space) && _keyboardBuffer < 0.0f) {
+                _textBox.OnClick();
+                _keyboardBuffer = 1.0f;
+            }
 
 
             _keyboardBuffer -= dt;
-            _textBox2.Update(dt);
 
             base.Update(gameTime);
         }
@@ -201,14 +186,9 @@ namespace MonoRpg {
                 _map.RenderLayer(_renderer, i, heroEntity);
 
             }
-            if (_startText) {
-                _textBox.Render(_renderer);
-            } else {
-                _renderer.SetTextAlignment(TextAlignment.Center, TextAlignment.Center);
-                _renderer.DrawText2D(0, 0, "Press Space");
-            }
+            
 
-            _textBox2.Render(_renderer);
+            _textBox.Render(_renderer);
 
             _renderer.Render();
 
@@ -217,11 +197,12 @@ namespace MonoRpg {
 
         public Textbox CreateFixed(Renderer renderer, int x, int y, int width, int height, string text, FixedTextboxParameters parameters) {
             var padding = 10;
-            var textScale = 1.5f;
+            var textScale = 1.25f;
             var panelTileSize = 3;
             var wrap = width - padding;
             var boundsTop = padding;
             var boundsLeft = padding;
+            var boundsBottom = padding;
 
             var children = new List<TextboxChild>();
             var avatar = parameters.Avatar;
@@ -244,11 +225,31 @@ namespace MonoRpg {
                 children.Add(new TextChild { Text = title, X = 0, Y = (int)(size.Y + padding) });
             }
 
+            var faceHeight = renderer.TextHeight(text.Substring(0, 1), wrap);
+                
+            var lines = renderer.ChunkText(text, wrap, textScale);
+            var chunks = new List<string>();
+            var currentHeight = 0f;
+            var boundsHeight = height - (boundsTop + boundsBottom);
+            var currentChunk = new StringBuilder();
+            foreach (var line in lines) {
+                if (currentHeight + faceHeight > boundsHeight) {
+                    currentHeight = faceHeight;
+                    chunks.Add(currentChunk.ToString().Trim());
+                    currentChunk = new StringBuilder(line);
+                } else {
+                    currentChunk.Append(line);
+                    currentHeight += faceHeight;
+                }
+            }
+            if (!string.IsNullOrEmpty(currentChunk.ToString())) {
+                chunks.Add(currentChunk.ToString());
+            }
 
 
 
             var textbox = new Textbox(new TextboxParams {
-                Text = text,
+                Text = chunks,
                 TextScale = textScale,
                 Size = new Rectangle(x, y, width, height),
                 TextBounds = new Vector4(boundsLeft, -padding, -boundsTop, padding),
