@@ -125,7 +125,10 @@ namespace MonoRpg {
                 }
             });
 
-            _textBox2 = CreateFixed(_renderer, 50, -100, 250, 64, "`Twas brillig, and the slithy toves");
+            _textBox2 = CreateFixed(_renderer, -100, -100, 320, 100, "It's dangerous to go alone! Take this.", new FixedTextboxParameters {
+                Title = "Charles:",
+                Avatar = _content.FindTexture("avatar.png")
+            });
 
         }
 
@@ -176,7 +179,7 @@ namespace MonoRpg {
             _map.CamX = (int)Math.Floor(playerPos.X);
             _map.CamY = (int)Math.Floor(playerPos.Y);
 
-            
+
 
             _keyboardBuffer -= dt;
             _textBox2.Update(dt);
@@ -202,7 +205,7 @@ namespace MonoRpg {
                 _textBox.Render(_renderer);
             } else {
                 _renderer.SetTextAlignment(TextAlignment.Center, TextAlignment.Center);
-                _renderer.DrawText2D(0,0, "Press Space");
+                _renderer.DrawText2D(0, 0, "Press Space");
             }
 
             _textBox2.Render(_renderer);
@@ -212,25 +215,57 @@ namespace MonoRpg {
             base.Draw(gameTime);
         }
 
-        public Textbox CreateFixed(Renderer renderer, int x, int y, int width, int height, string text) {
+        public Textbox CreateFixed(Renderer renderer, int x, int y, int width, int height, string text, FixedTextboxParameters parameters) {
             var padding = 10;
             var textScale = 1.5f;
             var panelTileSize = 3;
-            var wrap = width - padding * 2;
+            var wrap = width - padding;
+            var boundsTop = padding;
+            var boundsLeft = padding;
+
+            var children = new List<TextboxChild>();
+            var avatar = parameters.Avatar;
+            var title = parameters.Title;
+
+            if (avatar != null) {
+                boundsLeft = avatar.Width + padding * 2;
+                wrap = width - boundsLeft - padding;
+                var sprite = new Sprite();
+                sprite.Texture = avatar;
+                children.Add(new SpriteChild {
+                    Sprite = sprite,
+                    X = avatar.Width / 2 + padding,
+                    Y = -avatar.Height / 2
+                });
+            }
+            if (!string.IsNullOrEmpty(title)) {
+                var size = renderer.MeasureText(title, wrap);
+                boundsTop = (int)(size.Y + padding * 2);
+                children.Add(new TextChild { Text = title, X = 0, Y = (int)(size.Y + padding) });
+            }
+
+
+
 
             var textbox = new Textbox(new TextboxParams {
                 Text = text,
-                TextScale =  textScale,
+                TextScale = textScale,
                 Size = new Rectangle(x, y, width, height),
-                TextBounds = new Vector4(padding, -padding, -padding, padding),
+                TextBounds = new Vector4(boundsLeft, -padding, -boundsTop, padding),
                 Wrap = wrap,
                 PanelArgs = new PanelParams {
                     Texture = System.Content.FindTexture("simple_panel.png"),
                     Size = panelTileSize
-                }
+                },
+                Children = children
             });
 
             return textbox;
+        }
+
+        public class FixedTextboxParameters {
+            public Texture2D Avatar { get; set; }
+            public string Title { get; set; }
         }
 
     }

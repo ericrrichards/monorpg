@@ -1,5 +1,6 @@
 namespace MonoRpg.Engine.UI {
     using global::System;
+    using global::System.Collections.Generic;
 
     using Microsoft.Xna.Framework;
 
@@ -16,6 +17,7 @@ namespace MonoRpg.Engine.UI {
         public Tween AppearTween { get; set; }
         public bool IsDead => AppearTween.Finished && AppearTween.Value == 0;
         public int Wrap { get; set; }
+        public List<TextboxChild> Children { get; set; }
 
         public Textbox(TextboxParams parameters) {
             parameters = parameters ?? new TextboxParams();
@@ -33,6 +35,7 @@ namespace MonoRpg.Engine.UI {
             Height = Math.Abs(Size.Top - Size.Bottom);
             AppearTween = new Tween(0, 1, 0.4f, Tween.EaseOutCirc);
             Wrap = parameters.Wrap;
+            Children = parameters.Children;
         }
 
         
@@ -58,12 +61,31 @@ namespace MonoRpg.Engine.UI {
             var left = X - (Width / 2f * scale);
             var textLeft = left + (Bounds.X * scale);
             var top = Y + Height / 2f * scale;
-            var textTop = top + Bounds.Y * scale;
+            var textTop = top + Bounds.Z * scale;
+
+            var bounds = new TextboxBounds {
+                Left = left,
+                Top = top,
+                TextLeft = textLeft,
+                TextTop = textTop,
+                Scale = scale
+            };
 
             renderer.DrawText2D((int)textLeft, (int)textTop, Text, Color.White, TextScale * scale, Wrap);
+            foreach (var child in Children) {
+                child.Render(renderer, bounds, this);
+            }
         }
 
         
+    }
+
+    public class TextboxBounds {
+        public float Left { get; set; }
+        public float Top { get; set; }
+        public float TextLeft { get; set; }
+        public float TextTop { get; set; }
+        public float Scale { get; set; }
     }
 
     public class TextboxParams {
@@ -73,9 +95,37 @@ namespace MonoRpg.Engine.UI {
         public Rectangle Size { get; set; }
         public Vector4 TextBounds { get; set; }
         public int Wrap { get; set; }
+        public List<TextboxChild> Children { get; set; }
 
         public TextboxParams() {
             Wrap = -1;
+            Children = new List<TextboxChild>();
         }
     }
+
+    public abstract class TextboxChild {
+        public int X { get; set; }
+        public int Y { get; set; }
+
+        public abstract void Render(Renderer renderer, TextboxBounds bounds, Textbox textbox);
+    }
+
+    public class TextChild :TextboxChild{
+        public string Text { get; set; }
+
+        public override void Render(Renderer renderer, TextboxBounds bounds, Textbox textbox) {
+            renderer.DrawText2D((int)(bounds.TextLeft + (X * bounds.Scale)), (int)(bounds.TextTop + Y * bounds.Scale), Text, Color.White, bounds.Scale*textbox.TextScale);
+        }
+    }
+
+    public class SpriteChild : TextboxChild {
+        public Sprite Sprite { get; set; }
+
+        public override void Render(Renderer renderer, TextboxBounds bounds, Textbox textbox) {
+            Sprite.Position = new Vector2(bounds.Left + (X * bounds.Scale), bounds.Top + Y * bounds.Scale);
+            Sprite.Scale = new Vector2(bounds.Scale, bounds.Scale);
+            renderer.DrawSprite(Sprite);
+        }
+    }
+    
 }

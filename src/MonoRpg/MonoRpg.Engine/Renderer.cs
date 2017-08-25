@@ -124,6 +124,32 @@ namespace MonoRpg.Engine {
             _drawQueue.Clear();
         }
 
-        
+        public Vector2 MeasureText(string text, int wrap) {
+            if (wrap > 0) {
+                text = WrapText(_content.DefaultFont, text, wrap, 1.0f);
+            }
+            return _content.DefaultFont.MeasureString(text);
+        }
+
+        public static string WrapText(SpriteFont spriteFont, string text, float maxLineWidth, float scale) {
+            var words = text.Split(' ');
+            StringBuilder sb = new StringBuilder();
+            var lineWidth = 0f;
+            var spaceWidth = spriteFont.MeasureString(" ").X * scale;
+
+            foreach (var word in words) {
+                var size = spriteFont.MeasureString(word)*scale;
+
+                if (lineWidth + size.X < maxLineWidth) {
+                    sb.Append(word + " ");
+                    lineWidth += size.X + spaceWidth;
+                } else {
+                    sb.Append("\n" + word + " ");
+                    lineWidth = size.X + spaceWidth;
+                }
+            }
+
+            return sb.ToString();
+        }
     }
 }

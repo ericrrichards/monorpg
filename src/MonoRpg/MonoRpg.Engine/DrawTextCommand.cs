@@ -28,30 +28,9 @@
             if (Wrap == -1) {
                 spriteBatch.DrawString(_font, _text, _position, _color, 0, Vector2.Zero, new Vector2(Scale, Scale), SpriteEffects.None, 0);
             } else {
-                var text = WrapText(_font, _text, Wrap, Scale);
+                var text = Renderer.WrapText(_font, _text, Wrap, Scale);
                 spriteBatch.DrawString(_font, text, _position, _color, 0, Vector2.Zero, new Vector2(Scale, Scale), SpriteEffects.None, 0);
             }
-        }
-
-        private string WrapText(SpriteFont spriteFont, string text, float maxLineWidth, float scale) {
-            var words = text.Split(' ');
-            StringBuilder sb = new StringBuilder();
-            var lineWidth = 0f;
-            var spaceWidth = spriteFont.MeasureString(" ").X * scale;
-
-            foreach (var word in words) {
-                var size = spriteFont.MeasureString(word)*scale;
-
-                if (lineWidth + size.X < maxLineWidth) {
-                    sb.Append(word + " ");
-                    lineWidth += size.X + spaceWidth;
-                } else {
-                    sb.Append("\n" + word + " ");
-                    lineWidth = size.X + spaceWidth;
-                }
-            }
-
-            return sb.ToString();
         }
     }
 }
