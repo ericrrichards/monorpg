@@ -6,7 +6,7 @@ namespace MonoRpg.Engine.UI {
     public class Textbox {
         public Vector4 Bounds { get; set; }
         public Rectangle Size { get; set; }
-        public int TextScale { get; set; }
+        public float TextScale { get; set; }
         public Panel Panel { get; private set; }
         public string Text { get; set; }
         public int X { get; set; }
@@ -15,6 +15,7 @@ namespace MonoRpg.Engine.UI {
         public int Height { get; set; }
         public Tween AppearTween { get; set; }
         public bool IsDead => AppearTween.Finished && AppearTween.Value == 0;
+        public int Wrap { get; set; }
 
         public Textbox(TextboxParams parameters) {
             parameters = parameters ?? new TextboxParams();
@@ -31,7 +32,10 @@ namespace MonoRpg.Engine.UI {
             Width = Math.Abs(Size.Right - Size.Left);
             Height = Math.Abs(Size.Top - Size.Bottom);
             AppearTween = new Tween(0, 1, 0.4f, Tween.EaseOutCirc);
+            Wrap = parameters.Wrap;
         }
+
+        
 
         public void Update(float dt) {
             AppearTween.Update(dt);
@@ -56,7 +60,7 @@ namespace MonoRpg.Engine.UI {
             var top = Y + Height / 2f * scale;
             var textTop = top + Bounds.Y * scale;
 
-            renderer.DrawText2D((int)textLeft, (int)textTop, Text, Color.White, TextScale * scale);
+            renderer.DrawText2D((int)textLeft, (int)textTop, Text, Color.White, TextScale * scale, Wrap);
         }
 
         
@@ -64,9 +68,14 @@ namespace MonoRpg.Engine.UI {
 
     public class TextboxParams {
         public string Text { get; set; }
-        public int TextScale { get; set; }
+        public float TextScale { get; set; }
         public PanelParams PanelArgs { get; set; }
         public Rectangle Size { get; set; }
         public Vector4 TextBounds { get; set; }
+        public int Wrap { get; set; }
+
+        public TextboxParams() {
+            Wrap = -1;
+        }
     }
 }

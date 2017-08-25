@@ -33,10 +33,14 @@ namespace MonoRpg.Engine {
             HorizontalAlignment = TextAlignment.Left;
         }
 
-        public void DrawText2D(int x, int y, string text, Color color, float scale) {
-            var position = AlignText(TranslateCoords(new Vector2(x, y)), _content.DefaultFont, text);
-            var command = new DrawTextCommand(text, position, _content.DefaultFont, color, scale);
+        public void DrawText2D(int x, int y, string text, Color color, float scale, int wrap) {
+            ; var position = AlignText(TranslateCoords(new Vector2(x, y)), _content.DefaultFont, text);
+            var command = new DrawTextCommand(text, position, _content.DefaultFont, color, scale, wrap);
             _drawQueue.Enqueue(command);
+        }
+
+        public void DrawText2D(int x, int y, string text, Color color, float scale) {
+            DrawText2D(x,y,text, color, scale, -1);
         }
 
         public void DrawText2D(int x, int y, string text, Color color) {
@@ -119,6 +123,7 @@ namespace MonoRpg.Engine {
             _spriteBatch.End();
             _drawQueue.Clear();
         }
+
         
     }
 }

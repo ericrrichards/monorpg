@@ -30,6 +30,7 @@ namespace MonoRpg {
         private Textbox _textBox;
         private bool _startText;
         private float _keyboardBuffer = 0;
+        private Textbox _textBox2;
 
         public Game1() {
             _graphics = new GraphicsDeviceManager(this) {
@@ -123,7 +124,9 @@ namespace MonoRpg {
                     Texture = _content.FindTexture("simple_panel.png")
                 }
             });
-            
+
+            _textBox2 = CreateFixed(_renderer, 50, -100, 250, 64, "`Twas brillig, and the slithy toves");
+
         }
 
 
@@ -155,7 +158,7 @@ namespace MonoRpg {
             if (!_textBox.IsDead) {
                 _textBox.Update(dt);
             } else {
-                //_startText = false;
+                _startText = false;
             }
 
             if (ks.IsKeyDown(Keys.Space) && _keyboardBuffer <= 0) {
@@ -176,6 +179,7 @@ namespace MonoRpg {
             
 
             _keyboardBuffer -= dt;
+            _textBox2.Update(dt);
 
             base.Update(gameTime);
         }
@@ -200,9 +204,34 @@ namespace MonoRpg {
                 _renderer.SetTextAlignment(TextAlignment.Center, TextAlignment.Center);
                 _renderer.DrawText2D(0,0, "Press Space");
             }
+
+            _textBox2.Render(_renderer);
+
             _renderer.Render();
 
             base.Draw(gameTime);
         }
+
+        public Textbox CreateFixed(Renderer renderer, int x, int y, int width, int height, string text) {
+            var padding = 10;
+            var textScale = 1.5f;
+            var panelTileSize = 3;
+            var wrap = width - padding * 2;
+
+            var textbox = new Textbox(new TextboxParams {
+                Text = text,
+                TextScale =  textScale,
+                Size = new Rectangle(x, y, width, height),
+                TextBounds = new Vector4(padding, -padding, -padding, padding),
+                Wrap = wrap,
+                PanelArgs = new PanelParams {
+                    Texture = System.Content.FindTexture("simple_panel.png"),
+                    Size = panelTileSize
+                }
+            });
+
+            return textbox;
+        }
+
     }
 }
