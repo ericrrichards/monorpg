@@ -28,9 +28,9 @@ namespace MonoRpg {
 
         private Map _map;
         private Character _hero;
-        private float _keyboardBuffer = 0;
-        private ProgressBar _bar;
-        private Tween _tween;
+        private Scrollbar _bar1;
+        private Scrollbar _bar2;
+        private Scrollbar _bar3;
 
         public Game1() {
             _graphics = new GraphicsDeviceManager(this) {
@@ -109,19 +109,26 @@ namespace MonoRpg {
             _hero = new Character(EntityDefs.Instance.Characters["hero"], _map);
 
 
+            _bar1 = new Scrollbar(_content.FindTexture("scrollbar.png"), 100);
+            _bar2 = new Scrollbar(_content.FindTexture("scrollbar.png"), 200);
+            _bar3 = new Scrollbar(_content.FindTexture("scrollbar.png"), 75);
 
+            _bar1.SetScrollCaretScale(0.5f);
+            _bar1.SetNormalValue(0.5f);
+            _bar1.SetPosition(250, 10);
+
+            _bar2.SetScrollCaretScale(0.3f);
+            _bar2.SetNormalValue(0.0f);
+            _bar2.SetPosition(200, 0);
+
+            _bar3.SetScrollCaretScale(0.1f);
+            _bar3.SetNormalValue(1f);
+            _bar3.SetPosition(150, -10);
 
 
             _hero.Entity.SetTilePosition(11, 3, 0, _map);
 
             
-            _bar = new ProgressBar(new ProgressBarArgs() {
-                X = 0,
-                Y = 0,
-                Background = _content.FindTexture("background.png"),
-                Foreground = _content.FindTexture("foreground.png")
-            });
-            _tween = new Tween(1, 0, 1);
         }
 
 
@@ -157,14 +164,7 @@ namespace MonoRpg {
             _map.CamX = (int)Math.Floor(playerPos.X);
             _map.CamY = (int)Math.Floor(playerPos.Y);
             
-            _keyboardBuffer -= dt;
 
-            _tween.Update(dt);
-            var v = _tween.Value;
-            _bar.SetValue(v);
-            if (_tween.Finished) {
-                _tween = new Tween(v, Math.Abs(v-1), 1);
-            }
 
 
             base.Update(gameTime);
@@ -184,7 +184,10 @@ namespace MonoRpg {
                 _map.RenderLayer(_renderer, i, heroEntity);
 
             }
-            _bar.Render(_renderer);
+            _bar1.Render(_renderer);
+            _bar2.Render(_renderer);
+            _bar3.Render(_renderer);
+
             _renderer.Render();
 
             base.Draw(gameTime);

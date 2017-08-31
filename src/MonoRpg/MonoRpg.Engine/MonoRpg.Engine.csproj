@@ -76,6 +76,7 @@
     <Compile Include="Tween.cs" />
     <Compile Include="UI\Panel.cs" />
     <Compile Include="UI\ProgressBar.cs" />
+    <Compile Include="UI\Scrollbar.cs" />
     <Compile Include="UI\Selection.cs" />
     <Compile Include="UI\Textbox.cs" />
   </ItemGroup>
