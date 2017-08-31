@@ -114,14 +114,13 @@ namespace MonoRpg {
 
             _hero.Entity.SetTilePosition(11, 3, 0, _map);
 
-            var width = System.ScreenWidth - 4;
-            var height = 102;
-            var x = -System.ScreenWidth/2+2;
-            var y = -System.ScreenHeight / 2 ;
+            
+            var x = -System.ScreenWidth/2+150;
+            var y = -0;
             var text = "Should I join your party?";
             var title = "NPC:";
             var avatar = _content.FindTexture("avatar.png");
-            _textbox = CreateFixed(_renderer, x,y,width, height, text, new FixedTextboxParameters {
+            _textbox = CreateFitted(_renderer, x,y, text, 300, new FixedTextboxParameters {
                 Title = title,
                 Avatar = avatar,
                 Choices = new SelectionArgs(new List<string>(){"Yes", "No"}) {
@@ -233,12 +232,12 @@ namespace MonoRpg {
             }
 
             if (!string.IsNullOrEmpty(title)) {
-                var size = renderer.MeasureText(title, wrap);
+                var size = renderer.MeasureText(title, wrap, textScale);
                 boundsTop = (int)(size.Y + padding * 2);
-                children.Add(new TextChild { Text = title, X = 0, Y = (int)(size.Y + padding) });
+                children.Add(new TextChild { Text = title, X = 0, Y = (int)size.Y });
             }
 
-            var faceHeight = renderer.TextHeight(text.Substring(0, 1), wrap);
+            var faceHeight = renderer.TextHeight(text.Substring(0, 1), wrap, textScale);
                 
             var lines = renderer.ChunkText(text, wrap, textScale);
             var chunks = new List<string>();
@@ -276,6 +275,38 @@ namespace MonoRpg {
             });
 
             return textbox;
+        }
+
+        public Textbox CreateFitted(Renderer renderer, int x, int y, string text, int wrap, FixedTextboxParameters args) {
+            var choices = args.Choices;
+            var title = args.Title;
+            var avatar = args.Avatar;
+
+            var padding = 10;
+            var panelTileSize = 3;
+            var textScale = 1.25f;
+
+            var size = renderer.MeasureText(text, wrap, textScale);
+            var width = (int)(size.X + padding * 2);
+            var height = (int)(size.Y + padding * 2);
+
+            if (choices != null) {
+                var selectionMenu = new Selection(renderer, choices);
+                height += selectionMenu.GetHeight() + padding * 4;
+                width = Math.Max(width, selectionMenu.GetWidth() + padding*2);
+            }
+            if (!string.IsNullOrEmpty(title)) {
+                var titleSize = renderer.MeasureText(title, wrap, textScale);
+                height += (int)(titleSize.Y + padding);
+                width = Math.Max(width, (int)(size.X + padding*2));
+            }
+            if (avatar != null) {
+                var avatarWidth = avatar.Width;
+                var avatarHeight = avatar.Height;
+                width += avatarWidth + padding;
+                height = Math.Max(height, avatarHeight + padding);
+            }
+            return CreateFixed(renderer, x, y, width, height, text, args);
         }
 
         public class FixedTextboxParameters {

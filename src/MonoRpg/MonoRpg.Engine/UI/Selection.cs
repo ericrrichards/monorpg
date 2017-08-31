@@ -52,7 +52,7 @@ namespace MonoRpg.Engine.UI {
             Height = CalcHeight();
         }
 
-        public void RenderItemFunc(Renderer renderer, int x, int y, string item) {
+        private void RenderItemFunc(Renderer renderer, int x, int y, string item) {
             if (string.IsNullOrEmpty(item)) {
                 renderer.DrawText2D(x, y, "--", Color.White, Scale*TextScale);
             } else {
@@ -76,36 +76,36 @@ namespace MonoRpg.Engine.UI {
             }
         }
 
-        public void MoveUp() {
+        private void MoveUp() {
             FocusY = Math.Max(FocusY - 1, 0);
             if (FocusY < DisplayStart) {
                 MoveDisplayUp();
             }
         }
 
-        public void MoveDown() {
+        private void MoveDown() {
             FocusY = Math.Min(FocusY + 1, MaxRows - 1);
             if (FocusY >= DisplayStart + DisplayRows) {
                 MoveDisplayDown();
             }
         }
 
-        public void MoveLeft() {
+        private void MoveLeft() {
             FocusX = Math.Max(FocusX - 1, 0);
         }
 
-        public void MoveRight() {
+        private void MoveRight() {
             FocusX = Math.Min(FocusX + 1, Columns - 1);
         }
 
-        public void OnClick() {
+        private void OnClick() {
             var index = GetIndex();
             OnSelection(index, DataSource[index]);
         }
 
-        public void MoveDisplayUp() { DisplayStart -= 1; }
-        public void MoveDisplayDown() { DisplayStart += 1; }
-        public int GetIndex() { return FocusX + FocusY * Columns; }
+        private void MoveDisplayUp() { DisplayStart -= 1; }
+        private void MoveDisplayDown() { DisplayStart += 1; }
+        private int GetIndex() { return FocusX + FocusY * Columns; }
 
         public void Render(Renderer renderer) {
             var displayStart = DisplayStart;
@@ -115,7 +115,6 @@ namespace MonoRpg.Engine.UI {
             var y = Y;
 
             var cursorWidth = CursorWidth * Scale;
-            var cursorHalfWidth = cursorWidth / 2;
 
             var spacingX = SpacingX * Scale;
             var rowHeight = SpacingY * Scale;
@@ -123,8 +122,8 @@ namespace MonoRpg.Engine.UI {
             Cursor.Scale = new Vector2(Scale);
 
             var itemIndex = displayStart * Columns;
-            for (int i = displayStart; i < displayEnd; i++) {
-                for (int j = 0; j < Columns; j++) {
+            for (var i = displayStart; i < displayEnd; i++) {
+                for (var j = 0; j < Columns; j++) {
                     if (i == FocusY && j == FocusX && DisplayCursor) {
                         Cursor.Position = new Vector2(x, y);
                         renderer.DrawSprite(Cursor);
@@ -146,7 +145,7 @@ namespace MonoRpg.Engine.UI {
             if (Columns == 1) {
                 var maxEntryWidth = 0;
                 foreach (var item in DataSource) {
-                    var width = renderer.MeasureText(item, -1).X;
+                    var width = renderer.MeasureText(item, -1, TextScale).X;
                     maxEntryWidth = (int)Math.Max(width, maxEntryWidth);
                 }
                 return maxEntryWidth;

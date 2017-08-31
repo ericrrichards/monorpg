@@ -1,6 +1,7 @@
 namespace MonoRpg.Engine.UI {
     using global::System;
     using global::System.Collections.Generic;
+    using global::System.Linq;
 
     using Microsoft.Xna.Framework;
     using Microsoft.Xna.Framework.Input;
@@ -69,9 +70,14 @@ namespace MonoRpg.Engine.UI {
         }
 
         public void HandleInput(float dt) {
-            if (_keyboardBuffer <= 0.0f) {
+            if (IsDead) {
+                return;
+            }
+            var ks = Keyboard.GetState();
+            if (ks.GetPressedKeys().Any() && _keyboardBuffer <= 0.0f) {
                 SelectionMenu?.HandleInput();
-                if (Keyboard.GetState().IsKeyDown(Keys.Space)) {
+                
+                if (ks.IsKeyDown(Keys.Space)) {
                     OnClick();
                 }
                 _keyboardBuffer = 0.1f;
@@ -107,8 +113,7 @@ namespace MonoRpg.Engine.UI {
                 var menuX = (int)textLeft;
                 var menuY = (int)(bottom + SelectionMenu.GetHeight());
                 menuY -= (int)Bounds.W;
-                SelectionMenu.X = menuX;
-                SelectionMenu.Y = menuY;
+                SelectionMenu.Position = new Vector2(menuX, menuY);
                 SelectionMenu.Scale = scale;
                 SelectionMenu.TextScale = TextScale;
                 SelectionMenu.Render(renderer);

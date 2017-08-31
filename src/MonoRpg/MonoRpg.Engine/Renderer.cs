@@ -97,6 +97,7 @@ namespace MonoRpg.Engine {
             VerticalAlignment = vertical;
         }
 
+        private SamplerState GetMode(IDrawCommand command) { return command.PixelArt ? SamplerState.PointClamp : SamplerState.LinearClamp; }
         public void Render() {
             _device.SetRenderTarget(null);
             _device.Clear(ClearColor);
@@ -104,29 +105,36 @@ namespace MonoRpg.Engine {
             var pixelArt = new Queue<IDrawCommand>(_drawQueue.Where(dq => dq.PixelArt));
             var blended = new Queue<IDrawCommand>(_drawQueue.Where(dq => !dq.PixelArt));
 
-            _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
-
-            while (pixelArt.Any()) {
-                var command = pixelArt.Dequeue();
-                command.Draw(_spriteBatch);
-            }
-            _spriteBatch.End();
-
-            _spriteBatch.Begin(samplerState: SamplerState.LinearClamp);
-
-            while (blended.Any()) {
-                var command = blended.Dequeue();
-                command.Draw(_spriteBatch);
+            while (_drawQueue.Any()) {
+                var mode = _drawQueue.Peek().PixelArt ? SamplerState.PointClamp : SamplerState.LinearClamp;
+                _spriteBatch.Begin(samplerState: mode);
+                do {
+                    var command = _drawQueue.Dequeue();
+                    command.Draw(_spriteBatch);
+                } while (_drawQueue.Any() && GetMode(_drawQueue.Peek()) == mode);
+                _spriteBatch.End();
             }
 
+            //_spriteBatch.Begin(samplerState: SamplerState.PointClamp);
+            //while (pixelArt.Any()) {
+            //    var command = pixelArt.Dequeue();
+            //    command.Draw(_spriteBatch);
+            //}
+            //_spriteBatch.End();
 
-            _spriteBatch.End();
+            //_spriteBatch.Begin(samplerState: SamplerState.LinearClamp);
+            //while (blended.Any()) {
+            //    var command = blended.Dequeue();
+            //    command.Draw(_spriteBatch);
+            //}
+            //_spriteBatch.End();
+
             _drawQueue.Clear();
         }
 
-        public Vector2 MeasureText(string text, int wrap) {
+        public Vector2 MeasureText(string text, int wrap, float scale = 1.0f) {
             if (wrap > 0) {
-                text = WrapText(_content.DefaultFont, text, wrap, 1.0f);
+                text = WrapText(_content.DefaultFont, text, wrap, scale);
             }
             return _content.DefaultFont.MeasureString(text);
         }
@@ -182,8 +190,8 @@ namespace MonoRpg.Engine {
             return chunks;
         }
 
-        public float TextHeight(string text, int wrap) {
-            return (int)Math.Ceiling(MeasureText(text, wrap).Y) + _content.DefaultFont.LineSpacing/2;
+        public float TextHeight(string text, int wrap, float textScale) {
+            return (int)Math.Ceiling(MeasureText(text, wrap, textScale).Y) + _content.DefaultFont.LineSpacing/2;
         }
     }
 }
