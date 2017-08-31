@@ -24,7 +24,6 @@
         }
 
         public void Draw(SpriteBatch spriteBatch) {
-            //spriteBatch.Draw(_texture, _position, _sourceRect, Color.White);
             spriteBatch.Draw(_texture, _position, _sourceRect, Color.White, 0f, Vector2.Zero, _scale, SpriteEffects.None, 0f);
         }
 

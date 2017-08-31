@@ -28,8 +28,9 @@ namespace MonoRpg {
 
         private Map _map;
         private Character _hero;
-        private Textbox _textBox;
         private float _keyboardBuffer = 0;
+        private string _lastSelection;
+        private Textbox _textbox;
 
         public Game1() {
             _graphics = new GraphicsDeviceManager(this) {
@@ -113,16 +114,23 @@ namespace MonoRpg {
 
             _hero.Entity.SetTilePosition(11, 3, 0, _map);
 
-            _textBox = CreateFixed(_renderer, -System.ScreenWidth/2+2, -System.ScreenHeight/2 , System.ScreenWidth-4, 102,
-                "A nation can survive its fools, and even the ambitious. But it cannot survive treason from within. An enemy at the gates is less formidable, " + 
-                "for he is known and carries his banner openly. But the traitor moves amongst those within the gate freely, his sly whispers rustling through " + 
-                "all the alleys, heard in the very halls of government itself. For the traitor appears not a traitor; he speaks in accents familiar to his " + 
-                "victims, and he wears their face and their arguments, he appeals to the baseness that lies deep in the hearts of all men. He rots the soul " + 
-                "of a nation, he works secretly and unknown in the night to undermine the pillars of the city, he infects the body politic so that it can no " + 
-                "longer resist. A murderer is less to fear.",
-                new FixedTextboxParameters()
-            );
+            var width = System.ScreenWidth - 4;
+            var height = 102;
+            var x = -System.ScreenWidth/2+2;
+            var y = -System.ScreenHeight / 2 ;
+            var text = "Should I join your party?";
+            var title = "NPC:";
+            var avatar = _content.FindTexture("avatar.png");
+            _textbox = CreateFixed(_renderer, x,y,width, height, text, new FixedTextboxParameters {
+                Title = title,
+                Avatar = avatar,
+                Choices = new SelectionArgs(new List<string>(){"Yes", "No"}) {
+                    OnSelection = (i, s) => Console.WriteLine("selected " + s),
+                    Columns = 2
+                },
+                
 
+            });
 
         }
 
@@ -158,14 +166,11 @@ namespace MonoRpg {
             var playerPos = _hero.Entity.Sprite.Position;
             _map.CamX = (int)Math.Floor(playerPos.X);
             _map.CamY = (int)Math.Floor(playerPos.Y);
-            if (!_textBox.IsDead) {
-                _textBox.Update(dt);
-            }
-            if (ks.IsKeyDown(Keys.Space) && _keyboardBuffer < 0.0f) {
-                _textBox.OnClick();
-                _keyboardBuffer = 1.0f;
-            }
 
+            if (!_textbox.IsDead) {
+                _textbox.Update(dt);
+                _textbox.HandleInput(dt);
+            }
 
             _keyboardBuffer -= dt;
 
@@ -187,8 +192,7 @@ namespace MonoRpg {
 
             }
             
-
-            _textBox.Render(_renderer);
+            _textbox.Render(_renderer);
 
             _renderer.Render();
 
@@ -207,6 +211,7 @@ namespace MonoRpg {
             var children = new List<TextboxChild>();
             var avatar = parameters.Avatar;
             var title = parameters.Title;
+            var choices = parameters.Choices;
 
             if (avatar != null) {
                 boundsLeft = avatar.Width + padding * 2;
@@ -220,6 +225,13 @@ namespace MonoRpg {
                     Y = -avatar.Height / 2
                 });
             }
+
+            Selection selectionMenu = null;
+            if (choices != null) {
+                selectionMenu = new Selection(renderer, choices);
+                boundsBottom -= padding/2;
+            }
+
             if (!string.IsNullOrEmpty(title)) {
                 var size = renderer.MeasureText(title, wrap);
                 boundsTop = (int)(size.Y + padding * 2);
@@ -255,6 +267,7 @@ namespace MonoRpg {
                 Size = new Rectangle(x, y, width, height),
                 TextBounds = new Vector4(boundsLeft, -padding, -boundsTop, padding),
                 Wrap = wrap,
+                SelectionMenu = selectionMenu,
                 PanelArgs = new PanelParams {
                     Texture = System.Content.FindTexture("simple_panel.png"),
                     Size = panelTileSize
@@ -268,6 +281,8 @@ namespace MonoRpg {
         public class FixedTextboxParameters {
             public Texture2D Avatar { get; set; }
             public string Title { get; set; }
+
+            public SelectionArgs Choices { get; set; }
         }
 
     }

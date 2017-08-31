@@ -3,8 +3,10 @@ namespace MonoRpg.Engine.UI {
     using global::System.Collections.Generic;
 
     using Microsoft.Xna.Framework;
+    using Microsoft.Xna.Framework.Input;
 
     public class Textbox {
+        private float _keyboardBuffer;
         public Vector4 Bounds { get; set; }
         public Rectangle Size { get; set; }
         public float TextScale { get; set; }
@@ -21,6 +23,7 @@ namespace MonoRpg.Engine.UI {
         public int ChunkIndex { get; set; }
         public Sprite ContinueMark { get; set; }
         public float Time { get; set; }
+        public Selection SelectionMenu { get; set; }
 
         public Textbox(TextboxParams parameters) {
             parameters = parameters ?? new TextboxParams();
@@ -44,6 +47,7 @@ namespace MonoRpg.Engine.UI {
             AppearTween = new Tween(0, 1, 0.4f, Tween.EaseOutCirc);
             Wrap = parameters.Wrap;
             Children = parameters.Children;
+            SelectionMenu = parameters.SelectionMenu;
         }
 
         
@@ -62,11 +66,17 @@ namespace MonoRpg.Engine.UI {
             } else {
                 ChunkIndex++;
             }
+        }
 
-
-
-            
-            
+        public void HandleInput(float dt) {
+            if (_keyboardBuffer <= 0.0f) {
+                SelectionMenu?.HandleInput();
+                if (Keyboard.GetState().IsKeyDown(Keys.Space)) {
+                    OnClick();
+                }
+                _keyboardBuffer = 0.1f;
+            }
+            _keyboardBuffer -= dt;
         }
 
         public void Render(Renderer renderer) {
@@ -89,9 +99,21 @@ namespace MonoRpg.Engine.UI {
                 TextTop = textTop,
                 Scale = scale
             };
-            if (scale >= 1.0f) {
-                renderer.DrawText2D((int)textLeft, (int)textTop, Chunks[ChunkIndex], Color.White, TextScale * scale, Wrap);
+
+            renderer.DrawText2D((int)textLeft, (int)textTop, Chunks[ChunkIndex], Color.White, TextScale * scale, (int)(Wrap*scale));
+
+            if (SelectionMenu != null) {
+                renderer.SetTextAlignment(TextAlignment.Left, TextAlignment.Center);
+                var menuX = (int)textLeft;
+                var menuY = (int)(bottom + SelectionMenu.GetHeight());
+                menuY -= (int)Bounds.W;
+                SelectionMenu.X = menuX;
+                SelectionMenu.Y = menuY;
+                SelectionMenu.Scale = scale;
+                SelectionMenu.TextScale = TextScale;
+                SelectionMenu.Render(renderer);
             }
+
             if (ChunkIndex < Chunks.Count-1) {
                 var offset = 12 + (float)Math.Floor(Math.Sin(Time * 10)) * scale;
                 ContinueMark.Scale = new Vector2(scale, scale);
@@ -122,6 +144,7 @@ namespace MonoRpg.Engine.UI {
         public Vector4 TextBounds { get; set; }
         public int Wrap { get; set; }
         public List<TextboxChild> Children { get; set; }
+        public Selection SelectionMenu { get; set; }
 
         public TextboxParams() {
             Wrap = -1;
@@ -140,7 +163,11 @@ namespace MonoRpg.Engine.UI {
         public string Text { get; set; }
 
         public override void Render(Renderer renderer, TextboxBounds bounds, Textbox textbox) {
-            renderer.DrawText2D((int)(bounds.TextLeft + (X * bounds.Scale)), (int)(bounds.TextTop + Y * bounds.Scale), Text, Color.White, bounds.Scale*textbox.TextScale);
+            renderer.DrawText2D(
+                (int)(bounds.TextLeft + X * bounds.Scale), 
+                (int)(bounds.TextTop + Y * bounds.Scale), 
+                Text, Color.White, bounds.Scale*textbox.TextScale
+            );
         }
     }
 
@@ -148,7 +175,7 @@ namespace MonoRpg.Engine.UI {
         public Sprite Sprite { get; set; }
 
         public override void Render(Renderer renderer, TextboxBounds bounds, Textbox textbox) {
-            Sprite.Position = new Vector2(bounds.Left + (X * bounds.Scale), bounds.Top + Y * bounds.Scale);
+            Sprite.Position = new Vector2(bounds.Left + X , bounds.Top + Y );
             Sprite.Scale = new Vector2(bounds.Scale, bounds.Scale);
             renderer.DrawSprite(Sprite);
         }
