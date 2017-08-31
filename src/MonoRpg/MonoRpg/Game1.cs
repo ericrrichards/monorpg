@@ -29,8 +29,8 @@ namespace MonoRpg {
         private Map _map;
         private Character _hero;
         private float _keyboardBuffer = 0;
-        private string _lastSelection;
-        private Textbox _textbox;
+        private ProgressBar _bar;
+        private Tween _tween;
 
         public Game1() {
             _graphics = new GraphicsDeviceManager(this) {
@@ -115,22 +115,13 @@ namespace MonoRpg {
             _hero.Entity.SetTilePosition(11, 3, 0, _map);
 
             
-            var x = -System.ScreenWidth/2+150;
-            var y = -0;
-            var text = "Should I join your party?";
-            var title = "NPC:";
-            var avatar = _content.FindTexture("avatar.png");
-            _textbox = CreateFitted(_renderer, x,y, text, 300, new FixedTextboxParameters {
-                Title = title,
-                Avatar = avatar,
-                Choices = new SelectionArgs(new List<string>(){"Yes", "No"}) {
-                    OnSelection = (i, s) => Console.WriteLine("selected " + s),
-                    Columns = 2
-                },
-                
-
+            _bar = new ProgressBar(new ProgressBarArgs() {
+                X = 0,
+                Y = 0,
+                Background = _content.FindTexture("background.png"),
+                Foreground = _content.FindTexture("foreground.png")
             });
-
+            _tween = new Tween(1, 0, 1);
         }
 
 
@@ -165,13 +156,16 @@ namespace MonoRpg {
             var playerPos = _hero.Entity.Sprite.Position;
             _map.CamX = (int)Math.Floor(playerPos.X);
             _map.CamY = (int)Math.Floor(playerPos.Y);
+            
+            _keyboardBuffer -= dt;
 
-            if (!_textbox.IsDead) {
-                _textbox.Update(dt);
-                _textbox.HandleInput(dt);
+            _tween.Update(dt);
+            var v = _tween.Value;
+            _bar.SetValue(v);
+            if (_tween.Finished) {
+                _tween = new Tween(v, Math.Abs(v-1), 1);
             }
 
-            _keyboardBuffer -= dt;
 
             base.Update(gameTime);
         }
@@ -190,9 +184,7 @@ namespace MonoRpg {
                 _map.RenderLayer(_renderer, i, heroEntity);
 
             }
-            
-            _textbox.Render(_renderer);
-
+            _bar.Render(_renderer);
             _renderer.Render();
 
             base.Draw(gameTime);
