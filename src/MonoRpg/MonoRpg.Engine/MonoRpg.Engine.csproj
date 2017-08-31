@@ -74,10 +74,12 @@
     <Compile Include="Tiled\TileSet.cs" />
     <Compile Include="Trigger.cs" />
     <Compile Include="Tween.cs" />
+    <Compile Include="UI\FixedTextboxParameters.cs" />
     <Compile Include="UI\Panel.cs" />
     <Compile Include="UI\ProgressBar.cs" />
     <Compile Include="UI\Scrollbar.cs" />
     <Compile Include="UI\Selection.cs" />
+    <Compile Include="UI\StateStack.cs" />
     <Compile Include="UI\Textbox.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -28,9 +28,7 @@ namespace MonoRpg {
 
         private Map _map;
         private Character _hero;
-        private Scrollbar _bar1;
-        private Scrollbar _bar2;
-        private Scrollbar _bar3;
+        private StateStack _stateStack;
 
         public Game1() {
             _graphics = new GraphicsDeviceManager(this) {
@@ -107,28 +105,19 @@ namespace MonoRpg {
             _map.GotoTile(5, 5);
 
             _hero = new Character(EntityDefs.Instance.Characters["hero"], _map);
-
-
-            _bar1 = new Scrollbar(_content.FindTexture("scrollbar.png"), 100);
-            _bar2 = new Scrollbar(_content.FindTexture("scrollbar.png"), 200);
-            _bar3 = new Scrollbar(_content.FindTexture("scrollbar.png"), 75);
-
-            _bar1.SetScrollCaretScale(0.5f);
-            _bar1.SetNormalValue(0.5f);
-            _bar1.SetPosition(250, 10);
-
-            _bar2.SetScrollCaretScale(0.3f);
-            _bar2.SetNormalValue(0.0f);
-            _bar2.SetPosition(200, 0);
-
-            _bar3.SetScrollCaretScale(0.1f);
-            _bar3.SetNormalValue(1f);
-            _bar3.SetPosition(150, -10);
+            
 
 
             _hero.Entity.SetTilePosition(11, 3, 0, _map);
 
             
+            _stateStack = new StateStack();
+            _stateStack.AddFitted(_renderer, 0, 0, "Hello!");
+            _stateStack.AddFitted(_renderer, -25, -25, "World!");
+            _stateStack.AddFitted(_renderer, -50, -50, "Lots");
+            _stateStack.AddFitted(_renderer, -75, -75, "of");
+            _stateStack.AddFitted(_renderer, -100, -100, "boxes!");
+
         }
 
 
@@ -165,7 +154,7 @@ namespace MonoRpg {
             _map.CamY = (int)Math.Floor(playerPos.Y);
             
 
-
+            _stateStack.Update(dt);
 
             base.Update(gameTime);
         }
@@ -184,132 +173,14 @@ namespace MonoRpg {
                 _map.RenderLayer(_renderer, i, heroEntity);
 
             }
-            _bar1.Render(_renderer);
-            _bar2.Render(_renderer);
-            _bar3.Render(_renderer);
+            _stateStack.Render(_renderer);
 
             _renderer.Render();
 
             base.Draw(gameTime);
         }
 
-        public Textbox CreateFixed(Renderer renderer, int x, int y, int width, int height, string text, FixedTextboxParameters parameters) {
-            var padding = 10;
-            var textScale = 1.25f;
-            var panelTileSize = 3;
-            var wrap = width - padding;
-            var boundsTop = padding;
-            var boundsLeft = padding;
-            var boundsBottom = padding;
-
-            var children = new List<TextboxChild>();
-            var avatar = parameters.Avatar;
-            var title = parameters.Title;
-            var choices = parameters.Choices;
-
-            if (avatar != null) {
-                boundsLeft = avatar.Width + padding * 2;
-                wrap = width - boundsLeft - padding;
-                var sprite = new Sprite {
-                    Texture = avatar
-                };
-                children.Add(new SpriteChild {
-                    Sprite = sprite,
-                    X = avatar.Width / 2 + padding,
-                    Y = -avatar.Height / 2
-                });
-            }
-
-            Selection selectionMenu = null;
-            if (choices != null) {
-                selectionMenu = new Selection(renderer, choices);
-                boundsBottom -= padding/2;
-            }
-
-            if (!string.IsNullOrEmpty(title)) {
-                var size = renderer.MeasureText(title, wrap, textScale);
-                boundsTop = (int)(size.Y + padding * 2);
-                children.Add(new TextChild { Text = title, X = 0, Y = (int)size.Y });
-            }
-
-            var faceHeight = renderer.TextHeight(text.Substring(0, 1), wrap, textScale);
-                
-            var lines = renderer.ChunkText(text, wrap, textScale);
-            var chunks = new List<string>();
-            var currentHeight = 0f;
-            var boundsHeight = height - (boundsTop + boundsBottom);
-            var currentChunk = new StringBuilder();
-            foreach (var line in lines) {
-                if (currentHeight + faceHeight > boundsHeight) {
-                    currentHeight = faceHeight;
-                    chunks.Add(currentChunk.ToString().Trim());
-                    currentChunk = new StringBuilder(line);
-                } else {
-                    currentChunk.Append(line);
-                    currentHeight += faceHeight;
-                }
-            }
-            if (!string.IsNullOrEmpty(currentChunk.ToString())) {
-                chunks.Add(currentChunk.ToString());
-            }
-
-
-
-            var textbox = new Textbox(new TextboxParams {
-                Text = chunks,
-                TextScale = textScale,
-                Size = new Rectangle(x, y, width, height),
-                TextBounds = new Vector4(boundsLeft, -padding, -boundsTop, padding),
-                Wrap = wrap,
-                SelectionMenu = selectionMenu,
-                PanelArgs = new PanelParams {
-                    Texture = System.Content.FindTexture("simple_panel.png"),
-                    Size = panelTileSize
-                },
-                Children = children
-            });
-
-            return textbox;
-        }
-
-        public Textbox CreateFitted(Renderer renderer, int x, int y, string text, int wrap, FixedTextboxParameters args) {
-            var choices = args.Choices;
-            var title = args.Title;
-            var avatar = args.Avatar;
-
-            var padding = 10;
-            var panelTileSize = 3;
-            var textScale = 1.25f;
-
-            var size = renderer.MeasureText(text, wrap, textScale);
-            var width = (int)(size.X + padding * 2);
-            var height = (int)(size.Y + padding * 2);
-
-            if (choices != null) {
-                var selectionMenu = new Selection(renderer, choices);
-                height += selectionMenu.GetHeight() + padding * 4;
-                width = Math.Max(width, selectionMenu.GetWidth() + padding*2);
-            }
-            if (!string.IsNullOrEmpty(title)) {
-                var titleSize = renderer.MeasureText(title, wrap, textScale);
-                height += (int)(titleSize.Y + padding);
-                width = Math.Max(width, (int)(size.X + padding*2));
-            }
-            if (avatar != null) {
-                var avatarWidth = avatar.Width;
-                var avatarHeight = avatar.Height;
-                width += avatarWidth + padding;
-                height = Math.Max(height, avatarHeight + padding);
-            }
-            return CreateFixed(renderer, x, y, width, height, text, args);
-        }
-
-        public class FixedTextboxParameters {
-            public Texture2D Avatar { get; set; }
-            public string Title { get; set; }
-
-            public SelectionArgs Choices { get; set; }
-        }
+        
 
     }
 }

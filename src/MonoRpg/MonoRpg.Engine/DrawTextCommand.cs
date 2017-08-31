@@ -28,7 +28,7 @@
             if (Wrap == -1) {
                 spriteBatch.DrawString(_font, _text, _position, _color, 0, Vector2.Zero, new Vector2(Scale, Scale), SpriteEffects.None, 0);
             } else {
-                var text = Renderer.WrapText(_font, _text, Wrap, Scale);
+                var text = Renderer.WrapText(_font, _text, Wrap, Scale).TrimStart('\r','\n');
                 spriteBatch.DrawString(_font, text, _position, _color, 0, Vector2.Zero, new Vector2(Scale, Scale), SpriteEffects.None, 0);
             }
         }

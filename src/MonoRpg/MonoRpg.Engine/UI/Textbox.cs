@@ -97,7 +97,7 @@ namespace MonoRpg.Engine.UI {
             var top = Y + Height / 2f * scale;
             var textTop = top + Bounds.Z * scale;
             var bottom = Y - Height / 2f * scale;
-
+            Console.WriteLine("{0}\t{1}", textLeft, Chunks[ChunkIndex]);
             var bounds = new TextboxBounds {
                 Left = left,
                 Top = top,
