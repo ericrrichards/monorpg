@@ -25,7 +25,7 @@ namespace MonoRpg.Engine.GameStates {
             Map.GotoTile((int)startPos.X, (int)startPos.Y);
         }
 
-        public void Enter() {  }
+        public void Enter( EnterArgs args) {  }
         public void Exit() {  }
 
         public bool Update(float dt) {
@@ -60,6 +60,11 @@ namespace MonoRpg.Engine.GameStates {
                 var layer = Hero.Entity.Layer;
                 var trigger = Map.GetTrigger(layer, x, y);
                 trigger?.OnUse(Hero.Entity);
+            }
+            if (ks.IsKeyDown(Keys.LeftAlt)) {
+                var menu = new InGameMenu(Stack);
+                Stack.Push(menu);
+                return;
             }
         }
 

@@ -17,7 +17,7 @@ namespace MonoRpg.Engine.UI {
         }
 
         public void Update(float dt) {
-            for (var index = States.Count-1; index >=0; index--) {
+            for (var index = States.Count - 1; index >= 0; index--) {
                 if (index >= States.Count) {
                     continue;
                 }
@@ -26,12 +26,10 @@ namespace MonoRpg.Engine.UI {
                 if (!keepGoing) {
                     break;
                 }
-                var top = States.LastOrDefault();
-                if (top == null) {
-                    return;
-                }
-                top.HandleInput(dt);
             }
+            var top = States.LastOrDefault();
+            top?.HandleInput(dt);
+
         }
 
         public void Push(IStateObject state) {
@@ -57,7 +55,7 @@ namespace MonoRpg.Engine.UI {
             }
         }
 
-        public Textbox PushFix(Renderer renderer, int x, int y, int width, int height, string text, FixedTextboxParameters parameters=null) {
+        public Textbox PushFix(Renderer renderer, int x, int y, int width, int height, string text, FixedTextboxParameters parameters = null) {
             if (parameters == null) {
                 parameters = new FixedTextboxParameters();
             }
@@ -138,16 +136,16 @@ namespace MonoRpg.Engine.UI {
                     Size = panelTileSize
                 },
                 Children = children
-                
+
             });
 
             States.Add(textbox);
             return textbox;
         }
 
-        public Textbox PushFit(Renderer renderer, int x, int y, string text, int wrap=-1, FixedTextboxParameters args=null) {
+        public Textbox PushFit(Renderer renderer, int x, int y, string text, int wrap = -1, FixedTextboxParameters args = null) {
             if (args == null) {
-                args= new FixedTextboxParameters();
+                args = new FixedTextboxParameters();
             }
             var choices = args.Choices;
             var title = args.Title;
@@ -181,6 +179,6 @@ namespace MonoRpg.Engine.UI {
             return PushFix(renderer, x, y, width, height, text, args);
         }
 
-        
+
     }
 }

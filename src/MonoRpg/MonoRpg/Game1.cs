@@ -26,7 +26,6 @@ namespace MonoRpg {
         private Renderer Renderer { get; set; }
         private Content _content;
         private StateStack _stack;
-        private Layout _layout;
 
         public Game1() {
             _graphics = new GraphicsDeviceManager(this) {
@@ -60,7 +59,8 @@ namespace MonoRpg {
             _content = new Content(Content, GraphicsDevice);
             System.Content = _content;
             Renderer = new Renderer(GraphicsDevice, _content);
-            Renderer.SetTextAlignment(TextAlignment.Center, TextAlignment.Center);
+            System.Renderer = Renderer;
+            Renderer.AlignText(TextAlignment.Center, TextAlignment.Center);
             Renderer.ClearColor = Color.CornflowerBlue;
 
 
@@ -76,21 +76,9 @@ namespace MonoRpg {
             };
 
             _stack = new StateStack();
-            _stack.Push(new ExploreState(null, mapDef, new Vector3(11, 3, 0)));
-
-            _stack.Push(new FadeState(_stack));
-            _stack.Push(new Block(_stack));
-            _stack.PushFit(Renderer, 0, 0, "Where am I?");
-            _stack.Push(new Block(_stack));
-            _stack.PushFit(Renderer, -50, 50, "My head hurts!");
-            _stack.Push(new Block(_stack));
-            _stack.PushFit(Renderer, -100, 100, "Uh...");
-
-            _layout = new Layout()
-                .Contract("screen", 118, 40)
-                .SplitHorizontal("screen", "top", "bottom", 0.12f, 2)
-                .SplitVertical("bottom", "left", "party", 0.726f, 2)
-                .SplitHorizontal("left", "menu", "gold", 0.7f, 2);
+            _stack.Push(new ExploreState(_stack, mapDef, new Vector3(11, 3, 0)));
+            _stack.Push(new InGameMenu(_stack));
+            
 
 
         }
@@ -112,8 +100,7 @@ namespace MonoRpg {
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime) {
             var ks = Keyboard.GetState();
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || ks.IsKeyDown(Keys.Escape))
-                Exit();
+            
 
             //_renderer.Translate(-_map.CamX, -_map.CamY);
             var dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
@@ -131,7 +118,7 @@ namespace MonoRpg {
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime) {
             
-            _layout.DebugRender(Renderer);
+            _stack.Render(Renderer);
 
             Renderer.Render();
 
@@ -149,7 +136,7 @@ namespace MonoRpg {
             Stack = stack;
         }
 
-        public void Enter() {  }
+        public void Enter(EnterArgs arg) {  }
         public void Exit() {  }
 
         public bool Update(float dt) {

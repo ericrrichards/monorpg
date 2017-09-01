@@ -25,7 +25,7 @@
 
         
 
-        public void Enter() {  }
+        public void Enter(EnterArgs arg) {  }
         public void Exit() {  }
 
         public bool Update(float dt) {

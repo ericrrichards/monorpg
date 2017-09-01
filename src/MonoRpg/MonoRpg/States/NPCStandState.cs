@@ -44,12 +44,12 @@ namespace MonoRpg.States {
             CountDown = Random.Next(0, 3);
         }
 
-        public override void Enter(EnterParameters enterParams) {
+        public override void Enter(EnterArgs enterParams) {
             FrameCount = 0;
             CountDown = Random.Next(0, 3);
         }
 
-        public override void Update(float dt) {
+        public override bool Update(float dt) {
             CountDown -= dt;
 
             if (CountDown <= 0) {
@@ -73,6 +73,7 @@ namespace MonoRpg.States {
                     Character.Facing = Facing.Down;
                 }
             }
+            return false;
         }
     }
 }

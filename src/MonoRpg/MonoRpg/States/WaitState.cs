@@ -21,14 +21,14 @@ namespace MonoRpg.States {
 
         
 
-        public override void Enter(EnterParameters enterParams) {
+        public override void Enter(EnterArgs enterParams) {
             FrameCount = 0;
         }
 
         public override void Render(Renderer renderer) {  }
         public override void Exit() {  }
 
-        public override void Update(float dt) {
+        public override bool Update(float dt) {
             if (FrameCount >= 0) {
                 FrameCount = FrameCount + dt;
                 if (FrameCount > FrameResetSpeed) {
@@ -51,6 +51,7 @@ namespace MonoRpg.States {
             } else if (ks.IsKeyDown(Keys.Down)) {
                 Controller.Change("move", new MoveParams(0, 1));
             }
+            return false;
         }
     }
 }

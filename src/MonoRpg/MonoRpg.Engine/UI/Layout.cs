@@ -52,7 +52,7 @@ namespace MonoRpg.Engine.UI {
             return panel.X;
         }
 
-        private Panel CreatePanel(string name) {
+        public Panel CreatePanel(string name) {
             Debug.Assert(Panels.ContainsKey(name));
             var layout = Panels[name];
             var panel = new Panel(PanelDef);

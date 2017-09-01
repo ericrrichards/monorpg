@@ -14,7 +14,7 @@
             Current = Empty;
         }
 
-        public void Change(string stateName, EnterParameters enterParams=null) {
+        public void Change(string stateName, EnterArgs enterParams=null) {
             Debug.Assert(States.ContainsKey(stateName));
             Current.Exit();
             Current = States[stateName]();

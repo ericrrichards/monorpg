@@ -92,7 +92,7 @@ namespace MonoRpg.Engine {
             return new Vector2(x, y) + Translation;
         }
 
-        public void SetTextAlignment(TextAlignment horizontal, TextAlignment vertical) {
+        public void AlignText(TextAlignment horizontal, TextAlignment vertical) {
             if (vertical == TextAlignment.Left || vertical == TextAlignment.Right) {
                 throw new ArgumentOutOfRangeException(nameof(vertical), vertical, "Top, Center or Bottom are the only valid values.");
             }

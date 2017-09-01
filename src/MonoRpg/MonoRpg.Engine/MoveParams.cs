@@ -1,7 +1,7 @@
 namespace MonoRpg {
     using MonoRpg.Engine;
 
-    public class MoveParams : EnterParameters {
+    public class MoveParams : EnterArgs {
         public MoveParams(int x, int y) {
             X = x;
             Y = y;

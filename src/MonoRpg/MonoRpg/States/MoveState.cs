@@ -36,7 +36,7 @@ namespace MonoRpg.States {
             Animation = new Animation(new List<int>{Entity.StartFrame});
         }
 
-        public override void Enter(EnterParameters enterParams) {
+        public override void Enter(EnterArgs enterParams) {
             Enter(enterParams as MoveParams);
         }
 
@@ -90,7 +90,7 @@ namespace MonoRpg.States {
 
         public override void Render(Renderer renderer) { }
 
-        public override void Update(float dt) {
+        public override bool Update(float dt) {
             Animation.Update(dt);
             Entity.SetFrame(Animation.CurrentFrame);
             Tween.Update(dt);
@@ -104,6 +104,7 @@ namespace MonoRpg.States {
             if (Tween.Finished) {
                 Controller.Change(Character.DefaultState);
             }
+            return false;
         }
     }
 }

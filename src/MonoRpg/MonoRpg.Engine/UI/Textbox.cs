@@ -98,7 +98,7 @@ namespace MonoRpg.Engine.UI {
             _keyboardBuffer -= dt;
         }
 
-        public void Enter() {
+        public void Enter(EnterArgs arg) {
             
         }
 
@@ -110,7 +110,7 @@ namespace MonoRpg.Engine.UI {
 
         public void Render(Renderer renderer) {
             var scale = AppearTween.Value;
-            renderer.SetTextAlignment(TextAlignment.Left, TextAlignment.Top);
+            renderer.AlignText(TextAlignment.Left, TextAlignment.Top);
 
             Panel.CenterPosition(X, Y, (int)(Width*scale), (int)(Height* scale));
             Panel.Render(renderer);
@@ -131,7 +131,7 @@ namespace MonoRpg.Engine.UI {
             renderer.DrawText2D((int)textLeft, (int)textTop, Chunks[ChunkIndex], Color.White, TextScale * scale, (int)(Wrap*scale));
 
             if (SelectionMenu != null) {
-                renderer.SetTextAlignment(TextAlignment.Left, TextAlignment.Center);
+                renderer.AlignText(TextAlignment.Left, TextAlignment.Center);
                 var menuX = (int)textLeft;
                 var menuY = (int)(bottom + SelectionMenu.GetHeight());
                 menuY -= (int)Bounds.W;

@@ -109,7 +109,7 @@ namespace MonoRpg.Engine.UI {
 
         public void Render(Renderer renderer) {
             var displayStart = DisplayStart;
-            var displayEnd = displayStart + DisplayRows-1;
+            var displayEnd = displayStart + DisplayRows;
 
             var x = X;
             var y = Y;

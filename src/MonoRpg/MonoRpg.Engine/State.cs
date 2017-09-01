@@ -1,14 +1,22 @@
 ﻿namespace MonoRpg.Engine {
-    public class State {
+    using MonoRpg.Engine.GameStates;
+    public class State: IStateObject {
         public string Name { get; protected set; }
         public virtual void Render(Renderer renderer) { }
-        public virtual void Enter(EnterParameters enterParams) { }
-        public virtual void Exit() { }
-        public virtual void Update(float dt) { }
+        public virtual void HandleInput(float dt) {
+            
+        }
 
-        internal protected State(string name) {
+        public virtual void Enter(EnterArgs enterParams) { }
+        public virtual void Exit() { }
+
+        public virtual bool Update(float dt) {
+            return false;
+        }
+
+        protected internal State(string name) {
             Name = name;
         }
     }
-    public abstract class EnterParameters { }
+    public abstract class EnterArgs { }
 }

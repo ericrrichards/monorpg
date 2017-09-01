@@ -13,5 +13,6 @@
         public static Content Content { get; set; }
 
         public static GraphicsDevice Device => _graphics.GraphicsDevice;
+        public static Renderer Renderer { get; set; }
     }
 }
