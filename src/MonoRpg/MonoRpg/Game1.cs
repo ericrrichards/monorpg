@@ -26,6 +26,7 @@ namespace MonoRpg {
         private Renderer Renderer { get; set; }
         private Content _content;
         private StateStack _stack;
+        private Layout _layout;
 
         public Game1() {
             _graphics = new GraphicsDeviceManager(this) {
@@ -85,6 +86,13 @@ namespace MonoRpg {
             _stack.Push(new Block(_stack));
             _stack.PushFit(Renderer, -100, 100, "Uh...");
 
+            _layout = new Layout()
+                .Contract("screen", 118, 40)
+                .SplitHorizontal("screen", "top", "bottom", 0.12f, 2)
+                .SplitVertical("bottom", "left", "party", 0.726f, 2)
+                .SplitHorizontal("left", "menu", "gold", 0.7f, 2);
+
+
         }
 
 
@@ -122,7 +130,8 @@ namespace MonoRpg {
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime) {
-            _stack.Render(Renderer);
+            
+            _layout.DebugRender(Renderer);
 
             Renderer.Render();
 
