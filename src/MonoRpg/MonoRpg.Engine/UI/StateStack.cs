@@ -4,29 +4,50 @@ namespace MonoRpg.Engine.UI {
     using global::System.Linq;
     using global::System.Text;
 
+    using JetBrains.Annotations;
+
     using Microsoft.Xna.Framework;
 
+    using MonoRpg.Engine.GameStates;
+
     public class StateStack {
-        public List<Textbox> States { get; set; }
+        public List<IStateObject> States { get; set; }
         public StateStack() {
-            States = new List<Textbox>();
+            States = new List<IStateObject>();
         }
 
         public void Update(float dt) {
-            foreach (var state in States) {
-                state.Update(dt);
+            var stateObjects = States.ToList();
+            for (var index = stateObjects.Count-1; index >=0; index--) {
+                var state = stateObjects[index];
+                var keepGoing = state.Update(dt);
+                if (!keepGoing) {
+                    break;
+                }
+                var top = stateObjects.LastOrDefault();
+                if (top == null) {
+                    return;
+                }
+                top.HandleInput(dt);
             }
+        }
+
+        public void Push(IStateObject state) {
+            States.Add(state);
+        }
+        [CanBeNull]
+        public IStateObject Pop() {
             var top = States.LastOrDefault();
             if (top == null) {
-                return;
+                return null;
             }
-
-            if (top.IsDead) {
-                States.Remove(top);
-                return;
-            }
-            top.HandleInput(dt);
+            States.Remove(top);
+            top.Exit();
+            return top;
         }
+        [CanBeNull]
+        public IStateObject Top => States.LastOrDefault();
+
 
         public void Render(Renderer renderer) {
             foreach (var state in States) {
@@ -34,7 +55,7 @@ namespace MonoRpg.Engine.UI {
             }
         }
 
-        public Textbox AddFixed(Renderer renderer, int x, int y, int width, int height, string text, FixedTextboxParameters parameters=null) {
+        public Textbox PushFix(Renderer renderer, int x, int y, int width, int height, string text, FixedTextboxParameters parameters=null) {
             if (parameters == null) {
                 parameters = new FixedTextboxParameters();
             }
@@ -109,18 +130,20 @@ namespace MonoRpg.Engine.UI {
                 TextBounds = new Vector4(boundsLeft, -padding, -boundsTop, padding),
                 Wrap = wrap,
                 SelectionMenu = selectionMenu,
+                Stack = this,
                 PanelArgs = new PanelParams {
                     Texture = System.Content.FindTexture("simple_panel.png"),
                     Size = panelTileSize
                 },
                 Children = children
+                
             });
 
             States.Add(textbox);
             return textbox;
         }
 
-        public Textbox AddFitted(Renderer renderer, int x, int y, string text, int wrap=-1, FixedTextboxParameters args=null) {
+        public Textbox PushFit(Renderer renderer, int x, int y, string text, int wrap=-1, FixedTextboxParameters args=null) {
             if (args == null) {
                 args= new FixedTextboxParameters();
             }
@@ -153,7 +176,7 @@ namespace MonoRpg.Engine.UI {
             }
             x -= width / 2;
             y += height / 2;
-            return AddFixed(renderer, x, y, width, height, text, args);
+            return PushFix(renderer, x, y, width, height, text, args);
         }
 
         

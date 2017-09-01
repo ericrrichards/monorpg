@@ -25,7 +25,7 @@ namespace MonoRpg {
         private readonly GraphicsDeviceManager _graphics;
         private Renderer Renderer { get; set; }
         private Content _content;
-        private ExploreState _state;
+        private StateStack _stack;
 
         public Game1() {
             _graphics = new GraphicsDeviceManager(this) {
@@ -74,7 +74,9 @@ namespace MonoRpg {
             mapDef.Triggers = new List<TriggerDef> {
             };
 
-            _state = new ExploreState(null, mapDef, new Vector3(11,3,0));
+            _stack = new StateStack();
+            _stack.Push(new ExploreState(null, mapDef, new Vector3(11, 3, 0)));
+            _stack.PushFit(Renderer, 0, 0, "You're trapped in a small room.");
 
         }
 
@@ -100,8 +102,7 @@ namespace MonoRpg {
 
             //_renderer.Translate(-_map.CamX, -_map.CamY);
             var dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            _state.Update(dt);
-            _state.HandleInput();
+            _stack.Update(dt);
 
             base.Update(gameTime);
         }
@@ -111,7 +112,7 @@ namespace MonoRpg {
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime) {
-            _state.Render(Renderer);
+            _stack.Render(Renderer);
 
             Renderer.Render();
 

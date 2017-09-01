@@ -3,10 +3,14 @@ namespace MonoRpg.Engine.UI {
     using global::System.Collections.Generic;
     using global::System.Linq;
 
+    using JetBrains.Annotations;
+
     using Microsoft.Xna.Framework;
     using Microsoft.Xna.Framework.Input;
 
-    public class Textbox {
+    using MonoRpg.Engine.GameStates;
+
+    public class Textbox : IStateObject{
         private float _keyboardBuffer;
         public Vector4 Bounds { get; set; }
         public Rectangle Size { get; set; }
@@ -25,40 +29,52 @@ namespace MonoRpg.Engine.UI {
         public Sprite ContinueMark { get; set; }
         public float Time { get; set; }
         public Selection SelectionMenu { get; set; }
+        [CanBeNull]
+        public StateStack Stack { get; set; }
+        public bool DoClickCallback { get; set; }
 
-        public Textbox(TextboxParams parameters) {
-            parameters = parameters ?? new TextboxParams();
+        public Textbox(TextboxParams args) {
+            args = args ?? new TextboxParams();
 
 
-            Chunks = parameters.Text;
+            Chunks = args.Text;
             ChunkIndex = 0;
             ContinueMark = new Sprite {
                 Texture = System.Content.FindTexture("continue_caret.png")
             };
             Time = 0f;
-            TextScale = parameters.TextScale;
-            Panel = new Panel(parameters.PanelArgs){PixelArt = true};
-            Size = parameters.Size;
-            Bounds = parameters.TextBounds;
+            TextScale = args.TextScale;
+            Panel = new Panel(args.PanelArgs){PixelArt = true};
+            Size = args.Size;
+            Bounds = args.TextBounds;
 
             X = (Size.Right + Size.Left) / 2;
             Y = (Size.Top + Size.Bottom) / 2;
             Width = Math.Abs(Size.Right - Size.Left);
             Height = Math.Abs(Size.Top - Size.Bottom);
             AppearTween = new Tween(0, 1, 0.4f, Tween.EaseOutCirc);
-            Wrap = parameters.Wrap;
-            Children = parameters.Children;
-            SelectionMenu = parameters.SelectionMenu;
+            Wrap = args.Wrap;
+            Children = args.Children;
+            SelectionMenu = args.SelectionMenu;
+            Stack = args.Stack;
+            DoClickCallback = false;
         }
 
         
 
-        public void Update(float dt) {
+        public bool Update(float dt) {
             Time += dt;
             AppearTween.Update(dt);
+            if (IsDead) {
+                Stack?.Pop();
+            }
+            return true;
         }
 
         public void OnClick() {
+            if (SelectionMenu != null) {
+                DoClickCallback = true;
+            }
             if (ChunkIndex >= Chunks.Count-1) {
                 if (!(AppearTween.Finished && AppearTween.Value == 1)) {
                     return;
@@ -70,9 +86,6 @@ namespace MonoRpg.Engine.UI {
         }
 
         public void HandleInput(float dt) {
-            if (IsDead) {
-                return;
-            }
             var ks = Keyboard.GetState();
             if (ks.GetPressedKeys().Any() && _keyboardBuffer <= 0.0f) {
                 SelectionMenu?.HandleInput();
@@ -83,6 +96,16 @@ namespace MonoRpg.Engine.UI {
                 _keyboardBuffer = 0.1f;
             }
             _keyboardBuffer -= dt;
+        }
+
+        public void Enter() {
+            
+        }
+
+        public void Exit() {
+            if (DoClickCallback) {
+                SelectionMenu.OnClick();
+            }
         }
 
         public void Render(Renderer renderer) {
@@ -97,7 +120,6 @@ namespace MonoRpg.Engine.UI {
             var top = Y + Height / 2f * scale;
             var textTop = top + Bounds.Z * scale;
             var bottom = Y - Height / 2f * scale;
-            Console.WriteLine("{0}\t{1}", textLeft, Chunks[ChunkIndex]);
             var bounds = new TextboxBounds {
                 Left = left,
                 Top = top,
@@ -150,6 +172,7 @@ namespace MonoRpg.Engine.UI {
         public int Wrap { get; set; }
         public List<TextboxChild> Children { get; set; }
         public Selection SelectionMenu { get; set; }
+        public StateStack Stack { get; set; }
 
         public TextboxParams() {
             Wrap = -1;

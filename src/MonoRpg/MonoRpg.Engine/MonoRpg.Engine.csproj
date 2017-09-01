@@ -63,6 +63,7 @@
     <Compile Include="Enums.cs" />
     <Compile Include="Facing.cs" />
     <Compile Include="GameStates\ExploreState.cs" />
+    <Compile Include="GameStates\IStateObject.cs" />
     <Compile Include="IDrawCommand.cs" />
     <Compile Include="Map.cs" />
     <Compile Include="MoveParams.cs" />

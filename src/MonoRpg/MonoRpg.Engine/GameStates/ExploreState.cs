@@ -11,15 +11,7 @@ namespace MonoRpg.Engine.GameStates {
     using MonoRpg.Engine.Tiled;
     using MonoRpg.Engine.UI;
 
-    public interface IGameState {
-        void Enter();
-        void Exit();
-        void Update(float dt);
-        void Render(Renderer renderer);
-        void HandleInput();
-    }
-
-    public class ExploreState : IGameState {
+    public class ExploreState : IStateObject {
         public StateStack Stack { get; set; }
         public TiledMap MapDef { get; set; }
         public Map Map { get; set; }
@@ -36,7 +28,7 @@ namespace MonoRpg.Engine.GameStates {
         public void Enter() {  }
         public void Exit() {  }
 
-        public void Update(float dt) {
+        public bool Update(float dt) {
             var playerPos = Hero.Entity.Sprite.Position;
             Map.CamX = (int)Math.Floor(playerPos.X);
             Map.CamY = (int)Math.Floor(playerPos.Y);
@@ -45,6 +37,7 @@ namespace MonoRpg.Engine.GameStates {
             foreach (var npc in Map.NPCs) {
                 npc.Controller.Update(dt);
             }
+            return false;
         }
 
         public void Render(Renderer renderer) {
@@ -60,7 +53,7 @@ namespace MonoRpg.Engine.GameStates {
             renderer.Translate(0,0);
         }
 
-        public void HandleInput() {
+        public void HandleInput(float dt) {
             var ks = Keyboard.GetState();
             if (ks.IsKeyDown(Keys.Space)) {
                 var (x, y) = Hero.GetFacedTileCoords();
@@ -69,5 +62,7 @@ namespace MonoRpg.Engine.GameStates {
                 trigger?.OnUse(Hero.Entity);
             }
         }
+
+        
     }
 }

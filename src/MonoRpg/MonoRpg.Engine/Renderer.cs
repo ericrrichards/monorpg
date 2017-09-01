@@ -136,7 +136,7 @@ namespace MonoRpg.Engine {
             if (wrap > 0) {
                 text = WrapText(_content.DefaultFont, text, wrap, scale);
             }
-            return _content.DefaultFont.MeasureString(text);
+            return _content.DefaultFont.MeasureString(text)*scale;
         }
 
         public static string WrapText(SpriteFont spriteFont, string text, float maxLineWidth, float scale) {

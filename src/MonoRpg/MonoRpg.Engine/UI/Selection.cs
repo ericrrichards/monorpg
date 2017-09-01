@@ -98,7 +98,7 @@ namespace MonoRpg.Engine.UI {
             FocusX = Math.Min(FocusX + 1, Columns - 1);
         }
 
-        private void OnClick() {
+        public void OnClick() {
             var index = GetIndex();
             OnSelection(index, DataSource[index]);
         }

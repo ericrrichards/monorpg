@@ -71,7 +71,6 @@ namespace MonoRpg.Engine.UI {
 
             Start = Y + LineHeight / 2 - TileHeight/2;
             Start -= (LineHeight - caretHeight) * value;
-            Console.WriteLine(Start);
             CaretSprite.Position = new Vector2(X, Start);
         }
 
