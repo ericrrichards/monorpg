@@ -13,7 +13,8 @@
         public Tween Tween { get; private set; }
         public Sprite Sprite { get; private set; }
 
-        public FadeState(StateStack stack, FadeArgs args) {
+        public FadeState(StateStack stack, FadeArgs args=null) {
+            args = args ?? new FadeArgs();
             Stack = stack;
             AlphaStart = args.AlphaStart;
             AlphaFinish = args.AlphaFinish;

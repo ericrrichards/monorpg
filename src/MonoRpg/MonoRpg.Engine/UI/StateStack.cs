@@ -17,14 +17,16 @@ namespace MonoRpg.Engine.UI {
         }
 
         public void Update(float dt) {
-            var stateObjects = States.ToList();
-            for (var index = stateObjects.Count-1; index >=0; index--) {
-                var state = stateObjects[index];
+            for (var index = States.Count-1; index >=0; index--) {
+                if (index >= States.Count) {
+                    continue;
+                }
+                var state = States[index];
                 var keepGoing = state.Update(dt);
                 if (!keepGoing) {
                     break;
                 }
-                var top = stateObjects.LastOrDefault();
+                var top = States.LastOrDefault();
                 if (top == null) {
                     return;
                 }

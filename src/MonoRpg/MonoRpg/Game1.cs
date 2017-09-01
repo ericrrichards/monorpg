@@ -76,7 +76,14 @@ namespace MonoRpg {
 
             _stack = new StateStack();
             _stack.Push(new ExploreState(null, mapDef, new Vector3(11, 3, 0)));
-            _stack.PushFit(Renderer, 0, 0, "You're trapped in a small room.");
+
+            _stack.Push(new FadeState(_stack));
+            _stack.Push(new Block(_stack));
+            _stack.PushFit(Renderer, 0, 0, "Where am I?");
+            _stack.Push(new Block(_stack));
+            _stack.PushFit(Renderer, -50, 50, "My head hurts!");
+            _stack.Push(new Block(_stack));
+            _stack.PushFit(Renderer, -100, 100, "Uh...");
 
         }
 
@@ -124,5 +131,25 @@ namespace MonoRpg {
 
         
 
+    }
+
+    public class Block : IStateObject{
+        private StateStack Stack { get; set; }
+
+        public Block(StateStack stack) {
+            Stack = stack;
+        }
+
+        public void Enter() {  }
+        public void Exit() {  }
+
+        public bool Update(float dt) {
+            return false;
+        }
+        public void Render(Renderer renderer) {  }
+
+        public void HandleInput(float dt) {
+            Stack.Pop();
+        }
     }
 }
