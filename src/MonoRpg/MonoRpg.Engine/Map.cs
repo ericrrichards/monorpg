@@ -4,6 +4,8 @@
     using global::System.Diagnostics;
     using global::System.Linq;
 
+    using JetBrains.Annotations;
+
     using Microsoft.Xna.Framework;
     using Microsoft.Xna.Framework.Graphics;
 
@@ -169,7 +171,11 @@
             return tiles[index] - 1; // Tiled uses 1 as the first ID, instead of 0 like everything else in the world does.
         }
 
+        [CanBeNull]
         public Trigger GetTrigger(int layer, int x, int y) {
+            if (!Triggers.ContainsKey(layer)) {
+                return null;
+            }
             var triggers = Triggers[layer];
             var index = CoordToIndex(x, y);
             if (triggers.ContainsKey(index)) {

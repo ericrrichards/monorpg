@@ -10,6 +10,7 @@ namespace MonoRpg {
 
     using Microsoft.Xna.Framework.Graphics;
 
+    using MonoRpg.Engine.GameStates;
     using MonoRpg.Engine.Tiled;
     using MonoRpg.Engine.UI;
 
@@ -22,13 +23,9 @@ namespace MonoRpg {
     /// </summary>
     public class Game1 : Game {
         private readonly GraphicsDeviceManager _graphics;
-        private Renderer _renderer;
+        private Renderer Renderer { get; set; }
         private Content _content;
-
-
-        private Map _map;
-        private Character _hero;
-        private StateStack _stateStack;
+        private ExploreState _state;
 
         public Game1() {
             _graphics = new GraphicsDeviceManager(this) {
@@ -61,62 +58,23 @@ namespace MonoRpg {
         protected override void LoadContent() {
             _content = new Content(Content, GraphicsDevice);
             System.Content = _content;
-            _renderer = new Renderer(GraphicsDevice, _content);
-            _renderer.SetTextAlignment(TextAlignment.Center, TextAlignment.Center);
+            Renderer = new Renderer(GraphicsDevice, _content);
+            Renderer.SetTextAlignment(TextAlignment.Center, TextAlignment.Center);
             //_renderer.ClearColor = Color.White;
 
 
             var mapDef = _content.LoadMap("Content/small_room.json");
 
             mapDef.OnWake = new List<MapAction> {
-                new MapAction {
-                    ID = "AddNPC",
-                    Params = new AddNPCParams{
-                        Character = "strolling_npc",
-                        X = 11,
-                        Y = 5
-                    }
-                },
-                new MapAction {
-                    ID="AddNPC",
-                    Params = new AddNPCParams{
-                        Character = "strolling_npc",
-                        X = 4,
-                        Y = 5
-                    }
-                }
             };
             mapDef.Actions = new Dictionary<string, MapAction> {
-                {"tele_south", new MapAction{ ID = "Teleport", Params = new TeleportParams{X =11, Y=3}} },
-                {"tele_north", new MapAction{ID = "Teleport", Params = new TeleportParams{X=10, Y = 11}} }
             };
             mapDef.TriggerTypes = new Dictionary<string, TriggerTypeDef> {
-                {"north_door_trigger", new TriggerTypeDef{OnEnter = "tele_north"} },
-                {"south_door_trigger", new TriggerTypeDef{OnEnter = "tele_south"} },
-
             };
             mapDef.Triggers = new List<TriggerDef> {
-                new TriggerDef { Trigger = "north_door_trigger", X = 11, Y = 2 },
-                new TriggerDef { Trigger = "south_door_trigger", X = 10, Y = 12 }
             };
 
-
-            _map = new Map(mapDef);
-            _map.GotoTile(5, 5);
-
-            _hero = new Character(EntityDefs.Instance.Characters["hero"], _map);
-            
-
-
-            _hero.Entity.SetTilePosition(11, 3, 0, _map);
-
-            
-            _stateStack = new StateStack();
-            _stateStack.AddFitted(_renderer, 0, 0, "Hello!");
-            _stateStack.AddFitted(_renderer, -25, -25, "World!");
-            _stateStack.AddFitted(_renderer, -50, -50, "Lots");
-            _stateStack.AddFitted(_renderer, -75, -75, "of");
-            _stateStack.AddFitted(_renderer, -100, -100, "boxes!");
+            _state = new ExploreState(null, mapDef, new Vector3(11,3,0));
 
         }
 
@@ -142,19 +100,8 @@ namespace MonoRpg {
 
             //_renderer.Translate(-_map.CamX, -_map.CamY);
             var dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            _hero.Controller.Update(dt);
-            foreach (var npc in _map.NPCs) {
-                npc.Controller.Update(dt);
-            }
-            
-
-
-            var playerPos = _hero.Entity.Sprite.Position;
-            _map.CamX = (int)Math.Floor(playerPos.X);
-            _map.CamY = (int)Math.Floor(playerPos.Y);
-            
-
-            _stateStack.Update(dt);
+            _state.Update(dt);
+            _state.HandleInput();
 
             base.Update(gameTime);
         }
@@ -164,18 +111,9 @@ namespace MonoRpg {
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime) {
-            var layerCount = _map.LayerCount;
-            for (var i = 0; i < layerCount; i++) {
-                Entity heroEntity = null;
-                if (i == _hero.Entity.Layer) {
-                    heroEntity = _hero.Entity;
-                }
-                _map.RenderLayer(_renderer, i, heroEntity);
+            _state.Render(Renderer);
 
-            }
-            _stateStack.Render(_renderer);
-
-            _renderer.Render();
+            Renderer.Render();
 
             base.Draw(gameTime);
         }
