@@ -55,6 +55,11 @@ namespace MonoRpg.Engine {
             _drawQueue.Enqueue(new DrawSpriteCommand(sprite, TranslateCoords(sprite.Position), sprite.Scale));
         }
 
+        public void DrawRect2D(int left, int top, int right, int bottom, Color color) {
+            var pos = TranslateCoords(new Vector2(left, top));
+            _drawQueue.Enqueue(new DrawRectCommand(new Rectangle(pos.ToPoint(), new Point(right - left, top - bottom)), color));
+        }
+
         private Vector2 AlignText(Vector2 p, SpriteFont font, string text) {
             var size = font.MeasureString(text);
             switch (HorizontalAlignment) {
@@ -86,6 +91,7 @@ namespace MonoRpg.Engine {
             var y = -p.Y + _device.Viewport.Height / 2f;
             return new Vector2(x, y) + Translation;
         }
+
         public void SetTextAlignment(TextAlignment horizontal, TextAlignment vertical) {
             if (vertical == TextAlignment.Left || vertical == TextAlignment.Right) {
                 throw new ArgumentOutOfRangeException(nameof(vertical), vertical, "Top, Center or Bottom are the only valid values.");
@@ -98,6 +104,7 @@ namespace MonoRpg.Engine {
         }
 
         private SamplerState GetMode(IDrawCommand command) { return command.PixelArt ? SamplerState.PointClamp : SamplerState.LinearClamp; }
+
         public void Render() {
             _device.SetRenderTarget(null);
             _device.Clear(ClearColor);

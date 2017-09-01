@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 namespace MonoRpg.Engine {
-    
-
+    using Microsoft.Xna.Framework;
     using Microsoft.Xna.Framework.Content;
     using Microsoft.Xna.Framework.Graphics;
 
@@ -19,14 +18,16 @@ namespace MonoRpg.Engine {
 
         private readonly Dictionary<string, SpriteFont> Fonts = new Dictionary<string, SpriteFont>();
         private readonly Dictionary<string, Texture2D> Textures = new Dictionary<string, Texture2D>();
-       
 
         public SpriteFont DefaultFont => Fonts[DEFAULT_FONT];
+        public Texture2D DummyTexture { get; }
 
         public Content(ContentManager manager, GraphicsDevice device) {
             _manager = manager;
             _graphicsDevice = device;
             Fonts[DEFAULT_FONT] = _manager.Load<SpriteFont>("default");
+            DummyTexture = new Texture2D(System.Device, 1, 1);
+            DummyTexture.SetData(new[] { Color.White });
         }
 
 

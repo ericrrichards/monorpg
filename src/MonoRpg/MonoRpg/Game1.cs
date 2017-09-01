@@ -60,7 +60,7 @@ namespace MonoRpg {
             System.Content = _content;
             Renderer = new Renderer(GraphicsDevice, _content);
             Renderer.SetTextAlignment(TextAlignment.Center, TextAlignment.Center);
-            //_renderer.ClearColor = Color.White;
+            Renderer.ClearColor = Color.CornflowerBlue;
 
 
             var mapDef = _content.LoadMap("Content/small_room.json");
@@ -103,6 +103,9 @@ namespace MonoRpg {
             //_renderer.Translate(-_map.CamX, -_map.CamY);
             var dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
             _stack.Update(dt);
+            if (ks.IsKeyDown(Keys.F)) {
+                _stack.Push(new FadeState(_stack, new FadeArgs(){AlphaStart = 1, AlphaFinish = 0}));
+            }
 
             base.Update(gameTime);
         }

@@ -55,6 +55,7 @@
     <Compile Include="Character.cs" />
     <Compile Include="CharacterDef.cs" />
     <Compile Include="Content.cs" />
+    <Compile Include="DrawRectCommand.cs" />
     <Compile Include="DrawSpriteCommand.cs" />
     <Compile Include="DrawTextCommand.cs" />
     <Compile Include="Entity.cs" />
@@ -63,6 +64,7 @@
     <Compile Include="Enums.cs" />
     <Compile Include="Facing.cs" />
     <Compile Include="GameStates\ExploreState.cs" />
+    <Compile Include="GameStates\FadeState.cs" />
     <Compile Include="GameStates\IStateObject.cs" />
     <Compile Include="IDrawCommand.cs" />
     <Compile Include="Map.cs" />
