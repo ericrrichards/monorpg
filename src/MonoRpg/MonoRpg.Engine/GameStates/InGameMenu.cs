@@ -43,7 +43,7 @@
         public StateStack Stack { get; set; }
         public StateMachine StateMachine { get; private set; }
         public Layout Layout { get; private set; }
-        public Selection Selections { get; set; }
+        public Selection<string> Selections { get; set; }
         public List<Panel> Panels { get; set; }
         public string TopBarText { get; set; }
 
@@ -59,8 +59,8 @@
             Stack = parent.Stack;
             StateMachine = parent.StateMachine;
             Layout = layout;
-            Selections = new Selection(System.Renderer,
-                new SelectionArgs(new List<string> { "Items" }) {
+            Selections = new Selection<string>(System.Renderer,
+                new SelectionArgs<string>(new List<string> { "Items" }) {
                     SpacingY = 32,
                     OnSelection = (i, s) => OnMenuClick(i)
                 }

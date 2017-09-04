@@ -85,9 +85,9 @@ namespace MonoRpg.Engine.UI {
                 });
             }
 
-            Selection selectionMenu = null;
+            Selection<string> selectionMenu = null;
             if (choices != null) {
-                selectionMenu = new Selection(renderer, choices);
+                selectionMenu = new Selection<string>(renderer, choices);
                 boundsBottom -= padding / 2;
             }
 
@@ -159,7 +159,7 @@ namespace MonoRpg.Engine.UI {
             var height = (int)(size.Y + padding * 2);
 
             if (choices != null) {
-                var selectionMenu = new Selection(renderer, choices);
+                var selectionMenu = new Selection<string>(renderer, choices);
                 height += selectionMenu.GetHeight() + padding * 4;
                 width = Math.Max(width, selectionMenu.GetWidth() + padding * 2);
             }

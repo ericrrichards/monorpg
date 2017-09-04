@@ -5,12 +5,12 @@ namespace MonoRpg.Engine.UI {
     using Microsoft.Xna.Framework;
     using Microsoft.Xna.Framework.Input;
 
-    public class Selection {
+    public class Selection<T> {
         public int Height { get; set; }
         public int Width { get; set; }
-        public Action<Renderer, int, int, string> RenderItem { get; set; }
+        public Action<Renderer, int, int, T> RenderItem { get; set; }
         public int DisplayRows { get; set; }
-        public Action<int, string> OnSelection { get; set; }
+        public Action<int, T> OnSelection { get; set; }
         public float Scale { get; set; }
         public int DisplayStart { get; set; }
         public int MaxRows { get; set; }
@@ -22,11 +22,11 @@ namespace MonoRpg.Engine.UI {
         public int FocusY { get; set; }
         public int FocusX { get; set; }
         public int Columns { get; set; }
-        public List<string> DataSource { get; set; }
+        public List<T> DataSource { get; set; }
         public int X { get; set; }
         public int Y { get; set; }
 
-        public Selection(Renderer renderer, SelectionArgs args) {
+        public Selection(Renderer renderer, SelectionArgs<T> args) {
             X = 0;
             Y = 0;
             DataSource = args.DataSource;
@@ -52,11 +52,12 @@ namespace MonoRpg.Engine.UI {
             Height = CalcHeight();
         }
 
-        private void RenderItemFunc(Renderer renderer, int x, int y, string item) {
-            if (string.IsNullOrEmpty(item)) {
+        private void RenderItemFunc(Renderer renderer, int x, int y, T item) {
+            var itemName = item.ToString();
+            if (string.IsNullOrEmpty(itemName)) {
                 renderer.DrawText2D(x, y, "--", Color.White, Scale*TextScale);
             } else {
-                renderer.DrawText2D(x, y, item, Color.White, Scale*TextScale);
+                renderer.DrawText2D(x, y, itemName, Color.White, Scale*TextScale);
             }
 
         }
@@ -84,7 +85,7 @@ namespace MonoRpg.Engine.UI {
         }
 
         private void MoveDown() {
-            FocusY = Math.Min(FocusY + 1, MaxRows - 1);
+            FocusY = Math.Min(FocusY + 1, DataSource.Count/Columns-1);
             if (FocusY >= DisplayStart + DisplayRows) {
                 MoveDisplayDown();
             }
@@ -128,7 +129,7 @@ namespace MonoRpg.Engine.UI {
                         Cursor.Position = new Vector2(x, y);
                         renderer.DrawSprite(Cursor);
                     }
-                    var item = DataSource[itemIndex];
+                    var item = itemIndex < DataSource.Count ? DataSource[itemIndex] : default(T);
                     RenderItem(renderer, (int)(x + cursorWidth), y, item);
                     x += (int)spacingX;
                     itemIndex++;
@@ -145,7 +146,7 @@ namespace MonoRpg.Engine.UI {
             if (Columns == 1) {
                 var maxEntryWidth = 0;
                 foreach (var item in DataSource) {
-                    var width = renderer.MeasureText(item, -1, TextScale).X;
+                    var width = renderer.MeasureText(item.ToString(), -1, TextScale).X;
                     maxEntryWidth = (int)Math.Max(width, maxEntryWidth);
                 }
                 return maxEntryWidth;
@@ -178,13 +179,13 @@ namespace MonoRpg.Engine.UI {
                 return currentPercent;
             }
         }
-        public string SelectedItem => DataSource[GetIndex()];
+        public T SelectedItem => DataSource[GetIndex()];
         public float TextScale { get; set; }
     }
 
-    public class SelectionArgs {
-        public SelectionArgs(List<string> items) {
-            DataSource = items ?? new List<string>();
+    public class SelectionArgs<T> {
+        public SelectionArgs(List<T> items) {
+            DataSource = items ?? new List<T>();
             Columns = 1;
             SpacingX = 128;
             SpacingY = 24;
@@ -194,7 +195,7 @@ namespace MonoRpg.Engine.UI {
             DisplayRows = Rows;
         }
 
-        public Action<int, string> OnSelection { get; set; }
+        public Action<int, T> OnSelection { get; set; }
 
         public string Cursor { get; set; }
 
@@ -202,7 +203,7 @@ namespace MonoRpg.Engine.UI {
 
         public int SpacingX { get; set; }
 
-        public List<string> DataSource { get; set; }
+        public List<T> DataSource { get; set; }
         public int Columns { get; set; }
         private int _rows;
         public int Rows {
@@ -210,6 +211,6 @@ namespace MonoRpg.Engine.UI {
             set => _rows = value;
         }
         public int DisplayRows { get; set; }
-        public Action<Renderer, int, int, string> RenderItem { get; set; }
+        public Action<Renderer, int, int, T> RenderItem { get; set; }
     }
 }

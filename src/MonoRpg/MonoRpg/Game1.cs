@@ -6,6 +6,7 @@ namespace MonoRpg {
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Text;
 
     using Microsoft.Xna.Framework.Graphics;
@@ -26,6 +27,9 @@ namespace MonoRpg {
         private Renderer Renderer { get; set; }
         private Content _content;
         private StateStack _stack;
+        private World _world;
+        private Selection<ItemCount> _itemList;
+        private Selection<int?> _keyItemList;
 
         public Game1() {
             _graphics = new GraphicsDeviceManager(this) {
@@ -75,10 +79,75 @@ namespace MonoRpg {
             mapDef.Triggers = new List<TriggerDef> {
             };
 
+            
+
+
+            ItemDB.Initialize(
+                new Item {
+                    Name = "Mysterious Torque",
+                    Type = ItemType.Accessory,
+                    Description = "A golden torque that glitters",
+                    Stats = new ItemStats {
+                        Strength = 10,
+                        Speed = 10
+                    }
+                },
+                new Item {
+                    Name = "Heal Potion",
+                    Type = ItemType.Useable,
+                    Description = "Heals a little HP"
+                },
+                new Item {
+                    Name = "Bronze Sword",
+                    Type = ItemType.Weapon,
+                    Description = "A short sword with a dull blade",
+                    Stats = new ItemStats {
+                        Attack = 10
+                    }
+                },
+                new Item {
+                    Name = "Old bone",
+                    Type = ItemType.Key,
+                    Description = "A calcified human femur"
+                }
+
+            );
+
+            _world = new World();
+            _world.AddItem(3);
+
+            _itemList = new Selection<ItemCount>(Renderer, new SelectionArgs<ItemCount>(_world.Items)) {
+                SpacingY = 32,
+                DisplayRows = 5,
+                RenderItem = (renderer, x, y, item) => {
+                    var i = item as ItemCount;
+                    if (i != null) {
+                        var itemDef = ItemDB.Items[i.ItemId];
+                        var label = $"{itemDef.Name} ({i.Count})";
+                        renderer.DrawText2D(x, y, label);
+                    } else {
+                        renderer.DrawText2D(x,y, "--");
+                    }
+                }
+            };
+            _keyItemList = new Selection<int?>(Renderer, new SelectionArgs<int?>(_world.KeyItems)) {
+                SpacingY = 32,
+                DisplayRows = 5,
+                RenderItem = (renderer, x, y, item) => {
+                    var itemId = item as int?;
+                    if (itemId != null) {
+                        var itemDef = ItemDB.Items[itemId.Value];
+                        renderer.DrawText2D(x, y, itemDef.Name);
+                    } else {
+                        renderer.DrawText2D(x,y, "--");
+                    }
+                }
+            };
+            _keyItemList.HideCursor();
+
             _stack = new StateStack();
             _stack.Push(new ExploreState(_stack, mapDef, new Vector3(11, 3, 0)));
             _stack.Push(new InGameMenu(_stack));
-            
 
 
         }
@@ -99,15 +168,41 @@ namespace MonoRpg {
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime) {
-            var ks = Keyboard.GetState();
-            
-
-            //_renderer.Translate(-_map.CamX, -_map.CamY);
             var dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            _stack.Update(dt);
-            if (ks.IsKeyDown(Keys.F)) {
-                _stack.Push(new FadeState(_stack, new FadeArgs(){AlphaStart = 1, AlphaFinish = 0}));
+            var ks = Keyboard.GetState();
+
+            _world.Update(dt);
+
+
+            _itemList.HandleInput();
+
+            if (ks.IsKeyDown(Keys.A)) {
+                _world.AddItem(1);
+            } else if (ks.IsKeyDown(Keys.R)) {
+                var item = _itemList.SelectedItem;
+                if (item != null) {
+                    _world.RemoveItem(item.ItemId);
+                }
+            } else if (ks.IsKeyDown(Keys.K)) {
+                if (!_world.HasKey(4)) {
+                    _world.AddKey(4);
+                }
+            } else if (ks.IsKeyDown(Keys.U)) {
+                if (_world.HasKey(4)) {
+                    _world.RemoveKey(4);
+                }
+            } else if (ks.IsKeyDown(Keys.G)) {
+                _world.Gold += DateTime.Now.Millisecond % 100;
             }
+
+
+
+
+            
+            //_stack.Update(dt);
+            //if (ks.IsKeyDown(Keys.F)) {
+            //    _stack.Push(new FadeState(_stack, new FadeArgs() { AlphaStart = 1, AlphaFinish = 0 }));
+            //}
 
             base.Update(gameTime);
         }
@@ -117,32 +212,56 @@ namespace MonoRpg {
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime) {
-            
-            _stack.Render(Renderer);
+
+            //_stack.Render(Renderer);
+
+            var x = -200;
+            var y = 50;
+            Renderer.AlignText(TextAlignment.Center, TextAlignment.Center);
+            Renderer.DrawText2D(x + _itemList.GetWidth()/2, y + 32, "ITEMS");
+            Renderer.AlignText(TextAlignment.Left, TextAlignment.Center);
+            _itemList.Position = new Vector2(x,y);
+            _itemList.Render(Renderer);
+
+            x = 100;
+
+            Renderer.AlignText(TextAlignment.Center, TextAlignment.Center);
+            Renderer.DrawText2D(x + _itemList.GetWidth()/2, y + 32, "KEY ITEMS");
+            _keyItemList.Position = new Vector2(x,y);
+            _keyItemList.Render(Renderer);
+
+            var timeText = $"TIME: {_world.TimeString}";
+            var goldText = $"GOLD: {_world.Gold}";
+            Renderer.DrawText2D(0, 150, timeText);
+            Renderer.DrawText2D(0, 120, goldText);
+
+            var tip = "A - Add Item, R - Remove Item, K - Add Key, U - Use Key, G - Add Gold";
+            Renderer.DrawText2D(0, -150, tip, Color.White, 1.0f, 300);
+
 
             Renderer.Render();
 
             base.Draw(gameTime);
         }
 
-        
+
 
     }
 
-    public class Block : IStateObject{
+    public class Block : IStateObject {
         private StateStack Stack { get; set; }
 
         public Block(StateStack stack) {
             Stack = stack;
         }
 
-        public void Enter(EnterArgs arg) {  }
-        public void Exit() {  }
+        public void Enter(EnterArgs arg) { }
+        public void Exit() { }
 
         public bool Update(float dt) {
             return false;
         }
-        public void Render(Renderer renderer) {  }
+        public void Render(Renderer renderer) { }
 
         public void HandleInput(float dt) {
             Stack.Pop();

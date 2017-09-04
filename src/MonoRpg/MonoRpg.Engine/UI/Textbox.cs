@@ -28,7 +28,7 @@ namespace MonoRpg.Engine.UI {
         public int ChunkIndex { get; set; }
         public Sprite ContinueMark { get; set; }
         public float Time { get; set; }
-        public Selection SelectionMenu { get; set; }
+        public Selection<string> SelectionMenu { get; set; }
         [CanBeNull]
         public StateStack Stack { get; set; }
         public bool DoClickCallback { get; set; }
@@ -171,7 +171,7 @@ namespace MonoRpg.Engine.UI {
         public Vector4 TextBounds { get; set; }
         public int Wrap { get; set; }
         public List<TextboxChild> Children { get; set; }
-        public Selection SelectionMenu { get; set; }
+        public Selection<string> SelectionMenu { get; set; }
         public StateStack Stack { get; set; }
 
         public TextboxParams() {

@@ -68,6 +68,7 @@
     <Compile Include="GameStates\InGameMenu.cs" />
     <Compile Include="GameStates\IStateObject.cs" />
     <Compile Include="IDrawCommand.cs" />
+    <Compile Include="ItemDB.cs" />
     <Compile Include="Map.cs" />
     <Compile Include="MoveParams.cs" />
     <Compile Include="Renderer.cs" />
@@ -90,6 +91,7 @@
     <Compile Include="UI\Selection.cs" />
     <Compile Include="UI\StateStack.cs" />
     <Compile Include="UI\Textbox.cs" />
+    <Compile Include="World.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

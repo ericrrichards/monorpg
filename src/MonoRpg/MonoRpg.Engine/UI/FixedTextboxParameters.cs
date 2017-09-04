@@ -5,6 +5,6 @@ namespace MonoRpg.Engine.UI {
         public Texture2D Avatar { get; set; }
         public string Title { get; set; }
 
-        public SelectionArgs Choices { get; set; }
+        public SelectionArgs<string> Choices { get; set; }
     }
 }
