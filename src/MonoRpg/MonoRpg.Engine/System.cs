@@ -17,24 +17,36 @@
         public static Renderer Renderer { get; set; }
         public static readonly Keyboard Keys= new Keyboard();
 
+        
+    }
+    public class Keyboard {
+        private KeyboardState CurrentState { get; set; }
+        private KeyboardState LastState { get; set; }
 
-        public class Keyboard {
-            private KeyboardState CurrentState { get; set; }
-            private KeyboardState LastState { get; set; }
+        public Keyboard() {
+            CurrentState = new KeyboardState();
+            LastState = new KeyboardState();
+        }
 
-            public Keyboard() {
-                CurrentState = new KeyboardState();
-                LastState = new KeyboardState();
-            }
+        public void Update() {
+            LastState = CurrentState;
+            CurrentState = Microsoft.Xna.Framework.Input.Keyboard.GetState();
+        }
 
-            public void Update() {
-                LastState = CurrentState;
-                CurrentState = Microsoft.Xna.Framework.Input.Keyboard.GetState();
-            }
+        public bool WasPressed(Keys key) {
+            return LastState.IsKeyUp(key) && CurrentState.IsKeyDown(key);
+        }
 
-            public bool WasPressed(Keys key) {
-                return LastState.IsKeyUp(key) && CurrentState.IsKeyDown(key);
-            }
+        public bool WasReleased(Keys key) {
+            return LastState.IsKeyDown(key) && CurrentState.IsKeyUp(key);
+        }
+
+        public bool IsDown(Keys key) {
+            return CurrentState.IsKeyDown(key);
+        }
+
+        public bool IsUp(Keys key) {
+            return CurrentState.IsKeyUp(key);
         }
     }
 }
