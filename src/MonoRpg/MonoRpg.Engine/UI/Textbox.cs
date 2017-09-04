@@ -10,8 +10,7 @@ namespace MonoRpg.Engine.UI {
 
     using MonoRpg.Engine.GameStates;
 
-    public class Textbox : IStateObject{
-        private float _keyboardBuffer;
+    public class Textbox : IStateObject {
         public Vector4 Bounds { get; set; }
         public Rectangle Size { get; set; }
         public float TextScale { get; set; }
@@ -44,7 +43,7 @@ namespace MonoRpg.Engine.UI {
             };
             Time = 0f;
             TextScale = args.TextScale;
-            Panel = new Panel(args.PanelArgs){PixelArt = true};
+            Panel = new Panel(args.PanelArgs) { PixelArt = true };
             Size = args.Size;
             Bounds = args.TextBounds;
 
@@ -60,7 +59,7 @@ namespace MonoRpg.Engine.UI {
             DoClickCallback = false;
         }
 
-        
+
 
         public bool Update(float dt) {
             Time += dt;
@@ -75,7 +74,7 @@ namespace MonoRpg.Engine.UI {
             if (SelectionMenu != null) {
                 DoClickCallback = true;
             }
-            if (ChunkIndex >= Chunks.Count-1) {
+            if (ChunkIndex >= Chunks.Count - 1) {
                 if (!(AppearTween.Finished && AppearTween.Value == 1)) {
                     return;
                 }
@@ -86,20 +85,15 @@ namespace MonoRpg.Engine.UI {
         }
 
         public void HandleInput(float dt) {
-            var ks = Keyboard.GetState();
-            if (ks.GetPressedKeys().Any() && _keyboardBuffer <= 0.0f) {
-                SelectionMenu?.HandleInput();
-                
-                if (ks.IsKeyDown(Keys.Space)) {
-                    OnClick();
-                }
-                _keyboardBuffer = 0.1f;
+            SelectionMenu?.HandleInput();
+
+            if (System.Keys.WasPressed(Keys.Space)) {
+                OnClick();
             }
-            _keyboardBuffer -= dt;
         }
 
         public void Enter(EnterArgs arg) {
-            
+
         }
 
         public void Exit() {
@@ -112,7 +106,7 @@ namespace MonoRpg.Engine.UI {
             var scale = AppearTween.Value;
             renderer.AlignText(TextAlignment.Left, TextAlignment.Top);
 
-            Panel.CenterPosition(X, Y, (int)(Width*scale), (int)(Height* scale));
+            Panel.CenterPosition(X, Y, (int)(Width * scale), (int)(Height * scale));
             Panel.Render(renderer);
 
             var left = X - (Width / 2f * scale);
@@ -128,7 +122,7 @@ namespace MonoRpg.Engine.UI {
                 Scale = scale
             };
 
-            renderer.DrawText2D((int)textLeft, (int)textTop, Chunks[ChunkIndex], Color.White, TextScale * scale, (int)(Wrap*scale));
+            renderer.DrawText2D((int)textLeft, (int)textTop, Chunks[ChunkIndex], Color.White, TextScale * scale, (int)(Wrap * scale));
 
             if (SelectionMenu != null) {
                 renderer.AlignText(TextAlignment.Left, TextAlignment.Center);
@@ -141,7 +135,7 @@ namespace MonoRpg.Engine.UI {
                 SelectionMenu.Render(renderer);
             }
 
-            if (ChunkIndex < Chunks.Count-1) {
+            if (ChunkIndex < Chunks.Count - 1) {
                 var offset = 12 + (float)Math.Floor(Math.Sin(Time * 10)) * scale;
                 ContinueMark.Scale = new Vector2(scale, scale);
                 ContinueMark.Position = new Vector2(X, bottom + offset);
@@ -152,7 +146,7 @@ namespace MonoRpg.Engine.UI {
             }
         }
 
-        
+
     }
 
     public class TextboxBounds {
@@ -187,14 +181,14 @@ namespace MonoRpg.Engine.UI {
         public abstract void Render(Renderer renderer, TextboxBounds bounds, Textbox textbox);
     }
 
-    public class TextChild :TextboxChild{
+    public class TextChild : TextboxChild {
         public string Text { get; set; }
 
         public override void Render(Renderer renderer, TextboxBounds bounds, Textbox textbox) {
             renderer.DrawText2D(
-                (int)(bounds.TextLeft + X * bounds.Scale), 
-                (int)(bounds.TextTop + Y * bounds.Scale), 
-                Text, Color.White, bounds.Scale*textbox.TextScale
+                (int)(bounds.TextLeft + X * bounds.Scale),
+                (int)(bounds.TextTop + Y * bounds.Scale),
+                Text, Color.White, bounds.Scale * textbox.TextScale
             );
         }
     }
@@ -203,7 +197,7 @@ namespace MonoRpg.Engine.UI {
         public Sprite Sprite { get; set; }
 
         public override void Render(Renderer renderer, TextboxBounds bounds, Textbox textbox) {
-            Sprite.Position = new Vector2(bounds.Left + X , bounds.Top + Y );
+            Sprite.Position = new Vector2(bounds.Left + X, bounds.Top + Y);
             Sprite.Scale = new Vector2(bounds.Scale, bounds.Scale);
             renderer.DrawSprite(Sprite);
         }

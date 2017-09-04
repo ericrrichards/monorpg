@@ -38,6 +38,9 @@
             var item = Items.FirstOrDefault(i=>i.ItemId==itemId);
             Debug.Assert(item!=null && item.Count >= count);
             item.Count -= count;
+            if (item.Count == 0) {
+                Items.Remove(item);
+            }
         }
 
         public bool HasKey(int itemId) {

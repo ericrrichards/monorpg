@@ -169,29 +169,29 @@ namespace MonoRpg {
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime) {
             var dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            var ks = Keyboard.GetState();
+            System.Keys.Update();
 
             _world.Update(dt);
 
 
             _itemList.HandleInput();
 
-            if (ks.IsKeyDown(Keys.A)) {
+            if (System.Keys.WasPressed(Keys.A)) {
                 _world.AddItem(1);
-            } else if (ks.IsKeyDown(Keys.R)) {
+            } else if (System.Keys.WasPressed(Keys.R)) {
                 var item = _itemList.SelectedItem;
                 if (item != null) {
                     _world.RemoveItem(item.ItemId);
                 }
-            } else if (ks.IsKeyDown(Keys.K)) {
+            } else if (System.Keys.WasPressed(Keys.K)) {
                 if (!_world.HasKey(4)) {
                     _world.AddKey(4);
                 }
-            } else if (ks.IsKeyDown(Keys.U)) {
+            } else if (System.Keys.WasPressed(Keys.U)) {
                 if (_world.HasKey(4)) {
                     _world.RemoveKey(4);
                 }
-            } else if (ks.IsKeyDown(Keys.G)) {
+            } else if (System.Keys.WasPressed(Keys.G)) {
                 _world.Gold += DateTime.Now.Millisecond % 100;
             }
 

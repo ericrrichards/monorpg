@@ -55,24 +55,23 @@ namespace MonoRpg.Engine.UI {
         private void RenderItemFunc(Renderer renderer, int x, int y, T item) {
             var itemName = item.ToString();
             if (string.IsNullOrEmpty(itemName)) {
-                renderer.DrawText2D(x, y, "--", Color.White, Scale*TextScale);
+                renderer.DrawText2D(x, y, "--", Color.White, Scale * TextScale);
             } else {
-                renderer.DrawText2D(x, y, itemName, Color.White, Scale*TextScale);
+                renderer.DrawText2D(x, y, itemName, Color.White, Scale * TextScale);
             }
 
         }
 
         public void HandleInput() {
-            var ks = Keyboard.GetState();
-            if (ks.IsKeyDown(Keys.Up)) {
+            if (System.Keys.WasPressed(Keys.Up)) {
                 MoveUp();
-            } else if (ks.IsKeyDown(Keys.Down)) {
+            } else if (System.Keys.WasPressed(Keys.Down)) {
                 MoveDown();
-            } else if (ks.IsKeyDown(Keys.Left)) {
+            } else if (System.Keys.WasPressed(Keys.Left)) {
                 MoveLeft();
-            } else if (ks.IsKeyDown(Keys.Right)) {
+            } else if (System.Keys.WasPressed(Keys.Right)) {
                 MoveRight();
-            } else if (ks.IsKeyDown(Keys.Space)) {
+            } else if (System.Keys.WasPressed(Keys.Space)) {
                 OnClick();
             }
         }
@@ -85,7 +84,7 @@ namespace MonoRpg.Engine.UI {
         }
 
         private void MoveDown() {
-            FocusY = Math.Min(FocusY + 1, DataSource.Count/Columns-1);
+            FocusY = Math.Min(FocusY + 1, DataSource.Count / Columns - 1);
             if (FocusY >= DisplayStart + DisplayRows) {
                 MoveDisplayDown();
             }
@@ -179,7 +178,15 @@ namespace MonoRpg.Engine.UI {
                 return currentPercent;
             }
         }
-        public T SelectedItem => DataSource[GetIndex()];
+        public T SelectedItem {
+            get {
+                var index = GetIndex();
+                if (index < DataSource.Count) {
+                    return DataSource[index];
+                }
+                return default(T);
+            }
+        }
         public float TextScale { get; set; }
     }
 
@@ -207,7 +214,7 @@ namespace MonoRpg.Engine.UI {
         public int Columns { get; set; }
         private int _rows;
         public int Rows {
-            get => _rows > 0 ? _rows : DataSource.Count/Columns;
+            get => _rows > 0 ? _rows : DataSource.Count / Columns;
             set => _rows = value;
         }
         public int DisplayRows { get; set; }

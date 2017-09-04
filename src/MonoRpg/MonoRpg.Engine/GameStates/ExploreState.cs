@@ -54,14 +54,13 @@ namespace MonoRpg.Engine.GameStates {
         }
 
         public void HandleInput(float dt) {
-            var ks = Keyboard.GetState();
-            if (ks.IsKeyDown(Keys.Space)) {
+            if (System.Keys.WasPressed(Keys.Space)) {
                 var (x, y) = Hero.GetFacedTileCoords();
                 var layer = Hero.Entity.Layer;
                 var trigger = Map.GetTrigger(layer, x, y);
                 trigger?.OnUse(Hero.Entity);
             }
-            if (ks.IsKeyDown(Keys.LeftAlt)) {
+            if (System.Keys.WasPressed(Keys.LeftAlt)) {
                 var menu = new InGameMenu(Stack);
                 Stack.Push(menu);
                 return;

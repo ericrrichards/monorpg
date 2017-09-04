@@ -91,9 +91,8 @@
 
         public override bool Update(float dt) {
             Selections.HandleInput();
-
-            var ks = Keyboard.GetState();
-            if (ks.IsKeyDown(Keys.Back) || ks.IsKeyDown(Keys.Escape)) {
+            
+            if (System.Keys.WasPressed(Keys.Back) || System.Keys.WasPressed(Keys.Escape)) {
                 Stack.Pop();
             }
             return false;
