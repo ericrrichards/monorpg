@@ -53,6 +53,9 @@ namespace MonoRpg.Engine.UI {
         }
 
         private void RenderItemFunc(Renderer renderer, int x, int y, T item) {
+            if (item == null) {
+                return;
+            }
             var itemName = item.ToString();
             if (string.IsNullOrEmpty(itemName)) {
                 renderer.DrawText2D(x, y, "--", Color.White, Scale * TextScale);
@@ -84,7 +87,7 @@ namespace MonoRpg.Engine.UI {
         }
 
         private void MoveDown() {
-            FocusY = Math.Min(FocusY + 1, DataSource.Count / Columns - 1);
+            FocusY = Math.Min(FocusY + 1, (int)Math.Ceiling(DataSource.Count / (float)Columns)-1);
             if (FocusY >= DisplayStart + DisplayRows) {
                 MoveDisplayDown();
             }
@@ -105,7 +108,7 @@ namespace MonoRpg.Engine.UI {
 
         private void MoveDisplayUp() { DisplayStart -= 1; }
         private void MoveDisplayDown() { DisplayStart += 1; }
-        private int GetIndex() { return FocusX + FocusY * Columns; }
+        public int GetIndex() { return FocusX + FocusY * Columns; }
 
         public void Render(Renderer renderer) {
             var displayStart = DisplayStart;

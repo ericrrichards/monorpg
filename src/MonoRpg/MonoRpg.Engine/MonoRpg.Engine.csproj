@@ -65,8 +65,10 @@
     <Compile Include="Facing.cs" />
     <Compile Include="GameStates\ExploreState.cs" />
     <Compile Include="GameStates\FadeState.cs" />
+    <Compile Include="GameStates\FrontMenu.cs" />
     <Compile Include="GameStates\InGameMenu.cs" />
     <Compile Include="GameStates\IStateObject.cs" />
+    <Compile Include="GameStates\ItemMenuState.cs" />
     <Compile Include="IDrawCommand.cs" />
     <Compile Include="ItemDB.cs" />
     <Compile Include="Map.cs" />
@@ -84,6 +86,7 @@
     <Compile Include="Trigger.cs" />
     <Compile Include="Tween.cs" />
     <Compile Include="UI\FixedTextboxParameters.cs" />
+    <Compile Include="UI\Icons.cs" />
     <Compile Include="UI\Layout.cs" />
     <Compile Include="UI\Panel.cs" />
     <Compile Include="UI\ProgressBar.cs" />

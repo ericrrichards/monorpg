@@ -61,12 +61,12 @@ namespace MonoRpg.Engine {
     }
 
     public enum ItemType {
-        None,
-        Accessory,
-        Useable,
-        Weapon,
+        None=-1,
+        Accessory=1,
+        Useable=0,
+        Weapon=2,
         Key,
-        Armor,
+        Armor=3,
     }
 
     public class ItemCount {

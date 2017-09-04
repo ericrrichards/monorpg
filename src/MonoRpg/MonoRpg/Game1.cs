@@ -27,9 +27,6 @@ namespace MonoRpg {
         private Renderer Renderer { get; set; }
         private Content _content;
         private StateStack _stack;
-        private World _world;
-        private Selection<ItemCount> _itemList;
-        private Selection<int?> _keyItemList;
 
         public Game1() {
             _graphics = new GraphicsDeviceManager(this) {
@@ -113,41 +110,20 @@ namespace MonoRpg {
 
             );
 
-            _world = new World();
-            _world.AddItem(3);
-
-            _itemList = new Selection<ItemCount>(Renderer, new SelectionArgs<ItemCount>(_world.Items)) {
-                SpacingY = 32,
-                DisplayRows = 5,
-                RenderItem = (renderer, x, y, item) => {
-                    var i = item as ItemCount;
-                    if (i != null) {
-                        var itemDef = ItemDB.Items[i.ItemId];
-                        var label = $"{itemDef.Name} ({i.Count})";
-                        renderer.DrawText2D(x, y, label);
-                    } else {
-                        renderer.DrawText2D(x,y, "--");
-                    }
-                }
-            };
-            _keyItemList = new Selection<int?>(Renderer, new SelectionArgs<int?>(_world.KeyItems)) {
-                SpacingY = 32,
-                DisplayRows = 5,
-                RenderItem = (renderer, x, y, item) => {
-                    var itemId = item as int?;
-                    if (itemId != null) {
-                        var itemDef = ItemDB.Items[itemId.Value];
-                        renderer.DrawText2D(x, y, itemDef.Name);
-                    } else {
-                        renderer.DrawText2D(x,y, "--");
-                    }
-                }
-            };
-            _keyItemList.HideCursor();
+            
+            World.Instance.AddItem(3);
+            World.Instance.AddItem(1);
+            World.Instance.AddItem(2, 4);
+            World.Instance.AddKey(4);
+            
+            Icons.Instance = new Icons(_content.FindTexture("inventory_icons.png"));
 
             _stack = new StateStack();
             _stack.Push(new ExploreState(_stack, mapDef, new Vector3(11, 3, 0)));
             _stack.Push(new InGameMenu(_stack));
+
+
+            
 
 
         }
@@ -171,35 +147,16 @@ namespace MonoRpg {
             var dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
             System.Keys.Update();
 
-            _world.Update(dt);
+            World.Instance.Update(dt);
 
 
-            _itemList.HandleInput();
-
-            if (System.Keys.WasPressed(Keys.A)) {
-                _world.AddItem(1);
-            } else if (System.Keys.WasPressed(Keys.R)) {
-                var item = _itemList.SelectedItem;
-                if (item != null) {
-                    _world.RemoveItem(item.ItemId);
-                }
-            } else if (System.Keys.WasPressed(Keys.K)) {
-                if (!_world.HasKey(4)) {
-                    _world.AddKey(4);
-                }
-            } else if (System.Keys.WasPressed(Keys.U)) {
-                if (_world.HasKey(4)) {
-                    _world.RemoveKey(4);
-                }
-            } else if (System.Keys.WasPressed(Keys.G)) {
-                _world.Gold += DateTime.Now.Millisecond % 100;
-            }
+            
 
 
 
 
             
-            //_stack.Update(dt);
+            _stack.Update(dt);
             //if (ks.IsKeyDown(Keys.F)) {
             //    _stack.Push(new FadeState(_stack, new FadeArgs() { AlphaStart = 1, AlphaFinish = 0 }));
             //}
@@ -213,30 +170,8 @@ namespace MonoRpg {
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime) {
 
-            //_stack.Render(Renderer);
-
-            var x = -200;
-            var y = 50;
-            Renderer.AlignText(TextAlignment.Center, TextAlignment.Center);
-            Renderer.DrawText2D(x + _itemList.GetWidth()/2, y + 32, "ITEMS");
-            Renderer.AlignText(TextAlignment.Left, TextAlignment.Center);
-            _itemList.Position = new Vector2(x,y);
-            _itemList.Render(Renderer);
-
-            x = 100;
-
-            Renderer.AlignText(TextAlignment.Center, TextAlignment.Center);
-            Renderer.DrawText2D(x + _itemList.GetWidth()/2, y + 32, "KEY ITEMS");
-            _keyItemList.Position = new Vector2(x,y);
-            _keyItemList.Render(Renderer);
-
-            var timeText = $"TIME: {_world.TimeString}";
-            var goldText = $"GOLD: {_world.Gold}";
-            Renderer.DrawText2D(0, 150, timeText);
-            Renderer.DrawText2D(0, 120, goldText);
-
-            var tip = "A - Add Item, R - Remove Item, K - Add Key, U - Use Key, G - Add Gold";
-            Renderer.DrawText2D(0, -150, tip, Color.White, 1.0f, 300);
+            _stack.Render(Renderer);
+            
 
 
             Renderer.Render();

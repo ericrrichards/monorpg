@@ -41,13 +41,13 @@ namespace MonoRpg.States {
 
 
             
-            if (System.Keys.WasPressed(Keys.Left)) {
+            if (System.Keys.IsDown(Keys.Left)) {
                 Controller.Change("move", new MoveParams(-1, 0));
-            } else if (System.Keys.WasPressed(Keys.Right)) {
+            } else if (System.Keys.IsDown(Keys.Right)) {
                 Controller.Change("move", new MoveParams(1, 0));
-            } else if (System.Keys.WasPressed(Keys.Up)) {
+            } else if (System.Keys.IsDown(Keys.Up)) {
                 Controller.Change("move", new MoveParams(0, -1));
-            } else if (System.Keys.WasPressed(Keys.Down)) {
+            } else if (System.Keys.IsDown(Keys.Down)) {
                 Controller.Change("move", new MoveParams(0, 1));
             }
             return false;
