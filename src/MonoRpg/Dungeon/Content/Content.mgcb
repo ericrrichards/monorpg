@@ -20,3 +20,17 @@
 /processorParam:TextureFormat=Compressed
 /build:default.spritefont
 
+#begin contra_italic.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:contra_italic.spritefont
+
+#begin junction.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:junction.spritefont
+

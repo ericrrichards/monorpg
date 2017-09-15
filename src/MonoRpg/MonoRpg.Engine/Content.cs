@@ -18,6 +18,7 @@ namespace MonoRpg.Engine {
 
         private readonly Dictionary<string, SpriteFont> Fonts = new Dictionary<string, SpriteFont>();
         private readonly Dictionary<string, Texture2D> Textures = new Dictionary<string, Texture2D>();
+        private SpriteFont _defaultFont;
 
         public SpriteFont DefaultFont => Fonts[DEFAULT_FONT];
         public Texture2D DummyTexture { get; }
@@ -26,8 +27,27 @@ namespace MonoRpg.Engine {
             _manager = manager;
             _graphicsDevice = device;
             Fonts[DEFAULT_FONT] = _manager.Load<SpriteFont>("default");
+            _defaultFont = Fonts[DEFAULT_FONT];
+            
             DummyTexture = new Texture2D(System.Device, 1, 1);
             DummyTexture.SetData(new[] { Color.White });
+        }
+
+        public SpriteFont LoadFont(string fontName) {
+            if (!Fonts.ContainsKey(fontName)) {
+                Fonts[fontName] = _manager.Load<SpriteFont>(fontName);
+            }
+            return Fonts[fontName];
+        }
+
+        public void SetDefaultFont(string fontName) {
+            if (!Fonts.ContainsKey(fontName)) {
+                Fonts[DEFAULT_FONT] = LoadFont(fontName);
+            }
+        }
+
+        public void ResetDefaultFont() {
+            Fonts[DEFAULT_FONT] = _defaultFont;
         }
 
 

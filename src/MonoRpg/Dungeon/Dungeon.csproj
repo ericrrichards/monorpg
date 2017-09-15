@@ -60,7 +60,11 @@
     <MonoGameContentReference Include="Content\Content.mgcb" />
     <None Include="app.config" />
     <None Include="app.manifest" />
+    <None Include="Content\contra_italic.spritefont" />
+    <None Include="Content\contra_italic.ttf" />
     <None Include="Content\default.spritefont" />
+    <None Include="Content\junction.spritefont" />
+    <None Include="Content\junction.ttf" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MonoRpg.Engine\MonoRpg.Engine.csproj">

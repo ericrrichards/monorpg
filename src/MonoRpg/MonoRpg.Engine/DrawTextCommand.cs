@@ -16,7 +16,7 @@
         public DrawTextCommand(string text, Vector2 position, SpriteFont font, Color color, float scale, int wrap) {
             _text = text;
             _position = position;
-            _color = color;
+            _color = color*color.ToVector4().W;
             _font = font;
             Scale = scale;
             Wrap = wrap;

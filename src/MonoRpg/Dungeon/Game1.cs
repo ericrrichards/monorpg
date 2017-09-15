@@ -52,8 +52,23 @@ namespace Dungeon {
             Renderer.AlignText(TextAlignment.Center, TextAlignment.Center);
             Renderer.ClearColor = Color.CornflowerBlue;
 
+            _content.SetDefaultFont("junction");
+            _content.LoadFont("contra_italic");
+            
+
+
             _stack = new StateStack();
-            var storyboard = new Storyboard(_stack, WaitEvent.Wait(2), WaitEvent.Wait(5));
+            var storyboard = new Storyboard(_stack, 
+                Events.BlackScreen(), 
+                Events.Caption("place", "title", "Village of Sontos"),
+                Events.Caption("time", "subtitle", "MIDNIGHT"),
+                Events.Wait(2),
+                Events.NoBlock(Events.FadeOutCaption("place", 3)),
+                Events.FadeOutCaption("time", 3),
+                Events.KillState("place"),
+                Events.KillState("time"),
+                Events.FadeOutScreen()
+            );
             _stack.Push(storyboard);
         }
 

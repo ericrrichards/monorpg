@@ -32,10 +32,13 @@ namespace MonoRpg.Engine {
             VerticalAlignment = TextAlignment.Top;
             HorizontalAlignment = TextAlignment.Left;
         }
-
-        public void DrawText2D(int x, int y, string text, Color color, float scale, int wrap) {
-            ; var position = AlignText(TranslateCoords(new Vector2(x, y)), _content.DefaultFont, text);
-            var command = new DrawTextCommand(text, position, _content.DefaultFont, color, scale, wrap);
+        public void DrawText2D(int x, int y, string text, Color color, float scale, int wrap, string fontName = null) {
+            var font = _content.DefaultFont;
+            if (fontName != null) {
+                font = _content.LoadFont(fontName);
+            }
+            var position = AlignText(TranslateCoords(new Vector2(x, y)), font, text, scale);
+            var command = new DrawTextCommand(text, position, font, color, scale, wrap);
             _drawQueue.Enqueue(command);
         }
 
@@ -60,8 +63,8 @@ namespace MonoRpg.Engine {
             _drawQueue.Enqueue(new DrawRectCommand(new Rectangle(pos.ToPoint(), new Point(right - left, top - bottom)), color));
         }
 
-        private Vector2 AlignText(Vector2 p, SpriteFont font, string text) {
-            var size = font.MeasureString(text);
+        private Vector2 AlignText(Vector2 p, SpriteFont font, string text, float scale) {
+            var size = font.MeasureString(text)*scale;
             switch (HorizontalAlignment) {
                 case TextAlignment.Left:
                     break;
@@ -122,22 +125,10 @@ namespace MonoRpg.Engine {
                 _spriteBatch.End();
             }
 
-            //_spriteBatch.Begin(samplerState: SamplerState.PointClamp);
-            //while (pixelArt.Any()) {
-            //    var command = pixelArt.Dequeue();
-            //    command.Draw(_spriteBatch);
-            //}
-            //_spriteBatch.End();
-
-            //_spriteBatch.Begin(samplerState: SamplerState.LinearClamp);
-            //while (blended.Any()) {
-            //    var command = blended.Dequeue();
-            //    command.Draw(_spriteBatch);
-            //}
-            //_spriteBatch.End();
-
             _drawQueue.Clear();
         }
+
+        
 
         public Vector2 MeasureText(string text, int wrap, float scale = 1.0f) {
             if (wrap > 0) {

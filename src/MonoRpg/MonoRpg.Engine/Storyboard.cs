@@ -8,17 +8,25 @@
 
     public class Storyboard : IStateObject{
         public StateStack Stack { get; set; }
-        public List<Func<IStoryboardEvent>> EventFactories { get; set; }
+        public List<Func<Storyboard, IStoryboardEvent>> EventFactories { get; set; }
         public List<IStoryboardEvent> InstantiatedEvents { get; set; }
 
-        public Storyboard(StateStack stack, params Func<IStoryboardEvent>[] events) {
+        public Dictionary<string, IStateObject> States { get; set; }
+        public StateStack SubStack { get; set; }
+
+
+        public Storyboard(StateStack stack, params Func<Storyboard, IStoryboardEvent>[] events) {
             Stack = stack;
             EventFactories = events.ToList();
             InstantiatedEvents = new List<IStoryboardEvent>();
             for (var index = 0; index < EventFactories.Count; index++) {
                 InstantiatedEvents.Add(null);
             }
+            States = new Dictionary<string, IStateObject>();
+            SubStack = new StateStack();
         }
+
+        
 
         public void Enter(EnterArgs enterParams = null) {
         }
@@ -29,6 +37,8 @@
         }
 
         public bool Update(float dt) {
+            SubStack.Update(dt);
+
             if (EventFactories.Count == 0) {
                 Stack.Pop();
             }
@@ -36,10 +46,10 @@
             for (var index = 0; index < EventFactories.Count; index++) {
                 var evt = InstantiatedEvents[index];
                 if (evt == null) {
-                    InstantiatedEvents[index] = EventFactories[index]();
+                    InstantiatedEvents[index] = EventFactories[index](this);
                     evt = InstantiatedEvents[index];
                 }
-                evt.Update(dt);
+                evt.Update(dt, this);
                 if (evt.IsFinished) {
                     deleteIndex = index;
                     break;
@@ -56,8 +66,21 @@
         }   
 
         public void Render(Renderer renderer) {
-            var debugText = $"Events Stack: {InstantiatedEvents.Count}";
-            renderer.DrawText2D(0,0, debugText);
+            SubStack.Render(renderer);
+
+            //var debugText = $"Events Stack: {InstantiatedEvents.Count}";
+            //renderer.DrawText2D(0,0, debugText);
+        }
+
+        public void PushState(string id, IStateObject state) {
+            States[id] = state;
+            SubStack.Push(state);
+        }
+
+        public void RemoveState(string id) {
+            var state = States[id];
+            States.Remove(id);
+            SubStack.States.Remove(state);
         }
     }
 }

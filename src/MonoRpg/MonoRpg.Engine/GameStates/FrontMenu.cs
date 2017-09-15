@@ -97,7 +97,7 @@ namespace MonoRpg.Engine.GameStates {
 
         }
 
-        public void HandleInput(float dt) {
+        public override void HandleInput(float dt) {
 
         }
     }
