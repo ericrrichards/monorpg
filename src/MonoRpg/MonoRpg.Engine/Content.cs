@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 namespace MonoRpg.Engine {
     using Microsoft.Xna.Framework;
+    using Microsoft.Xna.Framework.Audio;
     using Microsoft.Xna.Framework.Content;
     using Microsoft.Xna.Framework.Graphics;
 
@@ -18,6 +19,7 @@ namespace MonoRpg.Engine {
 
         private readonly Dictionary<string, SpriteFont> Fonts = new Dictionary<string, SpriteFont>();
         private readonly Dictionary<string, Texture2D> Textures = new Dictionary<string, Texture2D>();
+        private readonly Dictionary<string, SoundEffect> SoundEffects = new Dictionary<string, SoundEffect>();
         private SpriteFont _defaultFont;
 
         public SpriteFont DefaultFont => Fonts[DEFAULT_FONT];
@@ -69,6 +71,27 @@ namespace MonoRpg.Engine {
                 var tex = Texture2D.FromStream(_graphicsDevice, stream);
                 Textures[texture] = tex;
                 return tex;
+            }
+        }
+
+        public SoundEffect GetSound(string soundFile) {
+            if (SoundEffects.ContainsKey(soundFile)) {
+                return SoundEffects[soundFile];
+            }
+            if (!File.Exists(soundFile) && !soundFile.Contains(_manager.RootDirectory)) {
+                return GetSound(Path.Combine(_manager.RootDirectory, soundFile));
+            }
+            try {
+                var sound = _manager.Load<SoundEffect>(soundFile);
+                SoundEffects[soundFile] = sound;
+                return sound;
+            } catch (Exception ex) {
+                Console.WriteLine(ex.Message);
+            }
+            using (var stream = new FileStream(soundFile, FileMode.Open)) {
+                var sound = SoundEffect.FromStream(stream);
+                SoundEffects[soundFile] = sound;
+                return sound;
             }
         }
 

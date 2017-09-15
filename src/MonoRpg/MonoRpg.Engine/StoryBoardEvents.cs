@@ -6,6 +6,7 @@ namespace MonoRpg.Engine {
     using global::System.Diagnostics;
 
     using Microsoft.Xna.Framework;
+    using Microsoft.Xna.Framework.Audio;
     // type alias, because this is getting really tedious...
     using StoryBoardFunc = Func<Storyboard, IStoryboardEvent>;
 
@@ -93,6 +94,32 @@ namespace MonoRpg.Engine {
             return storyboard => {
                 storyboard.RemoveState(id);
                 return EmptyEvent(storyboard);
+            };
+        }
+
+        public static StoryBoardFunc Play(string soundName, string name=null, float volume=1f) {
+            name = name ?? soundName;
+            return storyboard => {
+                var sound = System.Content.GetSound(soundName);
+                var instance = sound.CreateInstance();
+                instance.Volume = volume;
+                instance.Play();
+                storyboard.AddSound(name, instance);
+                return EmptyEvent(storyboard);
+            };
+        }
+
+        public static StoryBoardFunc Stop(string name) {
+            return storyboard => {
+                storyboard.StopSound(name);
+                return EmptyEvent(storyboard);
+            };
+        }
+
+        public static StoryBoardFunc FadeSound(string name, float start, float finish, float duration) {
+            return storyboard => {
+                var sound = storyboard.PlayingSounds[name];
+                return new TweenEvent<SoundEffectInstance>(new Tween(start, finish, duration),sound, (instance, value) => instance.Volume = value );
             };
         }
     }

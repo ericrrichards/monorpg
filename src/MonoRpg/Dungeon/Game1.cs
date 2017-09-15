@@ -7,7 +7,7 @@ namespace Dungeon {
     using MonoRpg.Engine.UI;
 
     using System = MonoRpg.Engine.System;
-
+    using static Events;
     /// <summary>
     /// This is the main type for your game.
     /// </summary>
@@ -59,15 +59,23 @@ namespace Dungeon {
 
             _stack = new StateStack();
             var storyboard = new Storyboard(_stack, 
-                Events.BlackScreen(), 
-                Events.Caption("place", "title", "Village of Sontos"),
-                Events.Caption("time", "subtitle", "MIDNIGHT"),
-                Events.Wait(2),
-                Events.NoBlock(Events.FadeOutCaption("place", 3)),
-                Events.FadeOutCaption("time", 3),
-                Events.KillState("place"),
-                Events.KillState("time"),
-                Events.FadeOutScreen()
+                BlackScreen(), 
+                Play("rain.wav"),
+                NoBlock(
+                    FadeSound("rain.wav", 0, 1, 3)
+                ),
+                Caption("place", "title", "Village of Sontos"),
+                Caption("time", "subtitle", "MIDNIGHT"),
+                Wait(2),
+                NoBlock(
+                    FadeOutCaption("place", 3)
+                ),
+                FadeOutCaption("time", 3),
+                FadeSound("rain.wav", 1, 0, 3),
+                KillState("place"),
+                KillState("time"),
+                FadeOutScreen(),
+                Stop("rain.wav")
             );
             _stack.Push(storyboard);
         }
