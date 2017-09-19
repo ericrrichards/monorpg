@@ -3,13 +3,16 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace MonoRpg.Engine {
+    using global::System.Collections.Generic;
     using global::System.Diagnostics;
+    using global::System.Linq;
 
     using Microsoft.Xna.Framework;
     using Microsoft.Xna.Framework.Audio;
 
     using MonoRpg.Engine.GameStates;
     using MonoRpg.Engine.Tiled;
+    using MonoRpg.Engine.UI;
     // type alias, because this is getting really tedious...
     using StoryBoardFunc = Func<Storyboard, IStoryboardEvent>;
 
@@ -26,11 +29,11 @@ namespace MonoRpg.Engine {
             return (storyboard) => new WaitEvent(seconds);
         }
 
-        public static StoryBoardFunc BlackScreen(string id=null, float alpha=1.0f) {
+        public static StoryBoardFunc BlackScreen(string id = null, float alpha = 1.0f) {
             if (string.IsNullOrEmpty(id)) {
                 id = "blackscreen";
             }
-            var black = new Color(0,0,0,alpha);
+            var black = new Color(0, 0, 0, alpha);
             return storyboard => {
                 var screen = new ScreenState(black);
                 storyboard.PushState(id, screen);
@@ -47,18 +50,18 @@ namespace MonoRpg.Engine {
                 Debug.Assert(target != null);
                 var tween = new Tween(start, finish, duration);
                 return new TweenEvent<ScreenState>(
-                    tween, 
+                    tween,
                     target,
                     (state, value) => state.Color = new Color(state.Color, value)
                 );
             };
         }
 
-        public static StoryBoardFunc FadeInScreen(string id=null, float duration=3) {
+        public static StoryBoardFunc FadeInScreen(string id = null, float duration = 3) {
             return FadeScreen(0, 1, duration, id);
         }
 
-        public static StoryBoardFunc FadeOutScreen(string id=null, float duration=3) {
+        public static StoryBoardFunc FadeOutScreen(string id = null, float duration = 3) {
             return FadeScreen(1, 0, duration, id);
         }
 
@@ -100,7 +103,7 @@ namespace MonoRpg.Engine {
             };
         }
 
-        public static StoryBoardFunc Play(string soundName, string name=null, float volume=1f) {
+        public static StoryBoardFunc Play(string soundName, string name = null, float volume = 1f) {
             name = name ?? soundName;
             return storyboard => {
                 var sound = System.Content.GetSound(soundName);
@@ -122,7 +125,7 @@ namespace MonoRpg.Engine {
         public static StoryBoardFunc FadeSound(string name, float start, float finish, float duration) {
             return storyboard => {
                 var sound = storyboard.PlayingSounds[name];
-                return new TweenEvent<SoundEffectInstance>(new Tween(start, finish, duration),sound, (instance, value) => instance.Volume = value );
+                return new TweenEvent<SoundEffectInstance>(new Tween(start, finish, duration), sound, (instance, value) => instance.Volume = value);
             };
         }
 
@@ -158,16 +161,38 @@ namespace MonoRpg.Engine {
         public static Map GetMapRef(Storyboard storyboard, string stateId) {
             Debug.Assert(storyboard.States.ContainsKey(stateId));
             var exploreState = storyboard.States[stateId] as ExploreState;
-            Debug.Assert(exploreState!=null && exploreState.Map != null);
+            Debug.Assert(exploreState != null && exploreState.Map != null);
             return exploreState.Map;
+        }
+
+
+        public static StoryBoardFunc MoveNpc(string id, string mapId, params Facing[] path) {
+            return storyboard => {
+                var map = GetMapRef(storyboard, mapId);
+                var npc = map.NpcById[id];
+                npc.FollowPath(path.ToList());
+                return new BlockUntilEvent(() => npc.PathIndex >= npc.Path.Count);
+            };
+        }
+
+        public static StoryBoardFunc Say(string mapId, string npcId, string text, float time = 1, FixedTextboxParameters args = null) {
+            args = args ?? new FixedTextboxParameters();
+            return storyboard => {
+                var map = GetMapRef(storyboard, mapId);
+                var npc = map.NpcById[npcId];
+                var pos = npc.Entity.Sprite.Position;
+                storyboard.Stack.PushFit(System.Renderer, (int)(-map.CamX + pos.X), (int)(-map.CamY + pos.Y + 32), text, -1, args);
+                var box = storyboard.Stack.Top as Textbox;
+                return new TimedTextboxEvent(box, time);
+            };
         }
     }
 
-    public class WaitEvent : IStoryboardEvent{
+    public class WaitEvent : IStoryboardEvent {
         public float Seconds { get; set; }
         public bool IsBlocking {
             get;
-            set; 
+            set;
         }
         public bool IsFinished => Seconds <= 0;
 
@@ -202,6 +227,40 @@ namespace MonoRpg.Engine {
             ApplyFunc(Target, Tween.Value);
         }
         public void Render() { }
+    }
+
+    public class BlockUntilEvent : IStoryboardEvent {
+        public Func<bool> UntilFunc { get; set; }
+
+        public BlockUntilEvent(Func<bool> untilFunc) {
+            UntilFunc = untilFunc;
+        }
+
+        public void Update(float dt, Storyboard storyboard) {
+        }
+
+        public bool IsBlocking { get { return !UntilFunc(); } set { } }
+        public bool IsFinished => !IsBlocking;
+    }
+
+    public class TimedTextboxEvent : IStoryboardEvent {
+        public float CountDown { get; set; }
+        public Textbox Textbox { get; }
+
+        public TimedTextboxEvent(Textbox box, float time) {
+            Textbox = box;
+            CountDown = time;
+        }
+
+        public void Update(float dt, Storyboard storyboard) {
+            CountDown -= dt;
+            if (CountDown <= 0) {
+                Textbox.OnClick();
+            }
+        }
+
+        public bool IsBlocking { get { return CountDown > 0; } set { } }
+        public bool IsFinished => !IsBlocking;
     }
 
     public struct SceneArgs {

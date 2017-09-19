@@ -38,6 +38,7 @@ namespace MonoRpg.Engine.Tiled {
         public int? X { get; set; }
         public int? Y { get; set; }
         public int? Layer { get; set; }
+        public string Id { get; set; }
     }
 
     public class TeleportParams : MapActionParameters {

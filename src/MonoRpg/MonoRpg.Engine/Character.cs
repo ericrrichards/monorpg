@@ -5,12 +5,17 @@
 
     public class Character {
         public string DefaultState { get; set; }
+        public string PreviousDefaultState { get; set; }
 
         public StateMachine Controller { get; set; }
 
         public Entity Entity { get; private set; }
         public Dictionary<Animations, List<int>> Animations { get; private set; }
         public Facing Facing { get; set; }
+        public int PathIndex { get; set; }
+        public List<Facing> Path { get; set; }
+        public string Id { get; set; }
+
         public Character(CharacterDef def, Map map) {
             Debug.Assert(EntityDefs.Instance.Entities.ContainsKey(def.Entity));
             var entityDef = EntityDefs.Instance.Entities[def.Entity];
@@ -32,7 +37,7 @@
 
             Controller.Change(def.State);
             DefaultState = def.State;
-
+            PathIndex = -1;
         }
 
         
@@ -54,6 +59,14 @@
                     break;
             }
             return (Entity.TileX + xInc, Entity.TileY + yInc);
+        }
+
+        public void FollowPath(List<Facing> path) {
+            PathIndex = 0;
+            Path = path;
+            PreviousDefaultState = DefaultState;
+            DefaultState = "follow_path";
+            Controller.Change("follow_path");
         }
 
         

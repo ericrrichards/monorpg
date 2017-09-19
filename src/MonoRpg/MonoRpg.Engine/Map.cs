@@ -46,6 +46,7 @@
                 return MapDef.Layers.Count / 3;
             }
         }
+        public Dictionary<string, Character> NpcById { get; set; }
 
         public Map(TiledMap mapDef) {
             MapDef = mapDef;
@@ -61,7 +62,7 @@
             Triggers = new Dictionary<int, Dictionary<int, Trigger>>();
             Entities = new Dictionary<int, Dictionary<int, Entity>>();
             NPCs = new List<Character>();
-            
+            NpcById = new Dictionary<string, Character>();
 
 
 

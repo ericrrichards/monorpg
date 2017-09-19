@@ -4,7 +4,8 @@
     "move": "Dungeon.States.MoveState",
     "npc_stand": "Dungeon.States.NPCStandState",
     "plan_stroll": "Dungeon.States.PlanStrollState",
-    "sleep": "Dungeon.States.SleepState"
+    "sleep": "Dungeon.States.SleepState",
+    "follow_path": "Dungeon.States.FollowPathState" 
   },
   "Entities": {
     "hero": {
@@ -23,7 +24,16 @@
       "StartFrame": 0,
       "X": 18,
       "Y": 32
-    } 
+    },
+    "guard": {
+      "texture": "walk_cycle.png",
+      "Width": 16,
+      "Height": 24,
+      "StartFrame": 88,
+      "TileX": 11,
+      "TileY": 3,
+      "Layer": 0
+    }
   },
   "Characters": {
     "hero": {
@@ -65,7 +75,19 @@
       "Facing": "Left",
       "Controller": [ "sleep" ],
       "State": "sleep"
-    } 
+    },
+    "guard": {
+      "entity": "guard",
+      "Animations": {
+        "Up": [ 80, 81, 82, 83 ],
+        "Right": [ 84, 85, 86, 87 ],
+        "Down": [ 88, 89, 90, 91 ],
+        "Left": [ 92, 93, 94, 95 ]
+      },
+      "Facing": "Up",
+      "Controller": [ "npc_stand", "follow_path", "move" ],
+      "State": "npc_stand"
+    }
   }
 
 }

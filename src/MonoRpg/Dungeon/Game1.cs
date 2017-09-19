@@ -4,6 +4,8 @@ using Microsoft.Xna.Framework.Input;
 using MonoRpg.Engine;
 
 namespace Dungeon {
+    using System.Collections.Generic;
+
     using MonoRpg.Engine.Tiled;
     using MonoRpg.Engine.UI;
 
@@ -56,21 +58,21 @@ namespace Dungeon {
 
             _content.SetDefaultFont("junction");
             _content.LoadFont("contra_italic");
-            
+
 
 
             _stack = new StateStack();
-            var storyboard = new Storyboard(_stack, 
+            var storyboard = new Storyboard(_stack,
                 Scene(new SceneArgs {
                     Map = "sontos_house.json",
                     FocusX = 14,
                     FocusY = 20,
                     HideHero = true
                 }),
-                BlackScreen(), 
-                RunAction("AddNPC", 
-                    "sontos_house.json", new AddNPCParams{Character = "sleeper", X = 14, Y = 19}, 
-                    GetMapRef ),
+                BlackScreen(),
+                RunAction("AddNPC",
+                    "sontos_house.json", new AddNPCParams { Character = "sleeper", Id = "sleeper", X = 14, Y = 19 },
+                    GetMapRef),
                 Play("rain.wav"),
                 NoBlock(
                     FadeSound("rain.wav", 0, 1, 3)
@@ -82,13 +84,22 @@ namespace Dungeon {
                     FadeOutCaption("place", 3)
                 ),
                 FadeOutCaption("time", 3),
-                FadeSound("rain.wav", 1, 0, 1),
                 KillState("place"),
                 KillState("time"),
                 FadeOutScreen(),
-                Wait(2),
+                Wait(3),
                 FadeInScreen(),
-                Wait(1),
+                RunAction("AddNPC",
+                    "sontos_house.json", new AddNPCParams { Character = "guard", Id = "guard1", X = 19, Y = 22 },
+                    GetMapRef),
+                NoBlock(FadeOutScreen()),
+                MoveNpc("guard1", "sontos_house.json",
+                    Facing.Up, Facing.Up, Facing.Up, Facing.Left, Facing.Left, Facing.Left
+                ),
+                Wait(0.3f),
+                Say("sontos_house.json", "guard1", "Take him!"),
+                FadeInScreen(),
+                FadeSound("rain.wav", 1, 0, 1),
                 Stop("rain.wav")
             );
             _stack.Push(storyboard);
@@ -108,7 +119,7 @@ namespace Dungeon {
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime) {
-            
+
             var dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
             System.Keys.Update();
 
