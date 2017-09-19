@@ -50,6 +50,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Actions.cs" />
     <Compile Include="Animation.cs" />
     <Compile Include="Animations.cs" />
     <Compile Include="CaptionStyle.cs" />
@@ -73,6 +74,7 @@
     <Compile Include="IDrawCommand.cs" />
     <Compile Include="ItemDB.cs" />
     <Compile Include="Map.cs" />
+    <Compile Include="MapDB.cs" />
     <Compile Include="MoveParams.cs" />
     <Compile Include="Renderer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

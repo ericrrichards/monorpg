@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using MonoRpg.Engine;
 
 namespace Dungeon {
+    using MonoRpg.Engine.Tiled;
     using MonoRpg.Engine.UI;
 
     using System = MonoRpg.Engine.System;
@@ -25,7 +26,8 @@ namespace Dungeon {
             System.Init(_graphics);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
-            
+            EntityDefs.Load("Content/entityDefs.json");
+            MapDB.AddMap("sontos_house.json");
         }
 
         /// <summary>
@@ -59,7 +61,16 @@ namespace Dungeon {
 
             _stack = new StateStack();
             var storyboard = new Storyboard(_stack, 
+                Scene(new SceneArgs {
+                    Map = "sontos_house.json",
+                    FocusX = 14,
+                    FocusY = 20,
+                    HideHero = true
+                }),
                 BlackScreen(), 
+                RunAction("AddNPC", 
+                    "sontos_house.json", new AddNPCParams{Character = "sleeper", X = 14, Y = 19}, 
+                    GetMapRef ),
                 Play("rain.wav"),
                 NoBlock(
                     FadeSound("rain.wav", 0, 1, 3)
@@ -71,10 +82,13 @@ namespace Dungeon {
                     FadeOutCaption("place", 3)
                 ),
                 FadeOutCaption("time", 3),
-                FadeSound("rain.wav", 1, 0, 3),
+                FadeSound("rain.wav", 1, 0, 1),
                 KillState("place"),
                 KillState("time"),
                 FadeOutScreen(),
+                Wait(2),
+                FadeInScreen(),
+                Wait(1),
                 Stop("rain.wav")
             );
             _stack.Push(storyboard);

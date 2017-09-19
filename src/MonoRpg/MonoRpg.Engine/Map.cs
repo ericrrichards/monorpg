@@ -46,11 +46,6 @@
                 return MapDef.Layers.Count / 3;
             }
         }
-        private static readonly Dictionary<string, Action<Map, MapActionParameters, Entity>> ActionFuncs = new Dictionary<string, Action<Map, MapActionParameters, Entity>> {
-            {"AddNPC", AddNPC },
-            {"Teleport", Teleport }
-        };
-
 
         public Map(TiledMap mapDef) {
             MapDef = mapDef;
@@ -90,8 +85,8 @@
 
             Actions = new Dictionary<string, Action<Entity>>();
             foreach (var mapDefAction in mapDef.Actions) {
-                Debug.Assert(ActionFuncs.ContainsKey(mapDefAction.Value.ID));
-                void Action(Entity entity) => ActionFuncs[mapDefAction.Value.ID](this, mapDefAction.Value.Params, entity);
+                Debug.Assert(global::MonoRpg.Engine.Actions.ActionFuncs.ContainsKey(mapDefAction.Value.ID));
+                void Action(Entity entity) => global::MonoRpg.Engine.Actions.ActionFuncs[mapDefAction.Value.ID](this, mapDefAction.Value.Params, entity);
                 Actions[mapDefAction.Key] = Action;
             }
             TriggerTypes = new Dictionary<string, Trigger>();
@@ -130,7 +125,7 @@
 
 
             foreach (var mapAction in mapDef.OnWake) {
-                var action = ActionFuncs[mapAction.ID];
+                var action = global::MonoRpg.Engine.Actions.ActionFuncs[mapAction.ID];
                 action(this, mapAction.Params, null);
             }
 
@@ -243,39 +238,10 @@
                 }
                 drawList = drawList.OrderBy(e => e.TileY).ToList();
                 foreach (var entity in drawList) {
-                    renderer.DrawSprite(entity.Sprite);
+                    entity.Render(renderer);
+                    //renderer.DrawSprite(entity.Sprite);
                 }
             }
-        }
-
-
-
-        private static void AddNPC(Map map, MapActionParameters args, Entity arg3) {
-            var npc = args as AddNPCParams;
-            if (npc == null) {
-                return;
-            }
-            Debug.Assert(EntityDefs.Instance.Characters.ContainsKey(npc.Character));
-            var charDef = EntityDefs.Instance.Characters[npc.Character];
-            var character = new Character(charDef, map);
-
-            var x = npc.X ?? character.Entity.TileX;
-            var y = npc.Y ?? character.Entity.TileY;
-            var layer = npc.Layer ?? character.Entity.Layer;
-
-            character.Entity.SetTilePosition(x, y, layer, map);
-
-            map.NPCs.Add(character);
-
-        }
-
-        private static void Teleport(Map map, MapActionParameters args, Entity entity) {
-            var teleport = args as TeleportParams;
-            if (teleport == null) {
-                return;
-            }
-            
-            entity.SetTilePosition(teleport.X, teleport.Y, entity.Layer, map);
         }
 
         public Entity GetEntity(int x, int y, int layer) {

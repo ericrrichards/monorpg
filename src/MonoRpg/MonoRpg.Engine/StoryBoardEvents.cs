@@ -7,6 +7,9 @@ namespace MonoRpg.Engine {
 
     using Microsoft.Xna.Framework;
     using Microsoft.Xna.Framework.Audio;
+
+    using MonoRpg.Engine.GameStates;
+    using MonoRpg.Engine.Tiled;
     // type alias, because this is getting really tedious...
     using StoryBoardFunc = Func<Storyboard, IStoryboardEvent>;
 
@@ -122,6 +125,42 @@ namespace MonoRpg.Engine {
                 return new TweenEvent<SoundEffectInstance>(new Tween(start, finish, duration),sound, (instance, value) => instance.Volume = value );
             };
         }
+
+        public static StoryBoardFunc Scene(SceneArgs args) {
+            return storyboard => {
+
+                var id = args.Name ?? args.Map;
+                var map = MapDB.Maps[args.Map]();
+                var focus = new Vector3(args.FocusX, args.FocusY, args.FocusZ);
+                var state = new ExploreState(null, map, focus);
+                if (args.HideHero) {
+                    state.HideHero();
+                }
+                storyboard.PushState(id, state);
+
+                return NoBlock(Wait(0))(storyboard);
+            };
+        }
+
+        public static StoryBoardFunc RunAction(string actionId, string mapId, MapActionParameters actionArgs, Func<Storyboard, string, Map> fixupFunc) {
+            Debug.Assert(Actions.ActionFuncs.ContainsKey(actionId));
+            var action = Actions.ActionFuncs[actionId];
+            Entity entity = null;
+
+            return storyboard => {
+                var map = fixupFunc(storyboard, mapId);
+                action(map, actionArgs, entity);
+                return EmptyEvent(storyboard);
+            };
+
+        }
+
+        public static Map GetMapRef(Storyboard storyboard, string stateId) {
+            Debug.Assert(storyboard.States.ContainsKey(stateId));
+            var exploreState = storyboard.States[stateId] as ExploreState;
+            Debug.Assert(exploreState!=null && exploreState.Map != null);
+            return exploreState.Map;
+        }
     }
 
     public class WaitEvent : IStoryboardEvent{
@@ -163,5 +202,14 @@ namespace MonoRpg.Engine {
             ApplyFunc(Target, Tween.Value);
         }
         public void Render() { }
+    }
+
+    public struct SceneArgs {
+        public string Name { get; set; }
+        public string Map { get; set; }
+        public int FocusX { get; set; }
+        public int FocusY { get; set; }
+        public int FocusZ { get; set; }
+        public bool HideHero { get; set; }
     }
 }

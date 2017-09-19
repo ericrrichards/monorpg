@@ -33,7 +33,7 @@ namespace MonoRpg.Engine.GameStates {
             Map.CamX = (int)Math.Floor(playerPos.X);
             Map.CamY = (int)Math.Floor(playerPos.Y);
 
-            Hero.Controller.Update(dt);
+            
             foreach (var npc in Map.NPCs) {
                 npc.Controller.Update(dt);
             }
@@ -54,6 +54,7 @@ namespace MonoRpg.Engine.GameStates {
         }
 
         public void HandleInput(float dt) {
+            Hero.Controller.Update(dt);
             if (System.Keys.WasPressed(Keys.Space)) {
                 var (x, y) = Hero.GetFacedTileCoords();
                 var layer = Hero.Entity.Layer;
@@ -67,6 +68,13 @@ namespace MonoRpg.Engine.GameStates {
             }
         }
 
+        public void HideHero() {
+            Hero.Entity.SetTilePosition(Hero.Entity.TileX, Hero.Entity.TileY, -1, Map);
+        }
+
+        public void ShowHero(int layer=1) {
+            Hero.Entity.SetTilePosition(Hero.Entity.TileX, Hero.Entity.TileY, layer, Map);
+        }
         
     }
 }

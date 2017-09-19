@@ -7,5 +7,7 @@ namespace MonoRpg.Engine {
         public int TileY { get; set; }
         public int StartFrame { get; set; }
         public int Layer { get; set; }
+        public int X { get; set; }
+        public int Y { get; set; }
     }
 }
