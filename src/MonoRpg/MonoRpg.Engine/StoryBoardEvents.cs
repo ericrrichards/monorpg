@@ -139,8 +139,30 @@ namespace MonoRpg.Engine {
                 if (args.HideHero) {
                     state.HideHero();
                 }
+
                 storyboard.PushState(id, state);
 
+                return NoBlock(Wait(0))(storyboard);
+            };
+        }
+
+        public static StoryBoardFunc ReplaceScene(string sceneToReplace, SceneArgs args) {
+            return storyboard => {
+                var state = storyboard.States[sceneToReplace] as ExploreState;
+                Debug.Assert(state != null);
+                var id = args.Name ?? args.Map;
+                storyboard.States.Remove(sceneToReplace);
+                storyboard.States[id] = state;
+                var mapDef = MapDB.Maps[args.Map]();
+                state.Map = new Map(mapDef);
+                state.Map.GotoTile(args.FocusX, args.FocusY);
+                state.Hero = new Character(EntityDefs.Instance.Characters["hero"], state.Map);
+                state.Hero.Entity.SetTilePosition(args.FocusX, args.FocusY, args.FocusZ, state.Map);
+                if (args.HideHero) {
+                    state.HideHero();
+                } else {
+                    state.ShowHero();
+                }
                 return NoBlock(Wait(0))(storyboard);
             };
         }
@@ -179,7 +201,9 @@ namespace MonoRpg.Engine {
             args = args ?? new FixedTextboxParameters();
             return storyboard => {
                 var map = GetMapRef(storyboard, mapId);
-                var npc = map.NpcById[npcId];
+                var npc = npcId != "hero" 
+                    ? map.NpcById[npcId] 
+                    : ((ExploreState)storyboard.States[mapId]).Hero;
                 var pos = npc.Entity.Sprite.Position;
                 storyboard.Stack.PushFit(System.Renderer, (int)(-map.CamX + pos.X), (int)(-map.CamY + pos.Y + 32), text, -1, args);
                 var box = storyboard.Stack.Top as Textbox;
@@ -263,12 +287,16 @@ namespace MonoRpg.Engine {
         public bool IsFinished => !IsBlocking;
     }
 
-    public struct SceneArgs {
+    public class SceneArgs {
         public string Name { get; set; }
         public string Map { get; set; }
         public int FocusX { get; set; }
         public int FocusY { get; set; }
         public int FocusZ { get; set; }
         public bool HideHero { get; set; }
+
+        public SceneArgs() {
+            FocusZ = 1;
+        }
     }
 }

@@ -30,6 +30,7 @@ namespace Dungeon {
             IsMouseVisible = true;
             EntityDefs.Load("Content/entityDefs.json");
             MapDB.AddMap("sontos_house.json");
+            MapDB.AddMap("jail.json");
         }
 
         /// <summary>
@@ -66,7 +67,7 @@ namespace Dungeon {
                 Scene(new SceneArgs {
                     Map = "sontos_house.json",
                     FocusX = 14,
-                    FocusY = 20,
+                    FocusY = 19,
                     HideHero = true
                 }),
                 BlackScreen(),
@@ -84,23 +85,60 @@ namespace Dungeon {
                     FadeOutCaption("place", 3)
                 ),
                 FadeOutCaption("time", 3),
+
                 KillState("place"),
                 KillState("time"),
                 FadeOutScreen(),
-                Wait(3),
+                Wait(2),
                 FadeInScreen(),
                 RunAction("AddNPC",
                     "sontos_house.json", new AddNPCParams { Character = "guard", Id = "guard1", X = 19, Y = 22 },
                     GetMapRef),
+                Wait(1),
+                Play("door_break.wav"),
                 NoBlock(FadeOutScreen()),
                 MoveNpc("guard1", "sontos_house.json",
                     Facing.Up, Facing.Up, Facing.Up, Facing.Left, Facing.Left, Facing.Left
                 ),
-                Wait(0.3f),
-                Say("sontos_house.json", "guard1", "Take him!"),
+                Wait(1f),
+                Say("sontos_house.json", "guard1", "Found you!", 2.5f),
+                Wait(1),
+                Say("sontos_house.json", "guard1", "You're coming with me!", 3),
                 FadeInScreen(),
+
+                // Kidnap
+                NoBlock(Play("bell.wav")),
+                Wait(2.5f),
+                NoBlock(Play("bell.wav", "bell2")),
+                FadeSound("bell.wav", 1, 0, 0.2f),
                 FadeSound("rain.wav", 1, 0, 1),
-                Stop("rain.wav")
+                Play("wagon.wav"),
+                NoBlock(FadeSound("wagon.wav", 0, 1, 2)),
+                Play("wind.wav"),
+                NoBlock(FadeSound("wind.wav", 0,1,2)),
+                Wait(3),
+                Caption("time_passes", "title", "Two days later..."),
+                Wait(1),
+                FadeOutCaption("time_passes", 3),
+                KillState("time_passes"),
+                NoBlock(FadeSound("wind.wav", 1, 0, 1)),
+                NoBlock(FadeSound("wagon.wav", 1,0,1)),
+                Wait(2),
+                Caption("place", "title", "Unknown Dungeon"),
+                Wait(2),
+                FadeOutCaption("place", 3),
+                KillState("place"),
+                ReplaceScene("sontos_house.json", new SceneArgs {
+                    Map = "jail.json",
+                    FocusX = 56,
+                    FocusY = 11,
+                    HideHero = false
+
+                }),
+                FadeOutScreen(),
+                Wait(0.5f),
+                Say("jail.json", "hero", "Where am I?", 3),
+                Wait(3)
             );
             _stack.Push(storyboard);
         }

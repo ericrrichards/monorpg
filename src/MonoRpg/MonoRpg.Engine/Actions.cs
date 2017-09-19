@@ -16,6 +16,7 @@ namespace MonoRpg.Engine {
             if (npc == null) {
                 return;
             }
+            Debug.Assert(npc.Character != "hero");
             Debug.Assert(EntityDefs.Instance.Characters.ContainsKey(npc.Character));
             var charDef = EntityDefs.Instance.Characters[npc.Character];
             var character = new Character(charDef, map);
