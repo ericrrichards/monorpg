@@ -1,16 +1,17 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
+
 using MonoRpg.Engine;
 
 namespace Dungeon {
+    using System;
     using System.Collections.Generic;
+    using System.Security.Cryptography.X509Certificates;
 
     using MonoRpg.Engine.Tiled;
     using MonoRpg.Engine.UI;
 
     using System = MonoRpg.Engine.System;
-    using static Events;
+
     /// <summary>
     /// This is the main type for your game.
     /// </summary>
@@ -23,14 +24,12 @@ namespace Dungeon {
         public Game1() {
             _graphics = new GraphicsDeviceManager(this) {
                 PreferredBackBufferWidth = 640,
-                PreferredBackBufferHeight = 512
+                PreferredBackBufferHeight = 360
             };
             System.Init(_graphics);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
-            EntityDefs.Load("Content/entityDefs.json");
-            MapDB.AddMap("sontos_house.json");
-            MapDB.AddMap("jail.json");
+            
         }
 
         /// <summary>
@@ -56,89 +55,106 @@ namespace Dungeon {
             System.Renderer = Renderer;
             Renderer.AlignText(TextAlignment.Center, TextAlignment.Center);
             Renderer.ClearColor = Color.CornflowerBlue;
-
             _content.SetDefaultFont("junction");
             _content.LoadFont("contra_italic");
-
-
-
             _stack = new StateStack();
+
+
+            EntityDefs.Load("Content/entityDefs.json");
+            MapDB.AddMap("sontos_house.json");
+
+            
+
+            var bustedWallTrigger = new TriggerDef{Trigger = "cracked_stone", X = 60, Y = 11};
+            MapDB.AddMap("jail.json", new Dictionary<string, MapAction> {
+                ["break_wall_script"] = new MapAction {
+                    ID = "RunScript",
+                    Params = new RunScriptArgs {
+                        Script = CrumbleScript,
+                        TriggerDef = bustedWallTrigger
+                    }
+                }
+            }, new Dictionary<string, TriggerTypeDef> {
+                ["cracked_stone"] = new TriggerTypeDef { OnUse = "break_wall_script"}
+            }, new List<TriggerDef> {
+                bustedWallTrigger
+            });
+
+            
+            
+
             var storyboard = new Storyboard(_stack,
-                Scene(new SceneArgs {
+                Events.Scene(new SceneArgs {
                     Map = "sontos_house.json",
                     FocusX = 14,
                     FocusY = 19,
                     HideHero = true
                 }),
-                BlackScreen(),
-                RunAction("AddNPC",
+                Events.BlackScreen(),
+                Events.RunAction("AddNPC",
                     "sontos_house.json", new AddNPCParams { Character = "sleeper", Id = "sleeper", X = 14, Y = 19 },
-                    GetMapRef),
-                Play("rain.wav"),
-                NoBlock(
-                    FadeSound("rain.wav", 0, 1, 3)
-                ),
-                Caption("place", "title", "Village of Sontos"),
-                Caption("time", "subtitle", "MIDNIGHT"),
-                Wait(2),
-                NoBlock(
-                    FadeOutCaption("place", 3)
-                ),
-                FadeOutCaption("time", 3),
-
-                KillState("place"),
-                KillState("time"),
-                FadeOutScreen(),
-                Wait(2),
-                FadeInScreen(),
-                RunAction("AddNPC",
+                    Events.GetMapRef),
+                Events.Play("rain.wav"),
+                Events.NoBlock(Events.FadeSound("rain.wav", 0, 1, 3)),
+                Events.Caption("place", "title", "Village of Sontos"),
+                Events.Caption("time", "subtitle", "MIDNIGHT"),
+                Events.Wait(2),
+                Events.NoBlock(Events.FadeOutCaption("place", 3)),
+                Events.FadeOutCaption("time", 3),
+                Events.KillState("place"),
+                Events.KillState("time"),
+                Events.FadeOutScreen(),
+                Events.Wait(2),
+                Events.FadeInScreen(),
+                Events.RunAction("AddNPC",
                     "sontos_house.json", new AddNPCParams { Character = "guard", Id = "guard1", X = 19, Y = 22 },
-                    GetMapRef),
-                Wait(1),
-                Play("door_break.wav"),
-                NoBlock(FadeOutScreen()),
-                MoveNpc("guard1", "sontos_house.json",
+                    Events.GetMapRef),
+                Events.Wait(1),
+                Events.Play("door_break.wav"),
+                Events.NoBlock(Events.FadeOutScreen()),
+                Events.MoveNpc("guard1", "sontos_house.json",
                     Facing.Up, Facing.Up, Facing.Up, Facing.Left, Facing.Left, Facing.Left
                 ),
-                Wait(1f),
-                Say("sontos_house.json", "guard1", "Found you!", 2.5f),
-                Wait(1),
-                Say("sontos_house.json", "guard1", "You're coming with me!", 3),
-                FadeInScreen(),
+                Events.Wait(1f),
+                Events.Say("sontos_house.json", "guard1", "Found you!", 2.5f),
+                //Events.Wait(1),
+                Events.Say("sontos_house.json", "guard1", "You're coming with me!", 3),
+                Events.FadeInScreen(),
 
                 // Kidnap
-                NoBlock(Play("bell.wav")),
-                Wait(2.5f),
-                NoBlock(Play("bell.wav", "bell2")),
-                FadeSound("bell.wav", 1, 0, 0.2f),
-                FadeSound("rain.wav", 1, 0, 1),
-                Play("wagon.wav"),
-                NoBlock(FadeSound("wagon.wav", 0, 1, 2)),
-                Play("wind.wav"),
-                NoBlock(FadeSound("wind.wav", 0,1,2)),
-                Wait(3),
-                Caption("time_passes", "title", "Two days later..."),
-                Wait(1),
-                FadeOutCaption("time_passes", 3),
-                KillState("time_passes"),
-                NoBlock(FadeSound("wind.wav", 1, 0, 1)),
-                NoBlock(FadeSound("wagon.wav", 1,0,1)),
-                Wait(2),
-                Caption("place", "title", "Unknown Dungeon"),
-                Wait(2),
-                FadeOutCaption("place", 3),
-                KillState("place"),
-                ReplaceScene("sontos_house.json", new SceneArgs {
+                Events.NoBlock(Events.Play("bell.wav")),
+                Events.Wait(2.5f),
+                Events.NoBlock(Events.Play("bell.wav", "bell2")),
+                Events.FadeSound("bell.wav", 1, 0, 0.2f),
+                Events.FadeSound("rain.wav", 1, 0, 1),
+                Events.Play("wagon.wav"),
+                Events.NoBlock(Events.FadeSound("wagon.wav", 0, 1, 2)),
+                Events.Play("wind.wav"),
+                Events.NoBlock(Events.FadeSound("wind.wav", 0, 1, 2)),
+                Events.Wait(3),
+                Events.Caption("time_passes", "title", "Two days later..."),
+                Events.Wait(1),
+                Events.FadeOutCaption("time_passes", 3),
+                Events.KillState("time_passes"),
+                Events.NoBlock(Events.FadeSound("wind.wav", 1, 0, 1)),
+                Events.NoBlock(Events.FadeSound("wagon.wav", 1, 0, 1)),
+                Events.Wait(2),
+                Events.Caption("place", "title", "Unknown Dungeon"),
+                Events.Wait(2),
+                Events.FadeOutCaption("place", 3),
+                Events.KillState("place"),
+                Events.ReplaceScene("sontos_house.json", new SceneArgs {
                     Map = "jail.json",
                     FocusX = 56,
                     FocusY = 11,
                     HideHero = false
 
                 }),
-                FadeOutScreen(),
-                Wait(0.5f),
-                Say("jail.json", "hero", "Where am I?", 3),
-                Wait(3)
+                Events.FadeOutScreen(),
+                Events.Wait(0.5f),
+                Events.Say("jail.json", "hero", "Where am I?", 3),
+                Events.Wait(3),
+                Events.HandOff("jail.json", _stack)
             );
             _stack.Push(storyboard);
         }
@@ -178,6 +194,40 @@ namespace Dungeon {
             Renderer.Render();
 
             base.Draw(gameTime);
+        }
+
+        private void CrumbleScript(Map map, TriggerDef def, Entity arg3) {
+            void PushWall(Map map1) {
+                _stack.PushFit(Renderer, 0, 0, "The wall crumbles", 255);
+                var sound = System.Content.GetSound("crumble.wav");
+                var instance = sound.CreateInstance();
+                instance.Play();
+
+                map1.RemoveTrigger(def.X, def.Y, def.Layer);
+                map1.WriteTile(
+                               new WriteTileArgs {
+                                   X = def.X,
+                                   Y = def.Y,
+                                   Layer = def.Layer,
+                                   Tile = 134,
+                                   Collision = false
+                               });
+            }
+
+            var dialogParams = new FixedTextboxParameters {
+                Choices = new SelectionArgs<string>(
+                                                    new List<string> {
+                                                        "Push the wall",
+                                                        "Leave it alone"
+                                                    }) {
+                    OnSelection = (i, s) => {
+                        if (i == 0) {
+                            PushWall(map);
+                        }
+                    }
+                }
+            };
+            _stack.PushFit(Renderer, 0, 0, "The wall here is crumbling. Push it?", 255, dialogParams);
         }
     }
 }

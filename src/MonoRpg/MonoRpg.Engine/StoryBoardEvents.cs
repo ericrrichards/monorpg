@@ -205,9 +205,20 @@ namespace MonoRpg.Engine {
                     ? map.NpcById[npcId] 
                     : ((ExploreState)storyboard.States[mapId]).Hero;
                 var pos = npc.Entity.Sprite.Position;
-                storyboard.Stack.PushFit(System.Renderer, (int)(-map.CamX + pos.X), (int)(-map.CamY + pos.Y + 32), text, -1, args);
-                var box = storyboard.Stack.Top as Textbox;
+                var box = storyboard.Stack.PushFit(System.Renderer, (int)(-map.CamX + pos.X), (int)(-map.CamY + pos.Y + 32), text, -1, args);
                 return new TimedTextboxEvent(box, time);
+            };
+        }
+
+
+        public static StoryBoardFunc HandOff(string mapId, StateStack gStack) {
+            return storyboard => {
+                var exploreState = storyboard.States[mapId] as ExploreState;
+                Debug.Assert(exploreState!=null);
+                storyboard.Stack.Pop();
+                storyboard.Stack.Push(exploreState);
+                exploreState.Stack = gStack;
+                return EmptyEvent(storyboard);
             };
         }
     }
@@ -296,7 +307,7 @@ namespace MonoRpg.Engine {
         public bool HideHero { get; set; }
 
         public SceneArgs() {
-            FocusZ = 1;
+            FocusZ = 0;
         }
     }
 }

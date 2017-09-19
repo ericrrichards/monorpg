@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 namespace MonoRpg.Engine.Tiled {
+    using global::System;
     using global::System.IO;
     using global::System.Linq;
 
@@ -44,6 +45,11 @@ namespace MonoRpg.Engine.Tiled {
     public class TeleportParams : MapActionParameters {
         public int X { get; set; }
         public int Y { get; set; }
+    }
+
+    public class RunScriptArgs : MapActionParameters {
+        public Action<Map, TriggerDef, Entity> Script { get; set; }
+        public TriggerDef TriggerDef { get; set; }
     }
 
     public struct TriggerTypeDef {

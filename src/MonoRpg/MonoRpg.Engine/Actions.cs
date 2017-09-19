@@ -8,7 +8,8 @@ namespace MonoRpg.Engine {
     public static class Actions {
         public static readonly Dictionary<string, Action<Map, MapActionParameters, Entity>> ActionFuncs = new Dictionary<string, Action<Map, MapActionParameters, Entity>> {
             {"AddNPC", AddNPC },
-            {"Teleport", Teleport }
+            {"Teleport", Teleport },
+            {"RunScript", RunScript }
         };
 
         public static void AddNPC(Map map, MapActionParameters args, Entity arg3) {
@@ -40,6 +41,11 @@ namespace MonoRpg.Engine {
             }
             
             entity.SetTilePosition(teleport.X, teleport.Y, entity.Layer, map);
+        }
+
+        public static void RunScript(Map map, MapActionParameters args, Entity entity) {
+            var scriptArgs = args as RunScriptArgs;
+            scriptArgs.Script(map, scriptArgs.TriggerDef, entity);
         }
     }
 }

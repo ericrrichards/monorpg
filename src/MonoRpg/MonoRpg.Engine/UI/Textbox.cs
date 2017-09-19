@@ -85,10 +85,12 @@ namespace MonoRpg.Engine.UI {
         }
 
         public void HandleInput(float dt) {
-            SelectionMenu?.HandleInput();
+
 
             if (System.Keys.WasPressed(Keys.Space)) {
                 OnClick();
+            } else {
+                SelectionMenu?.HandleInput();
             }
         }
 

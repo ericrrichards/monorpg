@@ -72,7 +72,7 @@ namespace MonoRpg.Engine.GameStates {
             Hero.Entity.SetTilePosition(Hero.Entity.TileX, Hero.Entity.TileY, -1, Map);
         }
 
-        public void ShowHero(int layer=1) {
+        public void ShowHero(int layer=0) {
             Hero.Entity.SetTilePosition(Hero.Entity.TileX, Hero.Entity.TileY, layer, Map);
         }
         

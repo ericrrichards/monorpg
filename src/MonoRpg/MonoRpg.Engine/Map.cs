@@ -273,5 +273,46 @@
             Debug.Assert(entity == layer[index]);
             layer.Remove(index);
         }
+
+        public void WriteTile(WriteTileArgs args) {
+            var layer = args.Layer;
+            var detail = args.Detail;
+            layer = layer * 3;
+
+            var x = args.X;
+            var y = args.Y;
+            var tile = args.Tile;
+            var collision = BlockingTile;
+            if (!args.Collision) {
+                collision = 0;
+            }
+            var index = CoordToIndex(x, y);
+            var tiles = MapDef.Layers[layer].Data;
+            tiles[index] = tile;
+
+            tiles = MapDef.Layers[layer+1].Data;
+            tiles[index] = detail;
+
+            tiles = MapDef.Layers[layer+2].Data;
+            tiles[index] = collision;
+        }
+
+        public void RemoveTrigger(int x, int y, int layer=0) {
+            Debug.Assert(Triggers[layer]!=null);
+            var triggers = Triggers[layer];
+            var index = CoordToIndex(x, y);
+            Debug.Assert(triggers.ContainsKey(index));
+            triggers.Remove(index);
+        }
+    }
+
+    public class WriteTileArgs {
+        public int Layer = 1;
+        public int Detail = 0;
+        public int X;
+        public int Y;
+        public int Tile;
+        public bool Collision;
+
     }
 }
