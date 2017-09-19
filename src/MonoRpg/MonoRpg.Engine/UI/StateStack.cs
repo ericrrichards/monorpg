@@ -60,7 +60,7 @@ namespace MonoRpg.Engine.UI {
                 parameters = new FixedTextboxParameters();
             }
             var padding = 10;
-            var textScale = 1.25f;
+            var textScale = parameters.TextScale;
             var panelTileSize = 3;
             var wrap = width - padding;
             var boundsTop = padding;
@@ -126,7 +126,7 @@ namespace MonoRpg.Engine.UI {
             var textbox = new Textbox(new TextboxParams {
                 Text = chunks,
                 TextScale = textScale,
-                Size = new Rectangle(x, y, width, height),
+                Size = new Rectangle(x-width/2, y-height/2, width, height),
                 TextBounds = new Vector4(boundsLeft, -padding, -boundsTop, padding),
                 Wrap = wrap,
                 SelectionMenu = selectionMenu,
@@ -152,7 +152,7 @@ namespace MonoRpg.Engine.UI {
             var avatar = args.Avatar;
 
             var padding = 10;
-            var textScale = 1.25f;
+            var textScale = args.TextScale;
 
             var size = renderer.MeasureText(text, wrap, textScale);
             var width = (int)(size.X + padding * 3);
@@ -160,7 +160,7 @@ namespace MonoRpg.Engine.UI {
 
             if (choices != null) {
                 var selectionMenu = new Selection<string>(renderer, choices);
-                height += selectionMenu.GetHeight() + padding * 4;
+                height += selectionMenu.GetHeight() + padding ;
                 width = Math.Max(width, selectionMenu.GetWidth() + padding * 2);
             }
             if (!string.IsNullOrEmpty(title)) {
@@ -174,8 +174,7 @@ namespace MonoRpg.Engine.UI {
                 width += avatarWidth + padding;
                 height = Math.Max(height, avatarHeight + padding);
             }
-            x -= width / 2;
-            y += height / 2;
+            
             return PushFix(renderer, x, y, width, height, text, args);
         }
 

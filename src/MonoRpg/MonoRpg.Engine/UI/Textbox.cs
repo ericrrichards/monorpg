@@ -130,7 +130,7 @@ namespace MonoRpg.Engine.UI {
                 renderer.AlignText(TextAlignment.Left, TextAlignment.Center);
                 var menuX = (int)textLeft;
                 var menuY = (int)(bottom + SelectionMenu.GetHeight());
-                menuY -= (int)Bounds.W;
+                menuY += (int)Bounds.W;
                 SelectionMenu.Position = new Vector2(menuX, menuY);
                 SelectionMenu.Scale = scale;
                 SelectionMenu.TextScale = TextScale;
