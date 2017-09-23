@@ -1,4 +1,6 @@
 namespace Dungeon.States {
+    using System.Linq;
+
     using Microsoft.Xna.Framework.Input;
 
     
@@ -35,11 +37,11 @@ namespace Dungeon.States {
                 FrameCount = FrameCount + dt;
                 if (FrameCount > FrameResetSpeed) {
                     FrameCount = -1;
-                    Entity.SetFrame(Entity.StartFrame);
-                    Character.Facing = Facing.Down;
+                    Entity.SetFrame(Character.Animations[(Animations)Character.Facing].First());
+                    //Character.Facing = Facing.Down;
                 }
             }
-            
+
             if (System.Keys.IsDown(Keys.Left)) {
                 Controller.Change("move", new MoveParams(-1, 0));
             } else if (System.Keys.IsDown(Keys.Right)) {

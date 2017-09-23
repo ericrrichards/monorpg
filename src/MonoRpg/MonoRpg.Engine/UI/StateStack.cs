@@ -130,6 +130,7 @@ namespace MonoRpg.Engine.UI {
                 TextBounds = new Vector4(boundsLeft, -padding, -boundsTop, padding),
                 Wrap = wrap,
                 SelectionMenu = selectionMenu,
+                OnFinish = parameters.OnFinish,
                 Stack = this,
                 PanelArgs = new PanelParams {
                     Texture = System.Content.FindTexture("simple_panel.png"),

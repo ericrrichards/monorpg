@@ -5,6 +5,7 @@ using MonoRpg.Engine;
 namespace Dungeon {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.PerformanceData;
     using System.Security.Cryptography.X509Certificates;
 
     using MonoRpg.Engine.Tiled;
@@ -29,7 +30,7 @@ namespace Dungeon {
             System.Init(_graphics);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
-            
+
         }
 
         /// <summary>
@@ -57,15 +58,48 @@ namespace Dungeon {
             Renderer.ClearColor = Color.CornflowerBlue;
             _content.SetDefaultFont("junction");
             _content.LoadFont("contra_italic");
-            _stack = new StateStack();
+            Icons.Instance = new Icons(_content.FindTexture("inventory_icons.png"));
 
+            _stack = new StateStack();
+            ItemDB.Initialize(
+                              new Item {
+                                  Name = "Mysterious Torque",
+                                  Type = ItemType.Accessory,
+                                  Description = "A golden torque that glitters",
+                                  Stats = new ItemStats {
+                                      Strength = 10,
+                                      Speed = 10
+                                  }
+                              },
+                              new Item {
+                                  Name = "Heal Potion",
+                                  Type = ItemType.Useable,
+                                  Description = "Heals a little HP"
+                              },
+                              new Item {
+                                  Name = "Bronze Sword",
+                                  Type = ItemType.Weapon,
+                                  Description = "A short sword with a dull blade",
+                                  Stats = new ItemStats {
+                                      Attack = 10
+                                  }
+                              },
+                              new Item {
+                                  Name = "Old bone",
+                                  Type = ItemType.Key,
+                                  Description = "A calcified human femur"
+                              }
+
+                             );
 
             EntityDefs.Load("Content/entityDefs.json");
             MapDB.AddMap("sontos_house.json");
 
-            
 
-            var bustedWallTrigger = new TriggerDef{Trigger = "cracked_stone", X = 60, Y = 11};
+
+            var bustedWallTrigger = new TriggerDef { Trigger = "cracked_stone", X = 60, Y = 11 };
+            var skeleton1 = new TriggerDef { Trigger = "skeleton", X = 73, Y = 11 };
+            var skeleton2 = new TriggerDef { Trigger = "skeleton", X = 74, Y = 11 };
             MapDB.AddMap("jail.json", new Dictionary<string, MapAction> {
                 ["break_wall_script"] = new MapAction {
                     ID = "RunScript",
@@ -73,15 +107,25 @@ namespace Dungeon {
                         Script = CrumbleScript,
                         TriggerDef = bustedWallTrigger
                     }
+                },
+                ["bone_script"] = new MapAction {
+                    ID="RunScript",
+                    Params = new RunScriptArgs {
+                        Script = BoneScript,
+                        TriggerDef = skeleton1
+                    }
                 }
             }, new Dictionary<string, TriggerTypeDef> {
-                ["cracked_stone"] = new TriggerTypeDef { OnUse = "break_wall_script"}
+                ["cracked_stone"] = new TriggerTypeDef { OnUse = "break_wall_script" },
+                ["skeleton"]=new TriggerTypeDef { OnUse = "bone_script"}
             }, new List<TriggerDef> {
-                bustedWallTrigger
+                bustedWallTrigger,
+                skeleton1,
+                skeleton2
             });
 
-            
-            
+
+
 
             var storyboard = new Storyboard(_stack,
                 Events.Scene(new SceneArgs {
@@ -94,7 +138,7 @@ namespace Dungeon {
                 Events.RunAction("AddNPC",
                     "sontos_house.json", new AddNPCParams { Character = "sleeper", Id = "sleeper", X = 14, Y = 19 },
                     Events.GetMapRef),
-                Events.Play("rain.wav"),
+                /*Events.Play("rain.wav"),
                 Events.NoBlock(Events.FadeSound("rain.wav", 0, 1, 3)),
                 Events.Caption("place", "title", "Village of Sontos"),
                 Events.Caption("time", "subtitle", "MIDNIGHT"),
@@ -142,7 +186,7 @@ namespace Dungeon {
                 Events.Caption("place", "title", "Unknown Dungeon"),
                 Events.Wait(2),
                 Events.FadeOutCaption("place", 3),
-                Events.KillState("place"),
+                Events.KillState("place"),*/
                 Events.ReplaceScene("sontos_house.json", new SceneArgs {
                     Map = "jail.json",
                     FocusX = 56,
@@ -179,6 +223,7 @@ namespace Dungeon {
 
             // TODO: Add your update logic here
             _stack.Update(dt);
+            World.Instance.Update(dt);
             base.Update(gameTime);
         }
 
@@ -196,12 +241,10 @@ namespace Dungeon {
             base.Draw(gameTime);
         }
 
-        private void CrumbleScript(Map map, TriggerDef def, Entity arg3) {
+        private void CrumbleScript(Map map, TriggerDef def, Entity entity) {
             void PushWall(Map map1) {
                 _stack.PushFit(Renderer, 0, 0, "The wall crumbles", 255);
-                var sound = System.Content.GetSound("crumble.wav");
-                var instance = sound.CreateInstance();
-                instance.Play();
+                System.Content.GetSound("crumble.wav").Play();
 
                 map1.RemoveTrigger(def.X, def.Y, def.Layer);
                 map1.WriteTile(
@@ -228,6 +271,22 @@ namespace Dungeon {
                 }
             };
             _stack.PushFit(Renderer, 0, 0, "The wall here is crumbling. Push it?", 255, dialogParams);
+        }
+
+        private void BoneScript(Map map, TriggerDef def, Entity entity) {
+            const int BoneItemId = 4;
+            void GiveBone() {
+                _stack.PushFit(Renderer, 0, 0, "Found key item: \"Calcified bone\"", 255, new FixedTextboxParameters { TextScale = 1 });
+                World.Instance.AddKey(BoneItemId);
+                System.Content.GetSound("key_item.wav").Play();
+
+            }
+            _stack.PushFit(Renderer, 0, 0, "The skeleton collapsed into dust.", 255, new FixedTextboxParameters { TextScale = 1, OnFinish = GiveBone });
+            System.Content.GetSound("skeleton_destroy.wav").Play();
+
+            map.RemoveTrigger(73, 11, def.Layer);
+            map.RemoveTrigger(74, 11, def.Layer);
+            map.WriteTile(new WriteTileArgs { X = 74, Y = 11, Layer = def.Layer, Tile = 136, Collision = true });
         }
     }
 }

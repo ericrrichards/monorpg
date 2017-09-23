@@ -78,7 +78,7 @@
 
             foreach (var tileSet in mapDef.TileSets) {
                 if (tileSet.Name == "collision_graphic") {
-                    BlockingTile = tileSet.FirstGid - 1;
+                    BlockingTile = tileSet.FirstGid;
                     break;
                 }
             }
@@ -164,7 +164,7 @@
             var index = CoordToIndex(x, y);
             if (index < 0 || index >= tiles.Count)
                 throw new IndexOutOfRangeException();
-            return tiles[index] - 1; // Tiled uses 1 as the first ID, instead of 0 like everything else in the world does.
+            return tiles[index]; // Tiled uses 1 as the first ID, instead of 0 like everything else in the world does.
         }
 
         [CanBeNull]
@@ -216,14 +216,14 @@
                     var tile = GetTile(i, j, layerIndex);
                     Rectangle uvs;
                     Sprite.Position = new Vector2(X + i * TileWidth, Y - j * TileHeight);
-                    if (tile >= 0) {
-                        uvs = UVs[tile];
+                    if (tile > 0) {
+                        uvs = UVs[tile-1];
                         Sprite.SetUVs(uvs);
                         renderer.DrawSprite(Sprite);
                     }
                     tile = GetTile(i, j, layerIndex + 1);
-                    if (tile >= 0) {
-                        uvs = UVs[tile];
+                    if (tile > 0) {
+                        uvs = UVs[tile-1];
                         Sprite.SetUVs(uvs);
                         renderer.DrawSprite(Sprite);
                     }

@@ -1,4 +1,6 @@
 namespace MonoRpg.Engine.UI {
+    using global::System;
+
     using Microsoft.Xna.Framework.Graphics;
 
     public class FixedTextboxParameters {
@@ -7,6 +9,7 @@ namespace MonoRpg.Engine.UI {
 
         public SelectionArgs<string> Choices { get; set; }
         public float TextScale { get; set; }
+        public Action OnFinish { get; set; }
 
         public FixedTextboxParameters() {
             TextScale = 1.0f;

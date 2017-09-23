@@ -31,6 +31,7 @@ namespace MonoRpg.Engine.UI {
         [CanBeNull]
         public StateStack Stack { get; set; }
         public bool DoClickCallback { get; set; }
+        public Action OnFinish { get; set; }
 
         public Textbox(TextboxParams args) {
             args = args ?? new TextboxParams();
@@ -57,9 +58,8 @@ namespace MonoRpg.Engine.UI {
             SelectionMenu = args.SelectionMenu;
             Stack = args.Stack;
             DoClickCallback = false;
+            OnFinish = args.OnFinish;
         }
-
-
 
         public bool Update(float dt) {
             Time += dt;
@@ -101,6 +101,9 @@ namespace MonoRpg.Engine.UI {
         public void Exit() {
             if (DoClickCallback) {
                 SelectionMenu.OnClick();
+            }
+            if (OnFinish != null) {
+                OnFinish();
             }
         }
 
@@ -169,6 +172,7 @@ namespace MonoRpg.Engine.UI {
         public List<TextboxChild> Children { get; set; }
         public Selection<string> SelectionMenu { get; set; }
         public StateStack Stack { get; set; }
+        public Action OnFinish { get; set; }
 
         public TextboxParams() {
             Wrap = -1;
