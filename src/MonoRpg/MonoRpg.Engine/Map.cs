@@ -109,18 +109,7 @@
             }
 
             foreach (var triggerDef in mapDef.Triggers) {
-                var x = triggerDef.X;
-                var y = triggerDef.Y;
-                var layer = triggerDef.Layer;
-
-                if (!Triggers.ContainsKey(layer)) {
-                    Triggers[layer] = new Dictionary<int, Trigger>();
-                }
-
-                var targetLayer = Triggers[layer];
-                Debug.Assert(TriggerTypes.ContainsKey(triggerDef.Trigger));
-                var trigger = TriggerTypes[triggerDef.Trigger];
-                targetLayer[CoordToIndex(x, y)] = trigger;
+                AddTrigger(triggerDef);
             }
 
 
@@ -303,6 +292,20 @@
             var index = CoordToIndex(x, y);
             Debug.Assert(triggers.ContainsKey(index));
             triggers.Remove(index);
+        }
+        public void AddTrigger(TriggerDef triggerDef) {
+            var x = triggerDef.X;
+            var y = triggerDef.Y;
+            var layer = triggerDef.Layer;
+
+            if (!Triggers.ContainsKey(layer)) {
+                Triggers[layer] = new Dictionary<int, Trigger>();
+            }
+
+            var targetLayer = Triggers[layer];
+            Debug.Assert(TriggerTypes.ContainsKey(triggerDef.Trigger));
+            var trigger = TriggerTypes[triggerDef.Trigger];
+            targetLayer[CoordToIndex(x, y)] = trigger;
         }
     }
 

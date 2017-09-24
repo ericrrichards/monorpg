@@ -28,6 +28,28 @@ namespace MonoRpg.Engine.Tiled {
     public struct MapAction {
         public string ID { get; set; }
         public MapActionParameters Params { get; set; }
+
+        public static MapAction RunScript(Action<Map, TriggerDef, Entity> script, TriggerDef def) {
+            return new MapAction {
+                ID = "RunScript",
+                Params = new RunScriptArgs {
+                    Script = script,
+                    TriggerDef = def
+                }
+            };
+        }
+
+        public static MapAction AddNpc(string id, string character, int x, int y) {
+            return new MapAction {
+                ID = "AddNPC",
+                Params = new AddNPCParams {
+                    Character = character,
+                    Id = id,
+                    X = x,
+                    Y = y
+                }
+            };
+        }
     }
 
     public class MapActionParameters {
@@ -63,5 +85,12 @@ namespace MonoRpg.Engine.Tiled {
         public int X { get; set; }
         public int Y { get; set; }
         public int Layer { get; set; }
+
+        public TriggerDef(string triggerTypeName, int x, int y, int layer = 0) {
+            Trigger = triggerTypeName;
+            X = x;
+            Y = y;
+            Layer = layer;
+        }
     }
 }

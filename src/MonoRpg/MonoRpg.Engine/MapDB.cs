@@ -8,7 +8,7 @@ namespace MonoRpg.Engine {
     public static class MapDB {
         public static Dictionary<string, Func<TiledMap>> Maps = new Dictionary<string, Func<TiledMap>>();
 
-        public static void AddMap(string mapFile, Dictionary<string, MapAction> actions = null, Dictionary<string, TriggerTypeDef> triggerTypes = null, List<TriggerDef> triggers = null) {
+        public static void AddMap(string mapFile, Dictionary<string, MapAction> actions = null, Dictionary<string, TriggerTypeDef> triggerTypes = null, List<TriggerDef> triggers = null, List<MapAction> onWake=null) {
             var path = mapFile;
             if (!File.Exists(path) && File.Exists(Path.Combine("Content", path))) {
                 path = Path.Combine("Content", path);
@@ -25,6 +25,10 @@ namespace MonoRpg.Engine {
                          if (triggers != null) {
                              map.Triggers = triggers;
                          }
+                         if (onWake != null) {
+                             map.OnWake = onWake;
+                         }
+
                          return map;
                      });
         }

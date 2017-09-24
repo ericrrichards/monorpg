@@ -3,10 +3,9 @@
 using MonoRpg.Engine;
 
 namespace Dungeon {
-    using System;
     using System.Collections.Generic;
-    using System.Diagnostics.PerformanceData;
-    using System.Security.Cryptography.X509Certificates;
+
+    using Microsoft.Xna.Framework.Input;
 
     using MonoRpg.Engine.Tiled;
     using MonoRpg.Engine.UI;
@@ -21,6 +20,7 @@ namespace Dungeon {
         private Renderer Renderer { get; set; }
         private Content _content;
         private StateStack _stack;
+        private bool _start;
 
         public Game1() {
             _graphics = new GraphicsDeviceManager(this) {
@@ -55,7 +55,7 @@ namespace Dungeon {
             Renderer = new Renderer(GraphicsDevice, _content);
             System.Renderer = Renderer;
             Renderer.AlignText(TextAlignment.Center, TextAlignment.Center);
-            Renderer.ClearColor = Color.CornflowerBlue;
+            Renderer.ClearColor = Color.Black;
             _content.SetDefaultFont("junction");
             _content.LoadFont("contra_italic");
             Icons.Instance = new Icons(_content.FindTexture("inventory_icons.png"));
@@ -97,31 +97,38 @@ namespace Dungeon {
 
 
 
-            var bustedWallTrigger = new TriggerDef { Trigger = "cracked_stone", X = 60, Y = 11 };
-            var skeleton1 = new TriggerDef { Trigger = "skeleton", X = 73, Y = 11 };
-            var skeleton2 = new TriggerDef { Trigger = "skeleton", X = 74, Y = 11 };
+            var bustedWallTrigger = new TriggerDef("cracked_stone", 60,11 );
+            var skeleton1 = new TriggerDef("skeleton",73, 11 );
+            var skeleton2 = new TriggerDef("skeleton", 74, 11 );
+            var gregorTrigger = new TriggerDef("gregor_trigger", 59, 11);
+            var gregorTalkTrigger = new TriggerDef("gregor_talk_trigger", 50, 13);
+            var grateTrigger1 = new TriggerDef("grate_close", 57, 6);
+            var grateTrigger2 = new TriggerDef("grate_close", 58, 6);
             MapDB.AddMap("jail.json", new Dictionary<string, MapAction> {
-                ["break_wall_script"] = new MapAction {
-                    ID = "RunScript",
-                    Params = new RunScriptArgs {
-                        Script = CrumbleScript,
-                        TriggerDef = bustedWallTrigger
-                    }
-                },
-                ["bone_script"] = new MapAction {
-                    ID="RunScript",
-                    Params = new RunScriptArgs {
-                        Script = BoneScript,
-                        TriggerDef = skeleton1
-                    }
-                }
+                ["break_wall_script"] = MapAction.RunScript(CrumbleScript, bustedWallTrigger),
+                ["bone_script"] = MapAction.RunScript(BoneScript, skeleton1),
+                ["move_gregor"] = MapAction.RunScript(MoveGregor, gregorTrigger),
+                ["talk_gregor"] = MapAction.RunScript(TalkGregor, gregorTalkTrigger),
+                ["use_grate"] = MapAction.RunScript(UseGrate, grateTrigger1),
+                ["enter_grate"] = MapAction.RunScript(EnterGrate, grateTrigger1)
+                
             }, new Dictionary<string, TriggerTypeDef> {
                 ["cracked_stone"] = new TriggerTypeDef { OnUse = "break_wall_script" },
-                ["skeleton"]=new TriggerTypeDef { OnUse = "bone_script"}
+                ["skeleton"]=new TriggerTypeDef { OnUse = "bone_script"},
+                ["gregor_trigger"] = new TriggerTypeDef { OnExit = "move_gregor"},
+                ["gregor_talk_trigger"] = new TriggerTypeDef { OnUse = "talk_gregor"},
+                ["grate_close"] = new TriggerTypeDef { OnUse = "use_grate"},
+                ["grate_open"] = new TriggerTypeDef { OnEnter = "enter_grate"}
             }, new List<TriggerDef> {
                 bustedWallTrigger,
                 skeleton1,
-                skeleton2
+                skeleton2,
+                gregorTrigger,
+                gregorTalkTrigger,
+                grateTrigger1,
+                grateTrigger2
+            }, new List<MapAction> {
+                MapAction.AddNpc("gregor", "prisoner", 44, 12)
             });
 
 
@@ -134,11 +141,12 @@ namespace Dungeon {
                     FocusY = 19,
                     HideHero = true
                 }),
+                /*
                 Events.BlackScreen(),
                 Events.RunAction("AddNPC",
                     "sontos_house.json", new AddNPCParams { Character = "sleeper", Id = "sleeper", X = 14, Y = 19 },
                     Events.GetMapRef),
-                /*Events.Play("rain.wav"),
+                Events.Play("rain.wav"),
                 Events.NoBlock(Events.FadeSound("rain.wav", 0, 1, 3)),
                 Events.Caption("place", "title", "Village of Sontos"),
                 Events.Caption("time", "subtitle", "MIDNIGHT"),
@@ -186,7 +194,8 @@ namespace Dungeon {
                 Events.Caption("place", "title", "Unknown Dungeon"),
                 Events.Wait(2),
                 Events.FadeOutCaption("place", 3),
-                Events.KillState("place"),*/
+                Events.KillState("place"),
+                */
                 Events.ReplaceScene("sontos_house.json", new SceneArgs {
                     Map = "jail.json",
                     FocusX = 56,
@@ -194,10 +203,11 @@ namespace Dungeon {
                     HideHero = false
 
                 }),
-                Events.FadeOutScreen(),
-                Events.Wait(0.5f),
-                Events.Say("jail.json", "hero", "Where am I?", 3),
-                Events.Wait(3),
+                //Events.FadeOutScreen(),
+                //Events.Wait(0.5f),
+                //Events.Say("jail.json", "hero", "Where am I?", 3),
+                //Events.Wait(3),
+                
                 Events.HandOff("jail.json", _stack)
             );
             _stack.Push(storyboard);
@@ -220,8 +230,12 @@ namespace Dungeon {
 
             var dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
             System.Keys.Update();
-
-            // TODO: Add your update logic here
+            //if (System.Keys.WasPressed(Keys.S)) {
+            //    _start = true;
+            //}
+            //if (_start) {
+            //    _stack.Update(dt);
+            //}
             _stack.Update(dt);
             World.Instance.Update(dt);
             base.Update(gameTime);
@@ -272,9 +286,9 @@ namespace Dungeon {
             };
             _stack.PushFit(Renderer, 0, 0, "The wall here is crumbling. Push it?", 255, dialogParams);
         }
-
+        const int BoneItemId = 4;
         private void BoneScript(Map map, TriggerDef def, Entity entity) {
-            const int BoneItemId = 4;
+            
             void GiveBone() {
                 _stack.PushFit(Renderer, 0, 0, "Found key item: \"Calcified bone\"", 255, new FixedTextboxParameters { TextScale = 1 });
                 World.Instance.AddKey(BoneItemId);
@@ -287,6 +301,99 @@ namespace Dungeon {
             map.RemoveTrigger(73, 11, def.Layer);
             map.RemoveTrigger(74, 11, def.Layer);
             map.WriteTile(new WriteTileArgs { X = 74, Y = 11, Layer = def.Layer, Tile = 136, Collision = true });
+        }
+
+        private void MoveGregor(Map map, TriggerDef def, Entity entity) {
+            if (World.Instance.HasKey(BoneItemId)) {
+                var gregor = map.NpcById["gregor"];
+                gregor.FollowPath(
+                    Facing.Up,
+                    Facing.Up,
+                    Facing.Up,
+                    Facing.Right,
+                    Facing.Right, 
+                    Facing.Right,
+                    Facing.Right,
+                    Facing.Right,
+                    Facing.Right,
+                    Facing.Down,
+                    Facing.Down,
+                    Facing.Down
+                );
+                map.RemoveTrigger(def.X, def.Y, def.Layer);
+            }
+        }
+
+        private void TalkGregor(Map map, TriggerDef def, Entity entity) {
+            var gregor = map.NpcById["gregor"];
+            if (gregor.Entity.TileX == def.X && gregor.Entity.TileY == def.Y - 1) {
+                var speech = new[] {
+                    "You're another black blood aren't you?", 
+                    "Come the morning, they'll kill you, just like the others.",
+                    "If I was you, I'd try to escape.",
+                    "Pry the drain open with that big bone you're holding."
+                };
+
+                var text = speech[gregor.TalkIndex];
+
+                var height = 102;
+                var width = 500;
+                var x = 0;
+                var y = -System.ScreenHeight / 2 + height / 2;
+                _stack.PushFix(
+                               Renderer,
+                               x,
+                               y,
+                               width,
+                               height,
+                               text,
+                               new FixedTextboxParameters {
+                                   TextScale = 1,
+                                   Title = "Prisoner"
+                               });
+                gregor.TalkIndex = (gregor.TalkIndex + 1) % speech.Length;
+
+            }
+        }
+
+        private void UseGrate(Map map, TriggerDef def, Entity entity) {
+
+            void OnOpen() {
+                System.Content.GetSound("grate.wav").Play();
+                map.WriteTile(new WriteTileArgs {
+                   X = 57, Y = 6, Layer = def.Layer, Tile = 151, Collision = false
+                });
+                map.WriteTile(new WriteTileArgs {
+                    X = 58, Y = 6, Layer = def.Layer, Tile = 151, Collision = false
+                });
+                map.AddTrigger(new TriggerDef("grate_open", 57, 6));
+                map.AddTrigger(new TriggerDef("grate_open", 58, 6));
+            }
+
+            if (World.Instance.HasKey(BoneItemId)) {
+                var dialogParams = new FixedTextboxParameters {
+                    TextScale = 1,
+                    Choices = new SelectionArgs<string>(
+                                                        new List<string> {
+                                                            "Prize open the grate",
+                                                            "Leave it alone"
+                                                        }) {
+                        OnSelection = (i, s) => {
+                            if (i == 0) {
+                                OnOpen();
+                            }
+                        }
+                    }
+                };
+                _stack.PushFit(Renderer, 0, 0, "Threre's a tunnel behind the grate. Prize it open with the bone?", 300, dialogParams);
+            } else {
+                _stack.PushFit(Renderer, 0, 0, "There's a tunnel behind the grate. But you can't move the grate with your bare hands", 
+                    300, new FixedTextboxParameters { TextScale = 1});
+            }
+            
+        }
+        private void EnterGrate(Map map, TriggerDef def, Entity entity) {
+
         }
     }
 }

@@ -2,6 +2,7 @@
     using global::System;
     using global::System.Collections.Generic;
     using global::System.Diagnostics;
+    using global::System.Linq;
 
     public class Character {
         public string DefaultState { get; set; }
@@ -15,6 +16,7 @@
         public int PathIndex { get; set; }
         public List<Facing> Path { get; set; }
         public string Id { get; set; }
+        public int TalkIndex { get; set; }
 
         public Character(CharacterDef def, Map map) {
             Debug.Assert(EntityDefs.Instance.Entities.ContainsKey(def.Entity));
@@ -67,6 +69,10 @@
             PreviousDefaultState = DefaultState;
             DefaultState = "follow_path";
             Controller.Change("follow_path");
+        }
+
+        public void FollowPath(params Facing[] path) {
+            FollowPath(path.ToList());
         }
 
         

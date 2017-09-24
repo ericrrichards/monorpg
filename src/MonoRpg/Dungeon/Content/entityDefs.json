@@ -33,6 +33,15 @@
       "TileX": 11,
       "TileY": 3,
       "Layer": 0
+    },
+    "prisoner": {
+      "texture": "walk_cycle.png",
+      "Width": 16,
+      "Height": 24,
+      "StartFrame": 57,
+      "TileX": 1,
+      "TileY": 1,
+      "Layer": 0
     }
   },
   "Characters": {
@@ -85,6 +94,18 @@
         "Left": [ 92, 93, 94, 95 ]
       },
       "Facing": "Up",
+      "Controller": [ "npc_stand", "follow_path", "move" ],
+      "State": "npc_stand"
+    },
+    "prisoner": {
+      "entity": "prisoner",
+      "Animations": {
+        "Up": [ 48, 49, 50, 51 ],
+        "Right": [ 52, 53, 54, 55 ],
+        "Down": [ 56, 57, 58, 59 ],
+        "Left": [ 60, 61, 62, 63 ]
+      },
+      "Facing": "Down",
       "Controller": [ "npc_stand", "follow_path", "move" ],
       "State": "npc_stand"
     }
