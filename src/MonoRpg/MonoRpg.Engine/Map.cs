@@ -310,7 +310,7 @@
     }
 
     public class WriteTileArgs {
-        public int Layer = 1;
+        public int Layer = 0;
         public int Detail = 0;
         public int X;
         public int Y;

@@ -158,6 +158,7 @@ namespace MonoRpg.Engine {
                 state.Map.GotoTile(args.FocusX, args.FocusY);
                 state.Hero = new Character(EntityDefs.Instance.Characters["hero"], state.Map);
                 state.Hero.Entity.SetTilePosition(args.FocusX, args.FocusY, args.FocusZ, state.Map);
+                state.SetFollowCam(true, state.Hero);
                 if (args.HideHero) {
                     state.HideHero();
                 } else {
@@ -221,6 +222,55 @@ namespace MonoRpg.Engine {
                 return EmptyEvent(storyboard);
             };
         }
+
+        public static StoryBoardFunc FadeOutChar(string mapId, string npcId, float duration=1) {
+            return storyboard => {
+                var map = GetMapRef(storyboard, mapId);
+                Character npc;
+                
+                if (npcId == "hero") {
+                    npc = ((ExploreState)storyboard.States[mapId]).Hero;
+                } else {
+                    npc = map.NpcById[npcId];
+                }
+
+                return new TweenEvent<Sprite>(new Tween(1, 0, duration), npc.Entity.Sprite,
+                                              (sprite, f) => {
+                                                  sprite.Color = new Color(f,f,f,f);
+                                              }  );
+            };
+        }
+
+        public static StoryBoardFunc WriteTile(string mapId, WriteTileArgs args) {
+            return storyboard => {
+                var map = GetMapRef(storyboard, mapId);
+                map.WriteTile(args);
+                return EmptyEvent(storyboard);
+            };
+        }
+
+        public static StoryBoardFunc MoveCamToTile(string stateId, int tileX, int tileY, float duration=1) {
+            return storyboard => {
+                var state = storyboard.States[stateId] as ExploreState;
+                Debug.Assert(state != null);
+                state.SetFollowCam(false);
+                var startX = state.ManualCamX;
+                var startY = state.ManualCamY;
+                var end = state.Map.GetTileFoot(tileX, tileY);
+                var xDistance = end.X - startX;
+                var yDistance = end.Y - startY;
+
+                return new TweenEvent<ExploreState>(
+                                                    new Tween(0, 1, duration, Tween.EaseOutQuad),
+                                                    state,
+                                                    (exploreState, f) => {
+                                                        var dx = startX + xDistance * f;
+                                                        var dy = startY + yDistance * f;
+                                                        state.ManualCamX = (int)dx;
+                                                        state.ManualCamY = (int)dy;
+                                                    });
+            };
+        }
     }
 
     public class WaitEvent : IStoryboardEvent {
@@ -274,7 +324,11 @@ namespace MonoRpg.Engine {
         public void Update(float dt, Storyboard storyboard) {
         }
 
-        public bool IsBlocking { get { return !UntilFunc(); } set { } }
+        private bool _isBlocking = true;
+        public bool IsBlocking {
+            get => _isBlocking && !UntilFunc();
+            set => _isBlocking = value;
+        }
         public bool IsFinished => !IsBlocking;
     }
 

@@ -15,14 +15,14 @@ namespace Dungeon {
     /// <summary>
     /// This is the main type for your game.
     /// </summary>
-    public class Game1 : Game {
+    public class Dungeon : Game {
         GraphicsDeviceManager _graphics;
         private Renderer Renderer { get; set; }
         private Content _content;
         private StateStack _stack;
         private bool _start;
 
-        public Game1() {
+        public Dungeon() {
             _graphics = new GraphicsDeviceManager(this) {
                 PreferredBackBufferWidth = 640,
                 PreferredBackBufferHeight = 360
@@ -97,9 +97,9 @@ namespace Dungeon {
 
 
 
-            var bustedWallTrigger = new TriggerDef("cracked_stone", 60,11 );
-            var skeleton1 = new TriggerDef("skeleton",73, 11 );
-            var skeleton2 = new TriggerDef("skeleton", 74, 11 );
+            var bustedWallTrigger = new TriggerDef("cracked_stone", 60, 11);
+            var skeleton1 = new TriggerDef("skeleton", 73, 11);
+            var skeleton2 = new TriggerDef("skeleton", 74, 11);
             var gregorTrigger = new TriggerDef("gregor_trigger", 59, 11);
             var gregorTalkTrigger = new TriggerDef("gregor_talk_trigger", 50, 13);
             var grateTrigger1 = new TriggerDef("grate_close", 57, 6);
@@ -111,14 +111,14 @@ namespace Dungeon {
                 ["talk_gregor"] = MapAction.RunScript(TalkGregor, gregorTalkTrigger),
                 ["use_grate"] = MapAction.RunScript(UseGrate, grateTrigger1),
                 ["enter_grate"] = MapAction.RunScript(EnterGrate, grateTrigger1)
-                
+
             }, new Dictionary<string, TriggerTypeDef> {
                 ["cracked_stone"] = new TriggerTypeDef { OnUse = "break_wall_script" },
-                ["skeleton"]=new TriggerTypeDef { OnUse = "bone_script"},
-                ["gregor_trigger"] = new TriggerTypeDef { OnExit = "move_gregor"},
-                ["gregor_talk_trigger"] = new TriggerTypeDef { OnUse = "talk_gregor"},
-                ["grate_close"] = new TriggerTypeDef { OnUse = "use_grate"},
-                ["grate_open"] = new TriggerTypeDef { OnEnter = "enter_grate"}
+                ["skeleton"] = new TriggerTypeDef { OnUse = "bone_script" },
+                ["gregor_trigger"] = new TriggerTypeDef { OnExit = "move_gregor" },
+                ["gregor_talk_trigger"] = new TriggerTypeDef { OnUse = "talk_gregor" },
+                ["grate_close"] = new TriggerTypeDef { OnUse = "use_grate" },
+                ["grate_open"] = new TriggerTypeDef { OnEnter = "enter_grate" }
             }, new List<TriggerDef> {
                 bustedWallTrigger,
                 skeleton1,
@@ -134,7 +134,7 @@ namespace Dungeon {
 
 
 
-            var storyboard = new Storyboard(_stack,
+            var storyboard = new Storyboard(_stack, false,
                 Events.Scene(new SceneArgs {
                     Map = "sontos_house.json",
                     FocusX = 14,
@@ -207,7 +207,7 @@ namespace Dungeon {
                 //Events.Wait(0.5f),
                 //Events.Say("jail.json", "hero", "Where am I?", 3),
                 //Events.Wait(3),
-                
+
                 Events.HandOff("jail.json", _stack)
             );
             _stack.Push(storyboard);
@@ -288,7 +288,7 @@ namespace Dungeon {
         }
         const int BoneItemId = 4;
         private void BoneScript(Map map, TriggerDef def, Entity entity) {
-            
+
             void GiveBone() {
                 _stack.PushFit(Renderer, 0, 0, "Found key item: \"Calcified bone\"", 255, new FixedTextboxParameters { TextScale = 1 });
                 World.Instance.AddKey(BoneItemId);
@@ -311,7 +311,7 @@ namespace Dungeon {
                     Facing.Up,
                     Facing.Up,
                     Facing.Right,
-                    Facing.Right, 
+                    Facing.Right,
                     Facing.Right,
                     Facing.Right,
                     Facing.Right,
@@ -328,7 +328,7 @@ namespace Dungeon {
             var gregor = map.NpcById["gregor"];
             if (gregor.Entity.TileX == def.X && gregor.Entity.TileY == def.Y - 1) {
                 var speech = new[] {
-                    "You're another black blood aren't you?", 
+                    "You're another black blood aren't you?",
                     "Come the morning, they'll kill you, just like the others.",
                     "If I was you, I'd try to escape.",
                     "Pry the drain open with that big bone you're holding."
@@ -361,7 +361,7 @@ namespace Dungeon {
             void OnOpen() {
                 System.Content.GetSound("grate.wav").Play();
                 map.WriteTile(new WriteTileArgs {
-                   X = 57, Y = 6, Layer = def.Layer, Tile = 151, Collision = false
+                    X = 57, Y = 6, Layer = def.Layer, Tile = 151, Collision = false
                 });
                 map.WriteTile(new WriteTileArgs {
                     X = 58, Y = 6, Layer = def.Layer, Tile = 151, Collision = false
@@ -387,13 +387,95 @@ namespace Dungeon {
                 };
                 _stack.PushFit(Renderer, 0, 0, "Threre's a tunnel behind the grate. Prize it open with the bone?", 300, dialogParams);
             } else {
-                _stack.PushFit(Renderer, 0, 0, "There's a tunnel behind the grate. But you can't move the grate with your bare hands", 
-                    300, new FixedTextboxParameters { TextScale = 1});
+                _stack.PushFit(Renderer, 0, 0, "There's a tunnel behind the grate. But you can't move the grate with your bare hands",
+                    300, new FixedTextboxParameters { TextScale = 1 });
             }
-            
+
         }
         private void EnterGrate(Map map, TriggerDef def, Entity entity) {
+            System.Content.GetSound("reveal.wav").Play();
+            map.RemoveTrigger(57, 6, def.Layer);
+            map.RemoveTrigger(58, 6, def.Layer);
+            var storyboard = new Storyboard(_stack, true, 
+                Events.BlackScreen("blackscreen", 0),
+                Events.NoBlock(Events.FadeOutChar("handin", "hero")),
+                Events.RunAction("AddNPC", "handin", new AddNPCParams{Character = "guard", Id = "guard1", X = 35, Y = 20, }, Events.GetMapRef),
+                Events.Wait(2),
+                Events.NoBlock( Events.MoveNpc("gregor", "handin", 
+                    Facing.Up,
+                    Facing.Up,
+                    Facing.Up,
+                    Facing.Left,
+                    Facing.Left,
+                    Facing.Left,
+                    Facing.Left,
+                    Facing.Left,
+                    Facing.Left,
+                    Facing.Down,
+                    Facing.Down
+                )),
+                Events.Wait(1),
+                Events.NoBlock(Events.MoveCamToTile("handin", 43, 15, 3)),
+                Events.Wait(1),
+                Events.MoveNpc("guard1", "handin",
+                    Facing.Right,
+                    Facing.Right,
+                    Facing.Right,
+                    Facing.Right,
+                    Facing.Right,
+                    Facing.Right,
+                    Facing.Right,
+                    Facing.Right,
+                    Facing.Right,
+                    Facing.Up
+                ),
+                Events.Wait(1),
+                Events.Play("unlock.wav"),
+                Events.NoBlock(Events.WriteTile("handin", new WriteTileArgs{X = 44, Y = 18, Tile = 134, Detail = 120})),
+                Events.WriteTile("handin", new WriteTileArgs{X = 44, Y = 17, Tile=134, Detail = 104}),
+                Events.NoBlock(Events.MoveNpc("guard1", "handin", 
+                    Facing.Up,
+                    Facing.Up,
+                    Facing.Up,
+                    Facing.Up,
+                    Facing.Up,
+                    Facing.Up
+                )),
+                Events.Wait(2),
+                Events.Say("handin", "guard1", "Has the black blood gone?", 3),
+                Events.Wait(1),
+                Events.Say("handin", "gregor", "Yeh.", 1),
+                Events.Wait(1),
+                Events.Say("handin", "guard1", "Good.", 1),
+                Events.Wait(0.25f),
+                Events.Say("handin", "guard1", "Marmil will want to see you in the tower.", 3.5f),
+                Events.Wait(1),
+                Events.Say("handin", "gregor", "Let's go.", 1.5f),
+                Events.Wait(1),
+                Events.NoBlock(Events.MoveNpc("gregor", "handin", 
+                  Facing.Down,  
+                  Facing.Down,  
+                  Facing.Down,  
+                  Facing.Down,  
+                  Facing.Down,  
+                  Facing.Down,  
+                  Facing.Down,  
+                  Facing.Down  
+                )),
+                Events.NoBlock(Events.MoveNpc("guard1", "handin",
+                    Facing.Down,
+                    Facing.Down,
+                    Facing.Down,
+                    Facing.Down,
+                    Facing.Down,
+                    Facing.Down,
+                    Facing.Left,
+                    Facing.Left
+                )),
+                Events.FadeInScreen()
 
+            );
+            _stack.Push(storyboard);
         }
     }
 }

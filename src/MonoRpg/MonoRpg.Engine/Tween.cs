@@ -54,5 +54,10 @@ namespace MonoRpg.Engine {
             timePassed /= duration;
             return -distance * ((float)Math.Sqrt(1 - timePassed * timePassed) - 1) + start;
         }
+
+        public static float EaseOutQuad(float timepassed, float start, float distance, float duration) {
+            timepassed = timepassed / duration;
+            return -distance * timepassed * (timepassed - 2) + start;
+        }
     }
 }

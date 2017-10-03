@@ -78,7 +78,7 @@ namespace MonoRpg.Engine.UI {
                 if (!(AppearTween.Finished && AppearTween.Value == 1)) {
                     return;
                 }
-                AppearTween = new Tween(1, 0, 1.2f, Tween.EaseInCirc);
+                AppearTween = new Tween(1, 0, 0.2f, Tween.EaseInCirc);
             } else {
                 ChunkIndex++;
             }

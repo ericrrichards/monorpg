@@ -19,7 +19,7 @@
         public Dictionary<string, SoundEffectInstance> PlayingSounds { get; set; }
 
 
-        public Storyboard(StateStack stack, params Func<Storyboard, IStoryboardEvent>[] events) {
+        public Storyboard(StateStack stack, bool handIn, params Func<Storyboard, IStoryboardEvent>[] events) {
             Stack = stack;
             EventFactories = events.ToList();
             InstantiatedEvents = new List<IStoryboardEvent>();
@@ -29,6 +29,11 @@
             States = new Dictionary<string, IStateObject>();
             SubStack = new StateStack();
             PlayingSounds = new Dictionary<string, SoundEffectInstance>();
+
+            if (handIn) {
+                var state = Stack.Pop();
+                PushState("handin", state);
+            }
         }
 
         
