@@ -10,7 +10,7 @@
         public Action<CaptionStyle, Renderer, string> Render { get; set; }
         public int Width { get; set; }
         public int Y { get; set; }
-        public Color Color { get; private set; }
+        public Color Color { get; set; }
         public int X { get; set; }
         public TextAlignment AlignY { get; set; }
         public TextAlignment AlignX { get; set; }
@@ -54,7 +54,7 @@
             target.Color = new Color(target.Color, value);
         }
 
-        public static Dictionary<string, CaptionStyle> Styles = new Dictionary<string, CaptionStyle> {
+        public static readonly Dictionary<string, CaptionStyle> Styles = new Dictionary<string, CaptionStyle> {
             ["default"] = new CaptionStyle(),
             ["title"] = new CaptionStyle {
                 Font = "contra_italic",

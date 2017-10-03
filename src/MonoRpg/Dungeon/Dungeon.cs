@@ -104,33 +104,50 @@ namespace Dungeon {
             var gregorTalkTrigger = new TriggerDef("gregor_talk_trigger", 50, 13);
             var grateTrigger1 = new TriggerDef("grate_close", 57, 6);
             var grateTrigger2 = new TriggerDef("grate_close", 58, 6);
-            MapDB.AddMap("jail.json", new Dictionary<string, MapAction> {
-                ["break_wall_script"] = MapAction.RunScript(CrumbleScript, bustedWallTrigger),
-                ["bone_script"] = MapAction.RunScript(BoneScript, skeleton1),
-                ["move_gregor"] = MapAction.RunScript(MoveGregor, gregorTrigger),
-                ["talk_gregor"] = MapAction.RunScript(TalkGregor, gregorTalkTrigger),
-                ["use_grate"] = MapAction.RunScript(UseGrate, grateTrigger1),
-                ["enter_grate"] = MapAction.RunScript(EnterGrate, grateTrigger1)
+            MapDB.AddMap("jail.json", 
+                new Dictionary<string, MapAction> {
+                    ["break_wall_script"] = MapAction.RunScript(CrumbleScript, bustedWallTrigger),
+                    ["bone_script"] = MapAction.RunScript(BoneScript, skeleton1),
+                    ["move_gregor"] = MapAction.RunScript(MoveGregor, gregorTrigger),
+                    ["talk_gregor"] = MapAction.RunScript(TalkGregor, gregorTalkTrigger),
+                    ["use_grate"] = MapAction.RunScript(UseGrate, grateTrigger1),
+                    ["enter_grate"] = MapAction.RunScript(EnterGrate, grateTrigger1)
 
-            }, new Dictionary<string, TriggerTypeDef> {
-                ["cracked_stone"] = new TriggerTypeDef { OnUse = "break_wall_script" },
-                ["skeleton"] = new TriggerTypeDef { OnUse = "bone_script" },
-                ["gregor_trigger"] = new TriggerTypeDef { OnExit = "move_gregor" },
-                ["gregor_talk_trigger"] = new TriggerTypeDef { OnUse = "talk_gregor" },
-                ["grate_close"] = new TriggerTypeDef { OnUse = "use_grate" },
-                ["grate_open"] = new TriggerTypeDef { OnEnter = "enter_grate" }
-            }, new List<TriggerDef> {
-                bustedWallTrigger,
-                skeleton1,
-                skeleton2,
-                gregorTrigger,
-                gregorTalkTrigger,
-                grateTrigger1,
-                grateTrigger2
-            }, new List<MapAction> {
-                MapAction.AddNpc("gregor", "prisoner", 44, 12)
-            });
-
+                }, new Dictionary<string, TriggerTypeDef> {
+                    ["cracked_stone"] = new TriggerTypeDef { OnUse = "break_wall_script" },
+                    ["skeleton"] = new TriggerTypeDef { OnUse = "bone_script" },
+                    ["gregor_trigger"] = new TriggerTypeDef { OnExit = "move_gregor" },
+                    ["gregor_talk_trigger"] = new TriggerTypeDef { OnUse = "talk_gregor" },
+                    ["grate_close"] = new TriggerTypeDef { OnUse = "use_grate" },
+                    ["grate_open"] = new TriggerTypeDef { OnEnter = "enter_grate" }
+                }, new List<TriggerDef> {
+                    bustedWallTrigger,
+                    skeleton1,
+                    skeleton2,
+                    gregorTrigger,
+                    gregorTalkTrigger,
+                    grateTrigger1,
+                    grateTrigger2
+                }, new List<MapAction> {
+                    MapAction.AddNpc("gregor", "prisoner", 44, 12)
+                }
+            );
+            MapDB.AddMap("sewer.json", 
+                new Dictionary<string, MapAction> {
+                    ["exit_sewer_script"] = MapAction.RunScript(SewerExit, new TriggerDef())
+                },
+                new Dictionary<string, TriggerTypeDef> {
+                    ["exit_trigger"] = new TriggerTypeDef { OnEnter = "exit_sewer_script"}
+                },
+                new List<TriggerDef> {
+                    new TriggerDef("exit_trigger", 52, 15),
+                    new TriggerDef("exit_trigger", 52, 16),
+                    new TriggerDef("exit_trigger", 52, 17),
+                    new TriggerDef("exit_trigger", 52, 18),
+                    new TriggerDef("exit_trigger", 52, 19),
+                    new TriggerDef("exit_trigger", 52, 20),
+                }
+            );
 
 
 
@@ -472,10 +489,18 @@ namespace Dungeon {
                     Facing.Left,
                     Facing.Left
                 )),
-                Events.FadeInScreen()
+                Events.FadeInScreen(),
+                Events.ReplaceScene("handin", new SceneArgs{Map = "sewer.json", FocusX = 35, FocusY = 15, HideHero = false}),
+                Events.FadeOutScreen(),
+                Events.HandOff("sewer.json", _stack)
 
             );
             _stack.Push(storyboard);
+        }
+
+        private void SewerExit(Map map, TriggerDef def, Entity entity) {
+            _stack.Pop();
+            _stack.Push(new GameOverState(_stack));
         }
     }
 }

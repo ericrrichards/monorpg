@@ -2,6 +2,7 @@
     using Microsoft.Xna.Framework;
 
     using MonoRpg.Engine.GameStates;
+    using MonoRpg.Engine.UI;
 
     public class ScreenState : IStateObject {
         public Color Color { get; set; }
@@ -45,6 +46,40 @@
 
         public void Render(Renderer renderer) {
             Style.Render(Style, renderer, Text);
+        }
+    }
+
+    public class GameOverState : IStateObject {
+        public StateStack Stack { get; set; }
+        public CaptionStyle Subtitle { get; set; }
+        public CaptionStyle Title { get; set; }
+
+        public GameOverState(StateStack stack) {
+            Stack = stack;
+            Title = new CaptionStyle(CaptionStyle.Styles["title"]);
+            Title.Color = new Color(Title.Color, 1f);
+            Subtitle = new CaptionStyle(CaptionStyle.Styles["subtitle"]);
+            Subtitle.Color = new Color(Subtitle.Color, 1f);
+        }
+
+        public void Enter(EnterArgs enterParams = null) {
+            
+        }
+
+        public void Exit() {
+        }
+
+        public void HandleInput(float dt) {
+        }
+
+        public bool Update(float dt) {
+            return false;
+        }
+
+        public void Render(Renderer renderer) {
+            Title.Render(Title, renderer, "Game Over");
+            Subtitle.Render(Subtitle, renderer, "Want to find out what happens next? Write it!");
+
         }
     }
 }
