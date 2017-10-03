@@ -10,9 +10,11 @@ namespace MonoRpg.Engine.UI {
         public SelectionArgs<string> Choices { get; set; }
         public float TextScale { get; set; }
         public Action OnFinish { get; set; }
+        public float TitlePadY { get; set; }
 
         public FixedTextboxParameters() {
             TextScale = 1.0f;
+            TitlePadY = 10;
         }
     }
 }

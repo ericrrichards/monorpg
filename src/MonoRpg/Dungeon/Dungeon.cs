@@ -54,6 +54,7 @@ namespace Dungeon {
             System.Content = _content;
             Renderer = new Renderer(GraphicsDevice, _content);
             System.Renderer = Renderer;
+            System.Exit = Exit;
             Renderer.AlignText(TextAlignment.Center, TextAlignment.Center);
             Renderer.ClearColor = Color.Black;
             _content.SetDefaultFont("junction");
@@ -158,7 +159,7 @@ namespace Dungeon {
                     FocusY = 19,
                     HideHero = true
                 }),
-                /*
+                
                 Events.BlackScreen(),
                 Events.RunAction("AddNPC",
                     "sontos_house.json", new AddNPCParams { Character = "sleeper", Id = "sleeper", X = 14, Y = 19 },
@@ -186,7 +187,7 @@ namespace Dungeon {
                 ),
                 Events.Wait(1f),
                 Events.Say("sontos_house.json", "guard1", "Found you!", 2.5f),
-                //Events.Wait(1),
+                Events.Wait(1),
                 Events.Say("sontos_house.json", "guard1", "You're coming with me!", 3),
                 Events.FadeInScreen(),
 
@@ -212,7 +213,7 @@ namespace Dungeon {
                 Events.Wait(2),
                 Events.FadeOutCaption("place", 3),
                 Events.KillState("place"),
-                */
+                
                 Events.ReplaceScene("sontos_house.json", new SceneArgs {
                     Map = "jail.json",
                     FocusX = 56,
@@ -220,14 +221,15 @@ namespace Dungeon {
                     HideHero = false
 
                 }),
-                //Events.FadeOutScreen(),
-                //Events.Wait(0.5f),
-                //Events.Say("jail.json", "hero", "Where am I?", 3),
-                //Events.Wait(3),
+                Events.FadeOutScreen(),
+                Events.Wait(0.5f),
+                Events.Say("jail.json", "hero", "Where am I?", 3),
+                Events.Wait(3),
 
                 Events.HandOff("jail.json", _stack)
             );
-            _stack.Push(storyboard);
+            var titleState = new TitleScreenState(_stack, storyboard);
+            _stack.Push(titleState);
         }
 
         /// <summary>
@@ -255,6 +257,7 @@ namespace Dungeon {
             //}
             _stack.Update(dt);
             World.Instance.Update(dt);
+            
             base.Update(gameTime);
         }
 

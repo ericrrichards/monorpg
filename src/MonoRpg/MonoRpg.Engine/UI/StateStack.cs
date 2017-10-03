@@ -93,7 +93,7 @@ namespace MonoRpg.Engine.UI {
 
             if (!string.IsNullOrEmpty(title)) {
                 var size = renderer.MeasureText(title, wrap, textScale);
-                boundsTop = (int)(size.Y + padding * 2);
+                boundsTop = (int)(size.Y + padding * 2 + parameters.TitlePadY);
                 children.Add(new TextChild { Text = title, X = 0, Y = (int)size.Y });
             }
 
@@ -166,7 +166,7 @@ namespace MonoRpg.Engine.UI {
             }
             if (!string.IsNullOrEmpty(title)) {
                 var titleSize = renderer.MeasureText(title, wrap, textScale);
-                height += (int)(titleSize.Y + padding);
+                height += (int)(titleSize.Y + padding + args.TitlePadY);
                 width = Math.Max(width, (int)(size.X + padding * 2));
             }
             if (avatar != null) {

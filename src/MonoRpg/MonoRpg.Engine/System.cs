@@ -1,4 +1,6 @@
 ﻿namespace MonoRpg.Engine {
+    using global::System;
+
     using Microsoft.Xna.Framework;
     using Microsoft.Xna.Framework.Graphics;
     using Microsoft.Xna.Framework.Input;
@@ -15,6 +17,7 @@
 
         public static GraphicsDevice Device => _graphics.GraphicsDevice;
         public static Renderer Renderer { get; set; }
+        public static Action Exit { get; set; }
         public static readonly Keyboard Keys= new Keyboard();
 
         

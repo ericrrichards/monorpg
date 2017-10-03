@@ -1,4 +1,5 @@
 namespace MonoRpg.Engine.GameStates {
+    using global::System;
     using global::System.Collections.Generic;
 
     using Microsoft.Xna.Framework;
@@ -31,6 +32,7 @@ namespace MonoRpg.Engine.GameStates {
                                                new SelectionArgs<string>(new List<string> { "Items" }) {
                                                    SpacingY = 32,
                                                    OnSelection = (i, s) => OnMenuClick(i)
+                                                   
                                                }
                                               );
             Panels = new List<Panel> {
@@ -73,9 +75,9 @@ namespace MonoRpg.Engine.GameStates {
             }
 
             renderer.AlignText(TextAlignment.Left, TextAlignment.Center);
-            var menuX = Layout.Left("menu") - 16;
+            var menuX = Layout.Left("menu") + 16;
             var menuY = Layout.Top("menu") - 24;
-            Selections.TextScale = 1.5f;
+            Selections.TextScale = Parent.TitleSize;
             Selections.Position = new Vector2(menuX, menuY);
             Selections.Render(renderer);
 
@@ -88,7 +90,7 @@ namespace MonoRpg.Engine.GameStates {
             var goldY = Layout.CenterY("gold") + 22;
 
             renderer.AlignText(TextAlignment.Right, TextAlignment.Top);
-            var scale = 1.22f;
+            var scale = Parent.LabelSize;
             renderer.DrawText2D(goldX, goldY, "GP:", Color.White, scale);
             renderer.DrawText2D(goldX, goldY - 25, "TIME:", Color.White, scale);
             renderer.AlignText(TextAlignment.Left, TextAlignment.Top);

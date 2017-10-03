@@ -94,12 +94,12 @@ namespace MonoRpg.Engine.GameStates {
             var titleX = Layout.CenterX("title");
             var titleY = Layout.CenterY("title");
             renderer.AlignText(TextAlignment.Center, TextAlignment.Center);
-            renderer.DrawText2D(titleX, titleY, "Items", Color.White, 1.5f);
+            renderer.DrawText2D(titleX, titleY, "Items", Color.White, Parent.TitleSize);
 
             renderer.AlignText(TextAlignment.Left, TextAlignment.Center);
             var categoryX = Layout.Left("category") + 5;
             var categoryY = Layout.CenterY("category");
-            CategoryMenu.TextScale = 1.5f;
+            CategoryMenu.TextScale = Parent.TitleSize;
             CategoryMenu.Position = new Vector2(categoryX, categoryY);
             CategoryMenu.Render(renderer);
 
@@ -118,7 +118,7 @@ namespace MonoRpg.Engine.GameStates {
                         description = itemDef.Description;
                     }
                 }
-                renderer.DrawText2D(descX, descY, description);
+                renderer.DrawText2D(descX, descY, description, Color.White, Parent.TextSize);
             }
             var itemX = Layout.Left("inv") - 6;
             var itemY = Layout.Top("inv") - 20;
