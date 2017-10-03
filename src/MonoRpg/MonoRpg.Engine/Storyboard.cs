@@ -9,18 +9,16 @@
     using MonoRpg.Engine.GameStates;
     using MonoRpg.Engine.UI;
 
-    public class Storyboard : IStateObject{
-        public StateStack Stack { get; set; }
-        public List<Func<Storyboard, IStoryboardEvent>> EventFactories { get; set; }
-        public List<IStoryboardEvent> InstantiatedEvents { get; set; }
+    public class Storyboard : BaseStateObject{
+        private List<Func<Storyboard, IStoryboardEvent>> EventFactories { get; set; }
+        private List<IStoryboardEvent> InstantiatedEvents { get; set; }
 
         public Dictionary<string, IStateObject> States { get; set; }
         public StateStack SubStack { get; set; }
         public Dictionary<string, SoundEffectInstance> PlayingSounds { get; set; }
 
 
-        public Storyboard(StateStack stack, bool handIn, params Func<Storyboard, IStoryboardEvent>[] events) {
-            Stack = stack;
+        public Storyboard(StateStack stack, bool handIn, params Func<Storyboard, IStoryboardEvent>[] events) : base(stack) {
             EventFactories = events.ToList();
             InstantiatedEvents = new List<IStoryboardEvent>();
             for (var index = 0; index < EventFactories.Count; index++) {
@@ -37,19 +35,14 @@
         }
 
         
-
-        public void Enter(EnterArgs enterParams = null) {
-        }
-        public void Exit() {
+        
+        public override void Exit() {
             foreach (var sound in PlayingSounds) {
                 sound.Value.Stop();
             }
         }
-
-        public void HandleInput(float dt) {
-        }
-
-        public bool Update(float dt) {
+        
+        public override bool Update(float dt) {
             SubStack.Update(dt);
 
             if (EventFactories.Count == 0) {
@@ -78,11 +71,8 @@
             return false;
         }   
 
-        public void Render(Renderer renderer) {
+        public override void Render(Renderer renderer) {
             SubStack.Render(renderer);
-
-            //var debugText = $"Events Stack: {InstantiatedEvents.Count}";
-            //renderer.DrawText2D(0,0, debugText);
         }
 
         public void PushState(string id, IStateObject state) {

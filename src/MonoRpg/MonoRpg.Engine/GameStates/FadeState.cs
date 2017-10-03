@@ -1,21 +1,17 @@
 ﻿namespace MonoRpg.Engine.GameStates {
     using Microsoft.Xna.Framework;
-    using Microsoft.Xna.Framework.Graphics;
 
     using MonoRpg.Engine.UI;
 
-    public class FadeState : IStateObject {
-        public StateStack Stack { get; set; }
+    public class FadeState : BaseStateObject {
         public float Duration { get; set; }
         public float AlphaFinish { get; set; }
         public float AlphaStart { get; set; }
         public Color Color { get; set; }
         public Tween Tween { get; private set; }
-        public Sprite Sprite { get; private set; }
 
-        public FadeState(StateStack stack, FadeArgs args=null) {
+        public FadeState(StateStack stack, FadeArgs args=null): base(stack) {
             args = args ?? new FadeArgs();
-            Stack = stack;
             AlphaStart = args.AlphaStart;
             AlphaFinish = args.AlphaFinish;
             Duration = args.Duration;
@@ -24,11 +20,7 @@
         }
 
         
-
-        public void Enter(EnterArgs arg) {  }
-        public void Exit() {  }
-
-        public bool Update(float dt) {
+        public override bool Update(float dt) {
             Tween.Update(dt);
             var alpha = Tween.Value;
             Color = new Color(Color, alpha);
@@ -39,7 +31,7 @@
             return true;
         }
 
-        public void Render(Renderer renderer) {
+        public override void Render(Renderer renderer) {
             renderer.DrawRect2D(
                 -System.ScreenWidth / 2, 
                 System.ScreenHeight / 2, 
@@ -48,7 +40,6 @@
                 Color
             );
         }
-        public void HandleInput(float dt) {  }
     }
 
     public class FadeArgs {

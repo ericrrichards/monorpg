@@ -5,6 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace MonoRpg.Engine {
+    using global::System.IO;
+
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Linq;
+
     public static class ItemDB {
         public static List<Item> Items = new List<Item> {
             EmptyItem
@@ -18,6 +23,12 @@ namespace MonoRpg.Engine {
             foreach (var item in items) {
                 Items.Add(item);
             }
+        }
+
+        public static void Initialize(string filename) {
+            
+            var items = JsonConvert.DeserializeObject<Item[]>(File.ReadAllText(filename));
+            Initialize(items);
         }
     }
 
@@ -65,8 +76,8 @@ namespace MonoRpg.Engine {
         Accessory=1,
         Useable=0,
         Weapon=2,
-        Key,
         Armor=3,
+        Key=4,
     }
 
     public class ItemCount {

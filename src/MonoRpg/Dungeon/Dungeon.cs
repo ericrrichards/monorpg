@@ -5,8 +5,6 @@ using MonoRpg.Engine;
 namespace Dungeon {
     using System.Collections.Generic;
 
-    using Microsoft.Xna.Framework.Input;
-
     using MonoRpg.Engine.Tiled;
     using MonoRpg.Engine.UI;
 
@@ -50,120 +48,32 @@ namespace Dungeon {
         /// all of your content.
         /// </summary>
         protected override void LoadContent() {
-            _content = new Content(Content, GraphicsDevice);
-            System.Content = _content;
-            Renderer = new Renderer(GraphicsDevice, _content);
-            System.Renderer = Renderer;
+            _content = MonoRpg.Engine.Content.Create(Content, GraphicsDevice);
+            Renderer = Renderer.Create(GraphicsDevice, _content);
             System.Exit = Exit;
-            Renderer.AlignText(TextAlignment.Center, TextAlignment.Center);
-            Renderer.ClearColor = Color.Black;
+
+
             _content.SetDefaultFont("junction");
             _content.LoadFont("contra_italic");
             Icons.Instance = new Icons(_content.FindTexture("inventory_icons.png"));
 
             _stack = new StateStack();
-            ItemDB.Initialize(
-                              new Item {
-                                  Name = "Mysterious Torque",
-                                  Type = ItemType.Accessory,
-                                  Description = "A golden torque that glitters",
-                                  Stats = new ItemStats {
-                                      Strength = 10,
-                                      Speed = 10
-                                  }
-                              },
-                              new Item {
-                                  Name = "Heal Potion",
-                                  Type = ItemType.Useable,
-                                  Description = "Heals a little HP"
-                              },
-                              new Item {
-                                  Name = "Bronze Sword",
-                                  Type = ItemType.Weapon,
-                                  Description = "A short sword with a dull blade",
-                                  Stats = new ItemStats {
-                                      Attack = 10
-                                  }
-                              },
-                              new Item {
-                                  Name = "Old bone",
-                                  Type = ItemType.Key,
-                                  Description = "A calcified human femur"
-                              }
-
-                             );
+            ItemDB.Initialize("Content/items.json");
 
             EntityDefs.Load("Content/entityDefs.json");
-            MapDB.AddMap("sontos_house.json");
+            LoadMaps();
 
+            var titleState = new TitleScreenState(_stack, CreateIntro());
+            _stack.Push(titleState);
+        }
 
-
-            var bustedWallTrigger = new TriggerDef("cracked_stone", 60, 11);
-            var skeleton1 = new TriggerDef("skeleton", 73, 11);
-            var skeleton2 = new TriggerDef("skeleton", 74, 11);
-            var gregorTrigger = new TriggerDef("gregor_trigger", 59, 11);
-            var gregorTalkTrigger = new TriggerDef("gregor_talk_trigger", 50, 13);
-            var grateTrigger1 = new TriggerDef("grate_close", 57, 6);
-            var grateTrigger2 = new TriggerDef("grate_close", 58, 6);
-            MapDB.AddMap("jail.json", 
-                new Dictionary<string, MapAction> {
-                    ["break_wall_script"] = MapAction.RunScript(CrumbleScript, bustedWallTrigger),
-                    ["bone_script"] = MapAction.RunScript(BoneScript, skeleton1),
-                    ["move_gregor"] = MapAction.RunScript(MoveGregor, gregorTrigger),
-                    ["talk_gregor"] = MapAction.RunScript(TalkGregor, gregorTalkTrigger),
-                    ["use_grate"] = MapAction.RunScript(UseGrate, grateTrigger1),
-                    ["enter_grate"] = MapAction.RunScript(EnterGrate, grateTrigger1)
-
-                }, new Dictionary<string, TriggerTypeDef> {
-                    ["cracked_stone"] = new TriggerTypeDef { OnUse = "break_wall_script" },
-                    ["skeleton"] = new TriggerTypeDef { OnUse = "bone_script" },
-                    ["gregor_trigger"] = new TriggerTypeDef { OnExit = "move_gregor" },
-                    ["gregor_talk_trigger"] = new TriggerTypeDef { OnUse = "talk_gregor" },
-                    ["grate_close"] = new TriggerTypeDef { OnUse = "use_grate" },
-                    ["grate_open"] = new TriggerTypeDef { OnEnter = "enter_grate" }
-                }, new List<TriggerDef> {
-                    bustedWallTrigger,
-                    skeleton1,
-                    skeleton2,
-                    gregorTrigger,
-                    gregorTalkTrigger,
-                    grateTrigger1,
-                    grateTrigger2
-                }, new List<MapAction> {
-                    MapAction.AddNpc("gregor", "prisoner", 44, 12)
-                }
-            );
-            MapDB.AddMap("sewer.json", 
-                new Dictionary<string, MapAction> {
-                    ["exit_sewer_script"] = MapAction.RunScript(SewerExit, new TriggerDef())
-                },
-                new Dictionary<string, TriggerTypeDef> {
-                    ["exit_trigger"] = new TriggerTypeDef { OnEnter = "exit_sewer_script"}
-                },
-                new List<TriggerDef> {
-                    new TriggerDef("exit_trigger", 52, 15),
-                    new TriggerDef("exit_trigger", 52, 16),
-                    new TriggerDef("exit_trigger", 52, 17),
-                    new TriggerDef("exit_trigger", 52, 18),
-                    new TriggerDef("exit_trigger", 52, 19),
-                    new TriggerDef("exit_trigger", 52, 20),
-                }
-            );
-
-
-
-            var storyboard = new Storyboard(_stack, false,
-                Events.Scene(new SceneArgs {
-                    Map = "sontos_house.json",
-                    FocusX = 14,
-                    FocusY = 19,
-                    HideHero = true
-                }),
-                
+        private Storyboard CreateIntro() {
+            var storyboard = new Storyboard(
+                _stack,
+                false,
+                Events.Scene(new SceneArgs("sontos_house.json", 14, 19, true)),
                 Events.BlackScreen(),
-                Events.RunAction("AddNPC",
-                    "sontos_house.json", new AddNPCParams { Character = "sleeper", Id = "sleeper", X = 14, Y = 19 },
-                    Events.GetMapRef),
+                Events.RunAction("AddNPC", "sontos_house.json", new AddNPCParams("sleeper", "sleeper", 14, 19), Events.GetMapRef),
                 Events.Play("rain.wav"),
                 Events.NoBlock(Events.FadeSound("rain.wav", 0, 1, 3)),
                 Events.Caption("place", "title", "Village of Sontos"),
@@ -176,15 +86,11 @@ namespace Dungeon {
                 Events.FadeOutScreen(),
                 Events.Wait(2),
                 Events.FadeInScreen(),
-                Events.RunAction("AddNPC",
-                    "sontos_house.json", new AddNPCParams { Character = "guard", Id = "guard1", X = 19, Y = 22 },
-                    Events.GetMapRef),
+                Events.RunAction("AddNPC", "sontos_house.json", new AddNPCParams("guard", "guard1", 19, 22), Events.GetMapRef),
                 Events.Wait(1),
                 Events.Play("door_break.wav"),
                 Events.NoBlock(Events.FadeOutScreen()),
-                Events.MoveNpc("guard1", "sontos_house.json",
-                    Facing.Up, Facing.Up, Facing.Up, Facing.Left, Facing.Left, Facing.Left
-                ),
+                Events.MoveNpc("guard1", "sontos_house.json", Facing.Up, Facing.Up, Facing.Up, Facing.Left, Facing.Left, Facing.Left),
                 Events.Wait(1f),
                 Events.Say("sontos_house.json", "guard1", "Found you!", 2.5f),
                 Events.Wait(1),
@@ -213,23 +119,73 @@ namespace Dungeon {
                 Events.Wait(2),
                 Events.FadeOutCaption("place", 3),
                 Events.KillState("place"),
-                
-                Events.ReplaceScene("sontos_house.json", new SceneArgs {
-                    Map = "jail.json",
-                    FocusX = 56,
-                    FocusY = 11,
-                    HideHero = false
-
-                }),
+                Events.ReplaceScene("sontos_house.json", new SceneArgs("jail.json", 56, 11, false)),
                 Events.FadeOutScreen(),
                 Events.Wait(0.5f),
                 Events.Say("jail.json", "hero", "Where am I?", 3),
                 Events.Wait(3),
+                Events.HandOff("jail.json", _stack));
+            return storyboard;
+        }
 
-                Events.HandOff("jail.json", _stack)
+        private void LoadMaps() {
+            MapDB.AddMap("sontos_house.json");
+
+            var bustedWallTrigger = new TriggerDef("cracked_stone", 60, 11);
+            var skeleton1 = new TriggerDef("skeleton", 73, 11);
+            var skeleton2 = new TriggerDef("skeleton", 74, 11);
+            var gregorTrigger = new TriggerDef("gregor_trigger", 59, 11);
+            var gregorTalkTrigger = new TriggerDef("gregor_talk_trigger", 50, 13);
+            var grateTrigger1 = new TriggerDef("grate_close", 57, 6);
+            var grateTrigger2 = new TriggerDef("grate_close", 58, 6);
+            MapDB.AddMap(
+                "jail.json",
+                new Dictionary<string, MapAction> {
+                    ["break_wall_script"] = MapAction.RunScript(CrumbleScript, bustedWallTrigger),
+                    ["bone_script"] = MapAction.RunScript(BoneScript, skeleton1),
+                    ["move_gregor"] = MapAction.RunScript(MoveGregor, gregorTrigger),
+                    ["talk_gregor"] = MapAction.RunScript(TalkGregor, gregorTalkTrigger),
+                    ["use_grate"] = MapAction.RunScript(UseGrate, grateTrigger1),
+                    ["enter_grate"] = MapAction.RunScript(EnterGrate, grateTrigger1)
+                },
+                new Dictionary<string, TriggerTypeDef> {
+                    ["cracked_stone"] = new TriggerTypeDef { OnUse = "break_wall_script" },
+                    ["skeleton"] = new TriggerTypeDef { OnUse = "bone_script" },
+                    ["gregor_trigger"] = new TriggerTypeDef { OnExit = "move_gregor" },
+                    ["gregor_talk_trigger"] = new TriggerTypeDef { OnUse = "talk_gregor" },
+                    ["grate_close"] = new TriggerTypeDef { OnUse = "use_grate" },
+                    ["grate_open"] = new TriggerTypeDef { OnEnter = "enter_grate" }
+                },
+                new List<TriggerDef> {
+                    bustedWallTrigger,
+                    skeleton1,
+                    skeleton2,
+                    gregorTrigger,
+                    gregorTalkTrigger,
+                    grateTrigger1,
+                    grateTrigger2
+                },
+                new List<MapAction> {
+                    MapAction.AddNpc("gregor", "prisoner", 44, 12)
+                }
             );
-            var titleState = new TitleScreenState(_stack, storyboard);
-            _stack.Push(titleState);
+            MapDB.AddMap(
+                "sewer.json",
+                new Dictionary<string, MapAction> {
+                    ["exit_sewer_script"] = MapAction.RunScript(SewerExit, new TriggerDef())
+                },
+                new Dictionary<string, TriggerTypeDef> {
+                    ["exit_trigger"] = new TriggerTypeDef { OnEnter = "exit_sewer_script" }
+                },
+                new List<TriggerDef> {
+                    new TriggerDef("exit_trigger", 52, 15),
+                    new TriggerDef("exit_trigger", 52, 16),
+                    new TriggerDef("exit_trigger", 52, 17),
+                    new TriggerDef("exit_trigger", 52, 18),
+                    new TriggerDef("exit_trigger", 52, 19),
+                    new TriggerDef("exit_trigger", 52, 20),
+                }
+            );
         }
 
         /// <summary>
@@ -257,7 +213,7 @@ namespace Dungeon {
             //}
             _stack.Update(dt);
             World.Instance.Update(dt);
-            
+
             base.Update(gameTime);
         }
 
@@ -289,14 +245,18 @@ namespace Dungeon {
                                    Tile = 134,
                                    Collision = false
                                });
+                map1.WriteTile(
+                               new WriteTileArgs {
+                                   X = def.X+1,
+                                   Y = def.Y,
+                                   Layer = def.Layer,
+                                   Tile = 134,
+                                   Collision = false
+                               });
             }
 
             var dialogParams = new FixedTextboxParameters {
-                Choices = new SelectionArgs<string>(
-                                                    new List<string> {
-                                                        "Push the wall",
-                                                        "Leave it alone"
-                                                    }) {
+                Choices = new SelectionArgs<string>("Push the wall","Leave it alone") {
                     OnSelection = (i, s) => {
                         if (i == 0) {
                             PushWall(map);
@@ -306,7 +266,8 @@ namespace Dungeon {
             };
             _stack.PushFit(Renderer, 0, 0, "The wall here is crumbling. Push it?", 255, dialogParams);
         }
-        const int BoneItemId = 4;
+
+        private const int BoneItemId = 4;
         private void BoneScript(Map map, TriggerDef def, Entity entity) {
 
             void GiveBone() {
@@ -393,11 +354,7 @@ namespace Dungeon {
             if (World.Instance.HasKey(BoneItemId)) {
                 var dialogParams = new FixedTextboxParameters {
                     TextScale = 1,
-                    Choices = new SelectionArgs<string>(
-                                                        new List<string> {
-                                                            "Prize open the grate",
-                                                            "Leave it alone"
-                                                        }) {
+                    Choices = new SelectionArgs<string>("Prize open the grate","Leave it alone") {
                         OnSelection = (i, s) => {
                             if (i == 0) {
                                 OnOpen();
@@ -416,12 +373,12 @@ namespace Dungeon {
             System.Content.GetSound("reveal.wav").Play();
             map.RemoveTrigger(57, 6, def.Layer);
             map.RemoveTrigger(58, 6, def.Layer);
-            var storyboard = new Storyboard(_stack, true, 
+            var storyboard = new Storyboard(_stack, true,
                 Events.BlackScreen("blackscreen", 0),
                 Events.NoBlock(Events.FadeOutChar("handin", "hero")),
-                Events.RunAction("AddNPC", "handin", new AddNPCParams{Character = "guard", Id = "guard1", X = 35, Y = 20, }, Events.GetMapRef),
+                Events.RunAction("AddNPC", "handin", new AddNPCParams("guard", "guard1", 35, 20), Events.GetMapRef),
                 Events.Wait(2),
-                Events.NoBlock( Events.MoveNpc("gregor", "handin", 
+                Events.NoBlock(Events.MoveNpc("gregor", "handin",
                     Facing.Up,
                     Facing.Up,
                     Facing.Up,
@@ -451,9 +408,9 @@ namespace Dungeon {
                 ),
                 Events.Wait(1),
                 Events.Play("unlock.wav"),
-                Events.NoBlock(Events.WriteTile("handin", new WriteTileArgs{X = 44, Y = 18, Tile = 134, Detail = 120})),
-                Events.WriteTile("handin", new WriteTileArgs{X = 44, Y = 17, Tile=134, Detail = 104}),
-                Events.NoBlock(Events.MoveNpc("guard1", "handin", 
+                Events.NoBlock(Events.WriteTile("handin", new WriteTileArgs { X = 44, Y = 18, Tile = 134, Detail = 120 })),
+                Events.WriteTile("handin", new WriteTileArgs { X = 44, Y = 17, Tile = 134, Detail = 104 }),
+                Events.NoBlock(Events.MoveNpc("guard1", "handin",
                     Facing.Up,
                     Facing.Up,
                     Facing.Up,
@@ -472,15 +429,15 @@ namespace Dungeon {
                 Events.Wait(1),
                 Events.Say("handin", "gregor", "Let's go.", 1.5f),
                 Events.Wait(1),
-                Events.NoBlock(Events.MoveNpc("gregor", "handin", 
-                  Facing.Down,  
-                  Facing.Down,  
-                  Facing.Down,  
-                  Facing.Down,  
-                  Facing.Down,  
-                  Facing.Down,  
-                  Facing.Down,  
-                  Facing.Down  
+                Events.NoBlock(Events.MoveNpc("gregor", "handin",
+                  Facing.Down,
+                  Facing.Down,
+                  Facing.Down,
+                  Facing.Down,
+                  Facing.Down,
+                  Facing.Down,
+                  Facing.Down,
+                  Facing.Down
                 )),
                 Events.NoBlock(Events.MoveNpc("guard1", "handin",
                     Facing.Down,
@@ -493,7 +450,7 @@ namespace Dungeon {
                     Facing.Left
                 )),
                 Events.FadeInScreen(),
-                Events.ReplaceScene("handin", new SceneArgs{Map = "sewer.json", FocusX = 35, FocusY = 15, HideHero = false}),
+                Events.ReplaceScene("handin", new SceneArgs("sewer.json", 35, 15, false)),
                 Events.FadeOutScreen(),
                 Events.HandOff("sewer.json", _stack)
 

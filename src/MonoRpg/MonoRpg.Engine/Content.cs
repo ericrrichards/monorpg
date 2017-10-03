@@ -25,7 +25,7 @@ namespace MonoRpg.Engine {
         public SpriteFont DefaultFont => Fonts[DEFAULT_FONT];
         public Texture2D DummyTexture { get; }
 
-        public Content(ContentManager manager, GraphicsDevice device) {
+        private Content(ContentManager manager, GraphicsDevice device) {
             _manager = manager;
             _graphicsDevice = device;
             Fonts[DEFAULT_FONT] = _manager.Load<SpriteFont>("default");
@@ -33,6 +33,11 @@ namespace MonoRpg.Engine {
             
             DummyTexture = new Texture2D(System.Device, 1, 1);
             DummyTexture.SetData(new[] { Color.White });
+        }
+
+        public static Content Create(ContentManager manager, GraphicsDevice device) {
+            System.Content = new Content(manager, device);
+            return System.Content;
         }
 
         public SpriteFont LoadFont(string fontName) {
@@ -79,7 +84,7 @@ namespace MonoRpg.Engine {
                 return SoundEffects[soundFile];
             }
             if (!File.Exists(soundFile) && !soundFile.Contains(_manager.RootDirectory)) {
-                return GetSound(Path.Combine(_manager.RootDirectory, soundFile));
+                return GetSound(Path.Combine(_manager.RootDirectory, "Sounds", soundFile));
             }
             try {
                 var sound = _manager.Load<SoundEffect>(soundFile);

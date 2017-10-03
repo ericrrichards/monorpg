@@ -42,12 +42,7 @@ namespace MonoRpg.Engine.Tiled {
         public static MapAction AddNpc(string id, string character, int x, int y) {
             return new MapAction {
                 ID = "AddNPC",
-                Params = new AddNPCParams {
-                    Character = character,
-                    Id = id,
-                    X = x,
-                    Y = y
-                }
+                Params = new AddNPCParams(character, id, x, y)
             };
         }
     }
@@ -62,6 +57,15 @@ namespace MonoRpg.Engine.Tiled {
         public int? Y { get; set; }
         public int? Layer { get; set; }
         public string Id { get; set; }
+
+        public AddNPCParams() { }
+
+        public AddNPCParams(string character, string id, int x, int y) {
+            Character = character;
+            Id = id;
+            X = x;
+            Y = y;
+        }
     }
 
     public class TeleportParams : MapActionParameters {

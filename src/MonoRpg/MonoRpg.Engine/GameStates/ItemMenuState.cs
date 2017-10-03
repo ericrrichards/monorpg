@@ -6,9 +6,8 @@ namespace MonoRpg.Engine.GameStates {
 
     using MonoRpg.Engine.UI;
 
-    public class ItemMenuState : State {
+    public class ItemMenuState : BaseStateObject {
         public InGameMenu Parent { get; set; }
-        public StateStack Stack { get; set; }
         public StateMachine StateMachine { get; private set; }
         public Layout Layout { get; private set; }
         public Scrollbar Scrollbar { get; private set; }
@@ -22,10 +21,9 @@ namespace MonoRpg.Engine.GameStates {
         public List<Panel> Panels { get; set; }
         private Selection<ItemCount> SelectedMenu => ItemMenus[CategoryMenu.GetIndex()];
 
-        public ItemMenuState(InGameMenu parent) : base("items") {
+        public ItemMenuState(InGameMenu parent) : base(parent.Stack) {
 
             Parent = parent;
-            Stack = parent.Stack;
             StateMachine = parent.StateMachine;
 
             Layout = new Layout().Contract("screen", 118, 40)
@@ -59,7 +57,7 @@ namespace MonoRpg.Engine.GameStates {
                 Rows = 20,
                 RenderItem = (renderer, x, y, item) => World.DrawKey(KeyItemMenu, renderer, x, y, item)
             });
-            CategoryMenu = new Selection<string>(System.Renderer, new SelectionArgs<string>(new List<string>{"Use", "Key Items"}) {
+            CategoryMenu = new Selection<string>(System.Renderer, new SelectionArgs<string>("Use", "Key Items") {
                 OnSelection = (index, item) => OnCategorySelect(index, item),
                 SpacingX = 150,
                 Columns = 2,
@@ -132,7 +130,7 @@ namespace MonoRpg.Engine.GameStates {
 
         }
 
-        public override bool Update(float dt) {
+        public override void HandleInput(float dt) {
             var menu = SelectedMenu;
 
             if (InCategoryMenu) {
@@ -150,9 +148,8 @@ namespace MonoRpg.Engine.GameStates {
             var scrolled = menu.PercentageScrolled;
             Scrollbar.SetScrollCaretScale(menu.PercentageShown);
             Scrollbar.SetNormalValue(scrolled);
-            return false;
         }
-
+        
         private void FocusOnCategoryMenu() {
             InCategoryMenu = true;
             var menu = SelectedMenu;

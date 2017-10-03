@@ -53,6 +53,7 @@
     <Compile Include="Actions.cs" />
     <Compile Include="Animation.cs" />
     <Compile Include="Animations.cs" />
+    <Compile Include="CaptionState.cs" />
     <Compile Include="CaptionStyle.cs" />
     <Compile Include="Character.cs" />
     <Compile Include="CharacterDef.cs" />
@@ -65,6 +66,7 @@
     <Compile Include="EntityDefs.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="Facing.cs" />
+    <Compile Include="GameOverState.cs" />
     <Compile Include="GameStates\ExploreState.cs" />
     <Compile Include="GameStates\FadeState.cs" />
     <Compile Include="GameStates\FrontMenu.cs" />
@@ -89,6 +91,7 @@
     <Compile Include="Tiled\TiledMap.cs" />
     <Compile Include="Tiled\TileLayer.cs" />
     <Compile Include="Tiled\TileSet.cs" />
+    <Compile Include="TitleScreenState.cs" />
     <Compile Include="Trigger.cs" />
     <Compile Include="Tween.cs" />
     <Compile Include="UI\FixedTextboxParameters.cs" />

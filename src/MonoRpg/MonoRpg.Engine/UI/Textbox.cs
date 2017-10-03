@@ -1,16 +1,13 @@
 namespace MonoRpg.Engine.UI {
     using global::System;
     using global::System.Collections.Generic;
-    using global::System.Linq;
-
-    using JetBrains.Annotations;
 
     using Microsoft.Xna.Framework;
     using Microsoft.Xna.Framework.Input;
 
     using MonoRpg.Engine.GameStates;
 
-    public class Textbox : IStateObject {
+    public class Textbox : BaseStateObject {
         public Vector4 Bounds { get; set; }
         public Rectangle Size { get; set; }
         public float TextScale { get; set; }
@@ -28,12 +25,10 @@ namespace MonoRpg.Engine.UI {
         public Sprite ContinueMark { get; set; }
         public float Time { get; set; }
         public Selection<string> SelectionMenu { get; set; }
-        [CanBeNull]
-        public StateStack Stack { get; set; }
         public bool DoClickCallback { get; set; }
         public Action OnFinish { get; set; }
 
-        public Textbox(TextboxParams args) {
+        public Textbox(TextboxParams args): base(args.Stack) {
             args = args ?? new TextboxParams();
 
 
@@ -56,12 +51,11 @@ namespace MonoRpg.Engine.UI {
             Wrap = args.Wrap;
             Children = args.Children;
             SelectionMenu = args.SelectionMenu;
-            Stack = args.Stack;
             DoClickCallback = false;
             OnFinish = args.OnFinish;
         }
 
-        public bool Update(float dt) {
+        public override bool Update(float dt) {
             Time += dt;
             AppearTween.Update(dt);
             if (IsDead) {
@@ -84,7 +78,7 @@ namespace MonoRpg.Engine.UI {
             }
         }
 
-        public void HandleInput(float dt) {
+        public override void HandleInput(float dt) {
 
 
             if (System.Keys.WasPressed(Keys.Space)) {
@@ -94,11 +88,7 @@ namespace MonoRpg.Engine.UI {
             }
         }
 
-        public void Enter(EnterArgs arg) {
-
-        }
-
-        public void Exit() {
+        public override void Exit() {
             if (DoClickCallback) {
                 SelectionMenu.OnClick();
             }
@@ -107,7 +97,7 @@ namespace MonoRpg.Engine.UI {
             }
         }
 
-        public void Render(Renderer renderer) {
+        public override void Render(Renderer renderer) {
             var scale = AppearTween.Value;
             renderer.AlignText(TextAlignment.Left, TextAlignment.Top);
 

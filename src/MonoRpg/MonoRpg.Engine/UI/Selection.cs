@@ -1,6 +1,7 @@
 namespace MonoRpg.Engine.UI {
     using global::System;
     using global::System.Collections.Generic;
+    using global::System.Linq;
 
     using Microsoft.Xna.Framework;
     using Microsoft.Xna.Framework.Input;
@@ -203,6 +204,10 @@ namespace MonoRpg.Engine.UI {
             _rows = -1;
             OnSelection = (index, selectedItem) => { };
             DisplayRows = Rows;
+        }
+
+        public SelectionArgs(params T[] items) : this(items.ToList()) {
+            
         }
 
         public Action<int, T> OnSelection { get; set; }

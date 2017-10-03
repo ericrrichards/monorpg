@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MonoRpg.Engine {
-    using global::System.Collections.Generic;
     using global::System.Diagnostics;
     using global::System.Linq;
 
@@ -184,7 +181,7 @@ namespace MonoRpg.Engine {
         public static Map GetMapRef(Storyboard storyboard, string stateId) {
             Debug.Assert(storyboard.States.ContainsKey(stateId));
             var exploreState = storyboard.States[stateId] as ExploreState;
-            Debug.Assert(exploreState != null && exploreState.Map != null);
+            Debug.Assert(exploreState?.Map != null);
             return exploreState.Map;
         }
 
@@ -218,7 +215,7 @@ namespace MonoRpg.Engine {
                 Debug.Assert(exploreState!=null);
                 storyboard.Stack.Pop();
                 storyboard.Stack.Push(exploreState);
-                exploreState.Stack = gStack;
+                exploreState.SetStack(gStack);
                 return EmptyEvent(storyboard);
             };
         }
@@ -311,7 +308,6 @@ namespace MonoRpg.Engine {
             Tween.Update(dt);
             ApplyFunc(Target, Tween.Value);
         }
-        public void Render() { }
     }
 
     public class BlockUntilEvent : IStoryboardEvent {
@@ -362,6 +358,13 @@ namespace MonoRpg.Engine {
 
         public SceneArgs() {
             FocusZ = 0;
+        }
+
+        public SceneArgs(string mapId, int focusX, int focusY, bool hideHero) {
+            Map = mapId;
+            FocusX = focusX;
+            FocusY = focusY;
+            HideHero = hideHero;
         }
     }
 }

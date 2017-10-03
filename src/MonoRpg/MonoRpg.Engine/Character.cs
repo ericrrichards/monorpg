@@ -4,6 +4,8 @@
     using global::System.Diagnostics;
     using global::System.Linq;
 
+    using MonoRpg.Engine.GameStates;
+
     public class Character {
         public string DefaultState { get; set; }
         public string PreviousDefaultState { get; set; }
@@ -25,7 +27,7 @@
             Entity = new Entity(entityDef);
             Animations = def.Animations;
             Facing = def.Facing;
-            var states = new Dictionary<string, Func<State>>();
+            var states = new Dictionary<string, Func<IStateObject>>();
             Controller = new StateMachine(states);
 
             foreach (var stateName in def.Controller) {

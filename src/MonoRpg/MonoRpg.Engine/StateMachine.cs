@@ -3,14 +3,16 @@
     using global::System.Collections.Generic;
     using global::System.Diagnostics;
 
+    using MonoRpg.Engine.GameStates;
+
     public class StateMachine {
-        public State Current { get; set; }
+        public IStateObject Current { get; set; }
 
         private static readonly State Empty  = new State("empty");
 
-        public Dictionary<string, Func<State>> States { get; set; }
-        public StateMachine(Dictionary<string, Func<State>> states) {
-            States = states ?? new Dictionary<string, Func<State>>();
+        public Dictionary<string, Func<IStateObject>> States { get; set; }
+        public StateMachine(Dictionary<string, Func<IStateObject>> states) {
+            States = states ?? new Dictionary<string, Func<IStateObject>>();
             Current = Empty;
         }
 

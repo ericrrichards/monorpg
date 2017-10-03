@@ -11,8 +11,7 @@ namespace MonoRpg.Engine.GameStates {
     using MonoRpg.Engine.Tiled;
     using MonoRpg.Engine.UI;
 
-    public class ExploreState : IStateObject {
-        public StateStack Stack { get; set; }
+    public class ExploreState : BaseStateObject {
         public TiledMap MapDef { get; set; }
         public Map Map { get; set; }
         public Character Hero { get; set; }
@@ -21,8 +20,7 @@ namespace MonoRpg.Engine.GameStates {
         public int ManualCamX { get; set; }
         public int ManualCamY { get; set; }
 
-        public ExploreState(StateStack stack, TiledMap mapDef, Vector3 startPos) {
-            Stack = stack;
+        public ExploreState(StateStack stack, TiledMap mapDef, Vector3 startPos) : base(stack) {
             MapDef = mapDef;
             Map = new Map(mapDef);
 
@@ -35,11 +33,9 @@ namespace MonoRpg.Engine.GameStates {
             Hero.Entity.SetTilePosition((int)startPos.X, (int)startPos.Y, (int)startPos.Z, Map);
             Map.GotoTile((int)startPos.X, (int)startPos.Y);
         }
+        
 
-        public void Enter( EnterArgs args) {  }
-        public void Exit() {  }
-
-        public bool Update(float dt) {
+        public override bool Update(float dt) {
 
             UpdateCamera(Map);
             
@@ -49,7 +45,7 @@ namespace MonoRpg.Engine.GameStates {
             return false;
         }
 
-        public void Render(Renderer renderer) {
+        public override void Render(Renderer renderer) {
             renderer.Translate(-Map.CamX, -Map.CamY);
             var layerCount = Map.LayerCount;
             for (var i = 0; i < layerCount; i++) {
@@ -62,7 +58,7 @@ namespace MonoRpg.Engine.GameStates {
             renderer.Translate(0,0);
         }
 
-        public void HandleInput(float dt) {
+        public override void HandleInput(float dt) {
             Hero.Controller.Update(dt);
             if (System.Keys.WasPressed(Keys.Space)) {
                 var (x, y) = Hero.GetFacedTileCoords();

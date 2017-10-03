@@ -7,9 +7,8 @@ namespace MonoRpg.Engine.GameStates {
 
     using MonoRpg.Engine.UI;
 
-    public class FrontMenu : State {
+    public class FrontMenu : BaseStateObject {
         public InGameMenu Parent { get; set; }
-        public StateStack Stack { get; set; }
         public StateMachine StateMachine { get; private set; }
         public Layout Layout { get; private set; }
         public Selection<string> Selections { get; set; }
@@ -17,7 +16,7 @@ namespace MonoRpg.Engine.GameStates {
         public string TopBarText { get; set; }
 
 
-        public FrontMenu(InGameMenu parent) : base("frontmenu") {
+        public FrontMenu(InGameMenu parent) : base(parent.Stack) {
             var layout = new Layout()
                 .Contract("screen", 118, 40)
                 .SplitHorizontal("screen", "top", "bottom", 0.12f, 2)
@@ -25,14 +24,13 @@ namespace MonoRpg.Engine.GameStates {
                 .SplitHorizontal("left", "menu", "gold", 0.7f, 2);
 
             Parent = parent;
-            Stack = parent.Stack;
             StateMachine = parent.StateMachine;
             Layout = layout;
             Selections = new Selection<string>(System.Renderer,
-                                               new SelectionArgs<string>(new List<string> { "Items" }) {
+                                               new SelectionArgs<string>("Items") {
                                                    SpacingY = 32,
                                                    OnSelection = (i, s) => OnMenuClick(i)
-                                                   
+
                                                }
                                               );
             Panels = new List<Panel> {
@@ -51,20 +49,8 @@ namespace MonoRpg.Engine.GameStates {
             }
         }
 
-        public void Enter() {
-            Enter(null);
-        }
-
-        public override void Exit() {
-            base.Exit();
-        }
-
         public override bool Update(float dt) {
-            Selections.HandleInput();
 
-            if (System.Keys.WasPressed(Keys.Back) || System.Keys.WasPressed(Keys.Escape)) {
-                Stack.Pop();
-            }
             return false;
         }
 
@@ -100,7 +86,11 @@ namespace MonoRpg.Engine.GameStates {
         }
 
         public override void HandleInput(float dt) {
+            Selections.HandleInput();
 
+            if (System.Keys.WasPressed(Keys.Back) || System.Keys.WasPressed(Keys.Escape)) {
+                Stack.Pop();
+            }
         }
     }
 }

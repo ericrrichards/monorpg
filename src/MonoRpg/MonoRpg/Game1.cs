@@ -57,12 +57,8 @@ namespace MonoRpg {
         /// all of your content.
         /// </summary>
         protected override void LoadContent() {
-            _content = new Content(Content, GraphicsDevice);
-            System.Content = _content;
-            Renderer = new Renderer(GraphicsDevice, _content);
-            System.Renderer = Renderer;
-            Renderer.AlignText(TextAlignment.Center, TextAlignment.Center);
-            Renderer.ClearColor = Color.CornflowerBlue;
+            _content = Engine.Content.Create(Content, GraphicsDevice);
+            Renderer = Renderer.Create(GraphicsDevice, _content);
 
 
             var mapDef = _content.LoadMap("Content/small_room.json");

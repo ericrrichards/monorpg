@@ -24,13 +24,18 @@ namespace MonoRpg.Engine {
             Translation = new Vector2(x, -y);
         }
 
-        public Renderer(GraphicsDevice device, Content content) {
+        private Renderer(GraphicsDevice device, Content content) {
             _content = content;
             _device = device;
             _spriteBatch = new SpriteBatch(_device);
             ClearColor = Color.Black;
             VerticalAlignment = TextAlignment.Top;
             HorizontalAlignment = TextAlignment.Left;
+        }
+
+        public static Renderer Create(GraphicsDevice device, Content content) {
+            System.Renderer = new Renderer(device, content);
+            return System.Renderer;
         }
         public void DrawText2D(int x, int y, string text, Color color, float scale, int wrap, string fontName = null) {
             var font = _content.DefaultFont;
