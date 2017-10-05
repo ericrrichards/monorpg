@@ -7,6 +7,8 @@ namespace MonoRpg.Engine {
     using Microsoft.Xna.Framework;
     using Microsoft.Xna.Framework.Graphics;
 
+    using MonoRpg.Engine.RenderEngine;
+
     public class Entity {
         public int StartFrame { get; set; }
 

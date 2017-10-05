@@ -1,6 +1,7 @@
 ﻿namespace MonoRpg.Engine.GameStates {
     using Microsoft.Xna.Framework;
 
+    using MonoRpg.Engine.RenderEngine;
     using MonoRpg.Engine.UI;
 
     public class FadeState : BaseStateObject {

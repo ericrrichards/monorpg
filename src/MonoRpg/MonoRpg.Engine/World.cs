@@ -7,6 +7,7 @@
     using Microsoft.Xna.Framework;
 
     using MonoRpg.Engine.GameStates;
+    using MonoRpg.Engine.RenderEngine;
     using MonoRpg.Engine.UI;
 
     public class World {

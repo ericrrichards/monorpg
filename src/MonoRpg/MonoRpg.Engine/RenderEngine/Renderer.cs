@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace MonoRpg.Engine.RenderEngine {
+    using global::System;
+    using global::System.Collections.Generic;
+    using global::System.Linq;
+    using global::System.Text;
 
-namespace MonoRpg.Engine {
     using Microsoft.Xna.Framework;
     using Microsoft.Xna.Framework.Graphics;
 

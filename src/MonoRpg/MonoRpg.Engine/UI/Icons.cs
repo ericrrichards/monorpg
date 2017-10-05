@@ -37,13 +37,4 @@ namespace MonoRpg.Engine.UI {
 
         
     }
-
-    public enum IconDefs {
-        Useable = 0,
-        Accessory = 1,
-        Weapon = 2,
-        Armor = 3,
-        UpArrow = 4,
-        DownArrow = 5
-    }
 }

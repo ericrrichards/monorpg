@@ -4,6 +4,8 @@
 
     using Microsoft.Xna.Framework;
 
+    using MonoRpg.Engine.RenderEngine;
+
     public class CaptionStyle {
         public float Duration { get; set; }
         public Action<CaptionStyle, float> ApplyFunc;

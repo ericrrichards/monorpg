@@ -2,6 +2,8 @@ namespace MonoRpg.Engine.UI {
     using global::System.Collections.Generic;
     using global::System.Diagnostics;
 
+    using MonoRpg.Engine.RenderEngine;
+
     public class Layout {
         public Dictionary<string, LayoutPanel> Panels { get; set; }
         public PanelParams PanelDef { get; set; }

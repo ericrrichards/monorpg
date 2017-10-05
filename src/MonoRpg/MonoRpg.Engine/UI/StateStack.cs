@@ -9,6 +9,7 @@ namespace MonoRpg.Engine.UI {
     using Microsoft.Xna.Framework;
 
     using MonoRpg.Engine.GameStates;
+    using MonoRpg.Engine.RenderEngine;
 
     public class StateStack {
         public List<IStateObject> States { get; set; }

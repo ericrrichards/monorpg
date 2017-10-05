@@ -8,6 +8,7 @@ namespace MonoRpg.Engine.GameStates {
     using Microsoft.Xna.Framework;
     using Microsoft.Xna.Framework.Input;
 
+    using MonoRpg.Engine.RenderEngine;
     using MonoRpg.Engine.Tiled;
     using MonoRpg.Engine.UI;
 

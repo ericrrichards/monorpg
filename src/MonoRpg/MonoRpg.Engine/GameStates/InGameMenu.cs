@@ -2,6 +2,7 @@
     using global::System;
     using global::System.Collections.Generic;
 
+    using MonoRpg.Engine.RenderEngine;
     using MonoRpg.Engine.UI;
 
     public class InGameMenu : BaseStateObject {

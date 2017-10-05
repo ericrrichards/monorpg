@@ -4,6 +4,7 @@
     using global::System.Diagnostics;
 
     using MonoRpg.Engine.GameStates;
+    using MonoRpg.Engine.RenderEngine;
 
     public class StateMachine {
         public IStateObject Current { get; set; }

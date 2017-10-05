@@ -5,6 +5,8 @@ using MonoRpg.Engine;
 namespace Dungeon {
     using System.Collections.Generic;
 
+    using MonoRpg.Engine.GameStates;
+    using MonoRpg.Engine.RenderEngine;
     using MonoRpg.Engine.Tiled;
     using MonoRpg.Engine.UI;
 

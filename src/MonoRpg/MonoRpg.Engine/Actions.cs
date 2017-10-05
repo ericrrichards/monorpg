@@ -45,6 +45,7 @@ namespace MonoRpg.Engine {
 
         public static void RunScript(Map map, MapActionParameters args, Entity entity) {
             var scriptArgs = args as RunScriptArgs;
+            Debug.Assert(scriptArgs!=null);
             scriptArgs.Script(map, scriptArgs.TriggerDef, entity);
         }
     }

@@ -16,7 +16,7 @@
         public static Content Content { get; set; }
 
         public static GraphicsDevice Device => _graphics.GraphicsDevice;
-        public static Renderer Renderer { get; set; }
+        public static RenderEngine.Renderer Renderer { get; set; }
         public static Action Exit { get; set; }
         public static readonly Keyboard Keys= new Keyboard();
 

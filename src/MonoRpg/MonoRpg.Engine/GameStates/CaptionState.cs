@@ -1,5 +1,5 @@
-﻿namespace MonoRpg.Engine {
-    using MonoRpg.Engine.GameStates;
+﻿namespace MonoRpg.Engine.GameStates {
+    using MonoRpg.Engine.RenderEngine;
 
     public class CaptionState : BaseStateObject {
         public CaptionStyle Style { get; set; }

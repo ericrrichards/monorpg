@@ -71,15 +71,6 @@ namespace MonoRpg.Engine {
         public int Resist { get; set; }
     }
 
-    public enum ItemType {
-        None=-1,
-        Accessory=1,
-        Useable=0,
-        Weapon=2,
-        Armor=3,
-        Key=4,
-    }
-
     public class ItemCount {
         public ItemCount(int itemId, int count) {
             ItemId = itemId;

@@ -1,6 +1,4 @@
-﻿namespace MonoRpg.Engine {
-    using global::System.Text;
-
+﻿namespace MonoRpg.Engine.RenderEngine {
     using Microsoft.Xna.Framework;
     using Microsoft.Xna.Framework.Graphics;
 

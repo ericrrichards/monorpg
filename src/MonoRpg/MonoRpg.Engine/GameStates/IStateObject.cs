@@ -1,4 +1,5 @@
 namespace MonoRpg.Engine.GameStates {
+    using MonoRpg.Engine.RenderEngine;
     using MonoRpg.Engine.UI;
 
     public interface IStateObject {

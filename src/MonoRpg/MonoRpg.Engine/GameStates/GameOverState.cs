@@ -1,8 +1,8 @@
-namespace MonoRpg.Engine {
+namespace MonoRpg.Engine.GameStates {
     using Microsoft.Xna.Framework;
     using Microsoft.Xna.Framework.Input;
 
-    using MonoRpg.Engine.GameStates;
+    using MonoRpg.Engine.RenderEngine;
     using MonoRpg.Engine.UI;
 
     public class GameOverState : BaseStateObject {

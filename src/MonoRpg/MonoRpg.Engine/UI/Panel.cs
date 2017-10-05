@@ -5,6 +5,8 @@ namespace MonoRpg.Engine.UI {
     using Microsoft.Xna.Framework;
     using Microsoft.Xna.Framework.Graphics;
 
+    using MonoRpg.Engine.RenderEngine;
+
     public class Panel {
         public List<Sprite> Tiles { get; set; }
         public int TileSize { get; set; }

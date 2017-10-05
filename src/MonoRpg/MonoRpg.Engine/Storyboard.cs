@@ -7,6 +7,7 @@
     using Microsoft.Xna.Framework.Audio;
 
     using MonoRpg.Engine.GameStates;
+    using MonoRpg.Engine.RenderEngine;
     using MonoRpg.Engine.UI;
 
     public class Storyboard : BaseStateObject{

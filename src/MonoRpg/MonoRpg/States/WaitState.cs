@@ -1,6 +1,7 @@
 namespace MonoRpg.States {
     using Microsoft.Xna.Framework.Input;
     using MonoRpg.Engine;
+    using MonoRpg.Engine.RenderEngine;
 
     public class WaitState : State {
         public StateMachine Controller { get; }

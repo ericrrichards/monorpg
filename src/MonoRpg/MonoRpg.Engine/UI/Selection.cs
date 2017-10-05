@@ -6,6 +6,8 @@ namespace MonoRpg.Engine.UI {
     using Microsoft.Xna.Framework;
     using Microsoft.Xna.Framework.Input;
 
+    using MonoRpg.Engine.RenderEngine;
+
     public class Selection<T> {
         public int Height { get; set; }
         public int Width { get; set; }

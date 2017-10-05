@@ -4,6 +4,7 @@ namespace MonoRpg.States {
     using Microsoft.Xna.Framework;
 
     using MonoRpg.Engine;
+    using MonoRpg.Engine.RenderEngine;
 
     public class MoveState : State {
         public float MoveSpeed { get; set; }

@@ -5,6 +5,7 @@ namespace Dungeon.States {
 
     
     using MonoRpg.Engine;
+    using MonoRpg.Engine.RenderEngine;
 
     public class WaitState : State {
         public StateMachine Controller { get; }

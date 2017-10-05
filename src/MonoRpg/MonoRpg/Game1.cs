@@ -12,6 +12,7 @@ namespace MonoRpg {
     using Microsoft.Xna.Framework.Graphics;
 
     using MonoRpg.Engine.GameStates;
+    using MonoRpg.Engine.RenderEngine;
     using MonoRpg.Engine.Tiled;
     using MonoRpg.Engine.UI;
 

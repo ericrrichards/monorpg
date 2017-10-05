@@ -1,5 +1,7 @@
 ﻿namespace MonoRpg.Engine {
     using MonoRpg.Engine.GameStates;
+    using MonoRpg.Engine.RenderEngine;
+
     public class State: IStateObject {
         public string Name { get; protected set; }
         public virtual void Render(Renderer renderer) { }

@@ -5,6 +5,8 @@ namespace MonoRpg.Engine.UI {
     using Microsoft.Xna.Framework;
     using Microsoft.Xna.Framework.Graphics;
 
+    using MonoRpg.Engine.RenderEngine;
+
     public class Scrollbar {
         public int X { get; set; }
         public int Y { get; set; }

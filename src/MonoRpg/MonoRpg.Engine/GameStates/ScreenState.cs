@@ -1,9 +1,7 @@
-﻿namespace MonoRpg.Engine {
-    using global::System.Collections.Generic;
-
+﻿namespace MonoRpg.Engine.GameStates {
     using Microsoft.Xna.Framework;
 
-    using MonoRpg.Engine.GameStates;
+    using MonoRpg.Engine.RenderEngine;
 
     public class ScreenState : BaseStateObject {
         public Color Color { get; set; }

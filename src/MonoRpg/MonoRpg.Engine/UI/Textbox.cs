@@ -6,6 +6,7 @@ namespace MonoRpg.Engine.UI {
     using Microsoft.Xna.Framework.Input;
 
     using MonoRpg.Engine.GameStates;
+    using MonoRpg.Engine.RenderEngine;
 
     public class Textbox : BaseStateObject {
         public Vector4 Bounds { get; set; }
