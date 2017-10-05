@@ -14,7 +14,7 @@ namespace MonoRpg.Engine {
         public static List<Item> Items = new List<Item> {
             EmptyItem
         };
-        public static Item EmptyItem { get => Item.EmptyItem; }
+        public static Item EmptyItem => Item.EmptyItem;
 
         public static void Initialize(params Item[] items) {
             Items = new List<Item> {
@@ -30,45 +30,6 @@ namespace MonoRpg.Engine {
             var items = JsonConvert.DeserializeObject<Item[]>(File.ReadAllText(filename));
             Initialize(items);
         }
-    }
-
-
-    public class Item {
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public string Special { get; set; }
-        public ItemStats Stats { get; set; }
-        public ItemType Type { get; set; }
-
-        public Item() {
-            Stats = new ItemStats();
-        }
-
-        public static readonly Item EmptyItem = new Item {
-            Name = string.Empty,
-            Description = string.Empty,
-            Special = string.Empty,
-            Type = ItemType.None,
-            Stats = new ItemStats {
-                Strength = 0,
-                Speed = 0,
-                Intelligence = 0,
-                Attack = 0,
-                Defense = 0,
-                Magic = 0,
-                Resist = 0
-            }
-        };
-    }
-
-    public class ItemStats {
-        public int Strength { get; set; }
-        public int Speed { get; set; }
-        public int Intelligence { get; set; }
-        public int Attack { get; set; }
-        public int Defense { get; set; }
-        public int Magic { get; set; }
-        public int Resist { get; set; }
     }
 
     public class ItemCount {

@@ -80,11 +80,7 @@ namespace MonoRpg {
                 new Item {
                     Name = "Mysterious Torque",
                     Type = ItemType.Accessory,
-                    Description = "A golden torque that glitters",
-                    Stats = new ItemStats {
-                        Strength = 10,
-                        Speed = 10
-                    }
+                    Description = "A golden torque that glitters"
                 },
                 new Item {
                     Name = "Heal Potion",
@@ -94,10 +90,7 @@ namespace MonoRpg {
                 new Item {
                     Name = "Bronze Sword",
                     Type = ItemType.Weapon,
-                    Description = "A short sword with a dull blade",
-                    Stats = new ItemStats {
-                        Attack = 10
-                    }
+                    Description = "A short sword with a dull blade"
                 },
                 new Item {
                     Name = "Old bone",
