@@ -51,13 +51,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Actions.cs" />
+    <Compile Include="Actor.cs" />
     <Compile Include="Animation.cs" />
+    <Compile Include="Dice.cs" />
     <Compile Include="GameStates\CaptionState.cs" />
     <Compile Include="CaptionStyle.cs" />
     <Compile Include="Character.cs" />
     <Compile Include="CharacterDef.cs" />
     <Compile Include="Content.cs" />
     <Compile Include="Item.cs" />
+    <Compile Include="Party.cs" />
     <Compile Include="RenderEngine\DrawRectCommand.cs" />
     <Compile Include="RenderEngine\DrawSpriteCommand.cs" />
     <Compile Include="RenderEngine\DrawTextCommand.cs" />

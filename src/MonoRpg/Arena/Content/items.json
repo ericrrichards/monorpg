@@ -1,0 +1,29 @@
+﻿[
+  {
+    "Name": "Mysterious Torque",
+    "Type": 1,
+    "Description": "A golden torque that glitters",
+    "Stats": {
+      "Strength": 10,
+      "Speed": 10
+    }
+  },
+  {
+    "Name": "Heal Potion",
+    "Type": 0,
+    "Description": "Heals a little HP"
+  },
+  {
+    "Name": "Bronze Sword",
+    "Type": 2,
+    "Description": "A short sword with a dull blade",
+    "Stats": {
+      "Attack": 10
+    }
+  },
+  {
+    "Name": "Old Bone",
+    "Type": 4,
+    "Description": "A calcified human femur"
+  }
+]

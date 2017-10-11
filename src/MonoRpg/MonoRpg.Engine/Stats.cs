@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace MonoRpg.Engine {
-    using global::System.Text.RegularExpressions;
+    using global::System.Diagnostics;
 
     public class Stats {
         public const string HitPoints = "hp";
@@ -69,6 +69,11 @@ namespace MonoRpg.Engine {
             Id = statId;
             Value = value;
         }
+
+        public static Stat operator +(Stat a, Stat b) {
+            Debug.Assert(a.Id == b.Id);
+            return new Stat(a.Id, a.Value + b.Value);
+        }
     }
 
     public class Modifier {
@@ -90,68 +95,11 @@ namespace MonoRpg.Engine {
         }
     }
 
-    public class Level {
-        public int NextLevelXP(int level) {
+    public class Levels {
+        public static int NextLevelXP(int level) {
             const float exponent = 1.5f;
             var baseXP = 1000;
             return (int)Math.Floor(baseXP * Math.Pow(level, exponent));
-        }
-    }
-
-    public class Dice {
-        
-
-        private readonly List<Die> _dice;
-        private static readonly Regex DieRegex = new Regex(@"(\d+)[D|d](\d+)[\+]?(\d+)?");
-        private static readonly Random Random = new Random();
-
-        public Dice(string diceStr) {
-            _dice = Parse(diceStr);
-        }
-
-        public static List<Die> Parse(string diceStr) {
-            
-            var allDice = new List<Die>();
-
-            var matches = DieRegex.Matches(diceStr);
-            if (matches.Count > 0) {
-                foreach (Match match in matches) {
-                    if (match.Success) {
-                        var rolls = Convert.ToInt32(match.Groups[1].Value);
-                        var sides = Convert.ToInt32(match.Groups[2].Value);
-                        var plus = match.Groups[3].Success ? Convert.ToInt32(match.Groups[3].Value) : 0;
-                        allDice.Add(new Die(rolls, sides, plus));
-                    }
-                }
-            }
-            return allDice;
-        }
-
-        public static int RollDie(int rolls, int faces, int modifier = 0) {
-            var total = 0;
-            for (var i = 0; i < rolls; i++) {
-                total += Random.Next(1, faces);
-            }
-            return total + modifier;
-        }
-
-        public int Roll() {
-            return _dice.Sum(die => die.Roll());
-        }
-
-        public class Die {
-            public int Rolls { get; }
-            public int Sides { get; }
-            public int Plus { get; }
-            public Die(int rolls, int sides, int plus) {
-                Rolls = rolls;
-                Sides = sides;
-                Plus = plus;
-            }
-
-            public int Roll() {
-                return Dice.RollDie(Rolls, Sides, Plus);
-            }
         }
     }
 }

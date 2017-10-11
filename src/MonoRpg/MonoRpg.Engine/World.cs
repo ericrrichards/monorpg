@@ -19,11 +19,13 @@
         public int Gold { get; set; }
         public List<ItemCount> Items { get; set; }
         public List<ItemCount> KeyItems { get; set; }
+        public Party Party { get; set; }
         public World() {
             Time = 0f;
             Gold = 0;
             Items = new List<ItemCount>();
             KeyItems = new List<ItemCount>();
+            Party = new Party();
         }
 
         public void Update(float dt) {
