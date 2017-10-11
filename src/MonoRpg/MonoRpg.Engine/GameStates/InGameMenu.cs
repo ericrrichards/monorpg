@@ -34,6 +34,10 @@
             return false;
         }
 
+        public override void HandleInput(float dt) {
+            StateMachine.Current.HandleInput(dt);
+        }
+
         public override void Render(Renderer renderer) {
             StateMachine.Render(renderer);
         }

@@ -3,6 +3,8 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 namespace Arena {
+    using System.Collections.Generic;
+
     using MonoRpg.Engine;
     using MonoRpg.Engine.GameStates;
     using MonoRpg.Engine.RenderEngine;
@@ -18,6 +20,7 @@ namespace Arena {
         private Renderer Renderer { get; set; }
         private Content _content;
         private StateStack _stack;
+        private Dictionary<string, ActorDef> _partyMemberDefs;
 
         public Arena() {
             _graphics = new GraphicsDeviceManager(this) {
@@ -27,6 +30,75 @@ namespace Arena {
             System.Init(_graphics);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
+
+            _partyMemberDefs = new Dictionary<string, ActorDef> {
+                ["hero"] = new ActorDef {
+                    Id = "hero",
+                    Stats = new[] {
+                        new Stat(Stats.HitPoints, 300),
+                        new Stat(Stats.MaxHitPoints, 300),
+                        new Stat(Stats.MagicPoints, 300),
+                        new Stat(Stats.MaxMagicPoints, 300),
+                        new Stat(Stats.Strength, 10),
+                        new Stat(Stats.Speed, 10),
+                        new Stat(Stats.Intelligence, 10), 
+                    },
+                    StatGrowth = new Dictionary<string, Dice> {
+                        [Stats.MaxHitPoints] = new Dice("4d50+100"),
+                        [Stats.MaxMagicPoints] = new Dice("2d50+100"),
+                        [Stats.Strength] = Growth.Fast,
+                        [Stats.Speed] = Growth.Fast,
+                        [Stats.Intelligence] = Growth.Med
+                    },
+                    Portrait = "hero_portrait.png",
+                    Name = "Seven",
+                    Actions = new List<string> { "attack", "item"}
+                },
+                ["thief"] = new ActorDef {
+                    Id = "thief",
+                    Stats = new[] {
+                        new Stat(Stats.HitPoints, 280),
+                        new Stat(Stats.MaxHitPoints, 280),
+                        new Stat(Stats.MagicPoints, 150),
+                        new Stat(Stats.MaxMagicPoints, 150),
+                        new Stat(Stats.Strength, 10),
+                        new Stat(Stats.Speed, 15),
+                        new Stat(Stats.Intelligence, 10),
+                    },
+                    StatGrowth = new Dictionary<string, Dice> {
+                        [Stats.MaxHitPoints] = new Dice("3d40+100"),
+                        [Stats.MaxMagicPoints] = new Dice("4d50+100"),
+                        [Stats.Strength] = Growth.Med,
+                        [Stats.Speed] = Growth.Fast,
+                        [Stats.Intelligence] = Growth.Med
+                    },
+                    Portrait = "thief_portrait.png",
+                    Name = "Jude",
+                    Actions = new List<string> { "attack", "item" }
+                },
+                ["mage"] = new ActorDef {
+                    Id = "mage",
+                    Stats = new[] {
+                        new Stat(Stats.HitPoints, 200),
+                        new Stat(Stats.MaxHitPoints, 200),
+                        new Stat(Stats.MagicPoints, 250),
+                        new Stat(Stats.MaxMagicPoints, 250),
+                        new Stat(Stats.Strength, 8),
+                        new Stat(Stats.Speed, 10),
+                        new Stat(Stats.Intelligence, 20),
+                    },
+                    StatGrowth = new Dictionary<string, Dice> {
+                        [Stats.MaxHitPoints] = new Dice("3d40+100"),
+                        [Stats.MaxMagicPoints] = new Dice("4d50+100"),
+                        [Stats.Strength] = Growth.Med,
+                        [Stats.Speed] = Growth.Med,
+                        [Stats.Intelligence] = Growth.Fast
+                    },
+                    Portrait = "mage_portrait.png",
+                    Name = "Ermis",
+                    Actions = new List<string> { "attack", "item" }
+                },
+            };
         }
 
         /// <summary>
@@ -51,6 +123,10 @@ namespace Arena {
             System.Exit = Exit;
 
             Icons.Instance = new Icons(_content.FindTexture("inventory_icons.png"));
+
+            World.Instance.Party.Add(new Actor(_partyMemberDefs["hero"]));
+            World.Instance.Party.Add(new Actor(_partyMemberDefs["thief"]));
+            World.Instance.Party.Add(new Actor(_partyMemberDefs["mage"]));
 
             _stack = new StateStack();
             ItemDB.Initialize("Content/items.json");

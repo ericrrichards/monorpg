@@ -3,10 +3,6 @@
     "Name": "Mysterious Torque",
     "Type": 1,
     "Description": "A golden torque that glitters",
-    "Stats": {
-      "Strength": 10,
-      "Speed": 10
-    }
   },
   {
     "Name": "Heal Potion",
@@ -17,9 +13,6 @@
     "Name": "Bronze Sword",
     "Type": 2,
     "Description": "A short sword with a dull blade",
-    "Stats": {
-      "Attack": 10
-    }
   },
   {
     "Name": "Old Bone",

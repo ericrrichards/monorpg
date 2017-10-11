@@ -11,7 +11,7 @@ namespace MonoRpg.Engine.GameStates {
         
     }
 
-    public class BaseStateObject : IStateObject {
+    public abstract class BaseStateObject : IStateObject {
         public StateStack Stack { get; private set; }
 
         protected BaseStateObject(StateStack stack) {
