@@ -79,7 +79,7 @@ namespace Arena {
                 ["mage"] = new ActorDef {
                     Id = "mage",
                     Stats = new[] {
-                        new Stat(Stats.HitPoints, 200),
+                        new Stat(Stats.HitPoints, 100),
                         new Stat(Stats.MaxHitPoints, 200),
                         new Stat(Stats.MagicPoints, 250),
                         new Stat(Stats.MaxMagicPoints, 250),
@@ -121,6 +121,9 @@ namespace Arena {
             _content = MonoRpg.Engine.Content.Create(Content, GraphicsDevice);
             Renderer = Renderer.Create(GraphicsDevice, _content);
             System.Exit = Exit;
+
+            //_content.SetDefaultFont("junction");
+            //_content.LoadFont("contra_italic");
 
             Icons.Instance = new Icons(_content.FindTexture("inventory_icons.png"));
 

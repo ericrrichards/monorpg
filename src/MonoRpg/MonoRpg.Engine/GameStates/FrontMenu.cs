@@ -1,6 +1,7 @@
 namespace MonoRpg.Engine.GameStates {
     using global::System;
     using global::System.Collections.Generic;
+    using global::System.Linq;
 
     using Microsoft.Xna.Framework;
     using Microsoft.Xna.Framework.Input;
@@ -15,7 +16,7 @@ namespace MonoRpg.Engine.GameStates {
         public Selection<string> Selections { get; set; }
         public List<Panel> Panels { get; set; }
         public string TopBarText { get; set; }
-
+        public Selection<ActorSummary> PartyMenu { get; set; }
 
         public FrontMenu(InGameMenu parent) : base(parent.Stack) {
             var layout = new Layout()
@@ -28,7 +29,7 @@ namespace MonoRpg.Engine.GameStates {
             StateMachine = parent.StateMachine;
             Layout = layout;
             Selections = new Selection<string>(System.Renderer,
-                                               new SelectionArgs<string>("Items") {
+                                               new SelectionArgs<string>("Items", "Status") {
                                                    SpacingY = 32,
                                                    OnSelection = (i, s) => OnMenuClick(i)
 
@@ -41,6 +42,23 @@ namespace MonoRpg.Engine.GameStates {
                 layout.CreatePanel("menu")
             };
             TopBarText = "Current Map Name";
+
+            PartyMenu = new Selection<ActorSummary>(System.Renderer, new SelectionArgs<ActorSummary>(CreatePartySummaries()) {
+                SpacingY =  90,
+                Columns = 1,
+                Rows = 3,
+                OnSelection = OnPartyMemberChosen,
+                RenderItem = (renderer, x, y, item) => {
+                    item.SetPosition(x, y + 35);
+                    item.Render(renderer);
+                }
+                
+            });
+            PartyMenu.HideCursor();
+        }
+
+        private void OnPartyMemberChosen(int index, ActorSummary actor) {
+            
         }
 
         private void OnMenuClick(int index) {
@@ -84,6 +102,11 @@ namespace MonoRpg.Engine.GameStates {
             renderer.DrawText2D(goldX + 10, goldY, World.Instance.Gold.ToString(), Color.White, scale);
             renderer.DrawText2D(goldX + 10, goldY - 25, World.Instance.TimeString, Color.White, scale);
 
+            var partyX = Layout.Left("party") - 16;
+            var partyY = Layout.Top("party") - 45;
+            PartyMenu.Position = new Vector2(partyX, partyY);
+            PartyMenu.Render(renderer);
+
         }
 
         public override void HandleInput(float dt) {
@@ -93,5 +116,149 @@ namespace MonoRpg.Engine.GameStates {
                 Stack.Pop();
             }
         }
+
+
+        public List<ActorSummary> CreatePartySummaries() {
+            var members = World.Instance.Party.Members;
+            return members.Select(kv => new ActorSummary(kv.Value, new ActorSummaryArgs { ShowXP = true })).ToList();
+        }
+
+    }
+
+    public class ActorSummary  {
+        public int X { get; set; }
+        public int Y { get; set; }
+        public int Width { get; set; }
+        public Actor Actor { get; set; }
+        public ProgressBar HPBar { get; set; }
+        public ProgressBar MPBar { get; set; }
+        public int AvatarTextPad { get; set; }
+        public int LabelRightPad { get; set; }
+        public int LabelValuePad { get; set; }
+        public int VerticalPad { get; set; }
+        public bool ShowXP { get; set; }
+        public ProgressBar XPBar { get; set; }
+
+        public ActorSummary(Actor actor, ActorSummaryArgs args) {
+            X = 0;
+            Y = 0;
+            Width = 340;
+            Actor = actor;
+            HPBar = new ProgressBar(new ProgressBarArgs {
+              Value  = actor.Stats.GetStat(Stats.HitPoints).Value,
+              Maximum = actor.Stats.GetStat(Stats.MaxHitPoints).Value,
+              Background = System.Content.FindTexture("hpbackground.png"),
+              Foreground = System.Content.FindTexture("hpforeground.png")
+            });
+            HPBar.Foreground.PixelArt = true;
+            HPBar.Background.PixelArt = true;
+            MPBar = new ProgressBar(new ProgressBarArgs {
+                Value = actor.Stats.GetStat(Stats.MagicPoints).Value,
+                Maximum = actor.Stats.GetStat(Stats.MaxMagicPoints).Value,
+                Background = System.Content.FindTexture("mpbackground.png"),
+                Foreground = System.Content.FindTexture("mpforeground.png")
+            });
+            MPBar.Foreground.PixelArt = true;
+            MPBar.Background.PixelArt = true;
+            AvatarTextPad = 14;
+            LabelRightPad = 15;
+            LabelValuePad = 8;
+            VerticalPad = 18;
+            ShowXP = args.ShowXP;
+
+            if (ShowXP) {
+                XPBar = new ProgressBar(new ProgressBarArgs {
+                    Value = actor.XP,
+                    Maximum = actor.NextLevelXP,
+                    Background = System.Content.FindTexture("xpbackground.png"),
+                    Foreground = System.Content.FindTexture("xpforeground.png")
+                });
+            }
+            SetPosition(X, Y);
+        }
+
+        public void SetPosition(int x, int y) {
+            X = x;
+            Y = y;
+
+            int barX;
+            if (ShowXP) {
+                var boxRight = X + Width;
+                barX = boxRight - XPBar.HalfWidth;
+                var barY = Y - 44;
+                XPBar.Position = new Vector2(barX, barY);
+            }
+            var avatarW = Actor.PortraitTexture.Width;
+            barX = X + avatarW + AvatarTextPad;
+            barX += LabelRightPad + LabelValuePad;
+            barX += MPBar.HalfWidth;
+
+            MPBar.Position = new Vector2(barX, Y - 72);
+            HPBar.Position = new Vector2(barX, Y - 54);
+
+        }
+
+        public Vector2 GetCursorPosition() {
+            return new Vector2(X, Y - 40);
+        }
+
+        public void Render(Renderer renderer) {
+            var avatarW = Actor.PortraitTexture.Width;
+            var avatarH = Actor.PortraitTexture.Height;
+            var avatarX = X + avatarW / 2;
+            var avatarY = Y - avatarH / 2;
+            Actor.Portrait.Position = new Vector2(avatarX, avatarY);
+            renderer.DrawSprite(Actor.Portrait);
+
+
+            renderer.AlignText(TextAlignment.Left, TextAlignment.Top);
+
+            var textPadY = 2;
+            var textX = avatarX + avatarW / 2 + AvatarTextPad;
+            var textY = Y - textPadY;
+            renderer.DrawText2D(textX, textY, Actor.Name, Color.White, 1.2f );
+
+            renderer.AlignText(TextAlignment.Right, TextAlignment.Top);
+            textX += LabelRightPad;
+            textY -= 20;
+            var startStatsY = textY;
+            var scale = 1.0f;
+            renderer.DrawText2D(textX, textY, "LV", Color.White, scale);
+            textY -= VerticalPad;
+            renderer.DrawText2D(textX, textY, "HP", Color.White, scale);
+            textY -= VerticalPad;
+            renderer.DrawText2D(textX, textY, "MP", Color.White, scale);
+            textY = startStatsY;
+            textX += LabelValuePad;
+            renderer.AlignText(TextAlignment.Left, TextAlignment.Top);
+            var level = Actor.Level;
+            var hp = Actor.Stats.GetStat(Stats.HitPoints).Value;
+            var maxHp = Actor.Stats.GetStat(Stats.MaxHitPoints).Value;
+            var mp = Actor.Stats.GetStat(Stats.MaxMagicPoints).Value;
+            var maxMp = Actor.Stats.GetStat(Stats.MaxMagicPoints).Value;
+
+            var counter = "{0}/{1}";
+            renderer.DrawText2D(textX, textY, level.ToString(), Color.White, scale);
+            textY -= VerticalPad;
+            renderer.DrawText2D(textX, textY, string.Format(counter, hp, maxHp), Color.White, scale);
+            textY -= VerticalPad;
+            renderer.DrawText2D(textX, textY, string.Format(counter, mp, maxMp), Color.White, scale);
+
+            if (ShowXP) {
+                renderer.AlignText(TextAlignment.Left, TextAlignment.Top);
+                var boxRight = X + Width;
+                textY = startStatsY;
+                var left = boxRight - XPBar.HalfWidth*2;
+                renderer.DrawText2D(left, textY, "Next Level", Color.White, scale);
+                XPBar.Render(renderer);
+            }
+            HPBar.Render(renderer);
+            MPBar.Render(renderer);
+        }
+
+    }
+
+    public class ActorSummaryArgs {
+        public bool ShowXP { get; set; }
     }
 }
