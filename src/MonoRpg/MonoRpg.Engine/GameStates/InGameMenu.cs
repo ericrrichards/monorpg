@@ -22,7 +22,7 @@
                 {"items", () => new ItemMenuState(this)},
                 //{"magic", () => new State("magic") },
                 //{"equip", () => new State("equip") },
-                //{"status", () => new State("status") }
+                {"status", () => new StatusMenuState(this) }
             });
             StateMachine.Change("frontmenu");
         }

@@ -59,6 +59,7 @@
     <Compile Include="Character.cs" />
     <Compile Include="CharacterDef.cs" />
     <Compile Include="Content.cs" />
+    <Compile Include="GameStates\StatusMenuState.cs" />
     <Compile Include="Item.cs" />
     <Compile Include="Party.cs" />
     <Compile Include="RenderEngine\DrawRectCommand.cs" />

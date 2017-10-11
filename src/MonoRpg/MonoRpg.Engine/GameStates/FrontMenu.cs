@@ -17,6 +17,8 @@ namespace MonoRpg.Engine.GameStates {
         public List<Panel> Panels { get; set; }
         public string TopBarText { get; set; }
         public Selection<ActorSummary> PartyMenu { get; set; }
+        public string PrevTopBarText { get; set; }
+        public bool InPartyMenu { get; set; }
 
         public FrontMenu(InGameMenu parent) : base(parent.Stack) {
             var layout = new Layout()
@@ -55,24 +57,29 @@ namespace MonoRpg.Engine.GameStates {
                 
             });
             PartyMenu.HideCursor();
-        }
-
-        private void OnPartyMemberChosen(int index, ActorSummary actor) {
-            
+            TopBarText = "Empty Room";
+            InPartyMenu = false;
         }
 
         private void OnMenuClick(int index) {
             var items = 0;
             if (index == items) {
                 StateMachine.Change("items");
+                return;
             }
+            InPartyMenu = true;
+            Selections.HideCursor();
+            PartyMenu.ShowCursor();
+            PrevTopBarText = TopBarText;
+            TopBarText = "Chose a party member";
         }
 
         public override bool Update(float dt) {
 
+            
+
             return false;
         }
-
 
         public override void Render(Renderer renderer) {
             foreach (var panel in Panels) {
@@ -110,19 +117,39 @@ namespace MonoRpg.Engine.GameStates {
         }
 
         public override void HandleInput(float dt) {
-            Selections.HandleInput();
+            if (InPartyMenu) {
+                PartyMenu.HandleInput();
 
-            if (System.Keys.WasPressed(Keys.Back) || System.Keys.WasPressed(Keys.Escape)) {
-                Stack.Pop();
+                if (System.Keys.WasPressed(Keys.Back) || System.Keys.WasPressed(Keys.Escape)) {
+                    InPartyMenu = false;
+                    TopBarText = PrevTopBarText;
+                    Selections.ShowCursor();
+                    PartyMenu.HideCursor();
+                }
+            } else {
+                Selections.HandleInput();
+
+                if (System.Keys.WasPressed(Keys.Back) || System.Keys.WasPressed(Keys.Escape)) {
+                    Stack.Pop();
+                }
             }
+            
         }
-
 
         public List<ActorSummary> CreatePartySummaries() {
             var members = World.Instance.Party.Members;
             return members.Select(kv => new ActorSummary(kv.Value, new ActorSummaryArgs { ShowXP = true })).ToList();
         }
 
+        private void OnPartyMemberChosen(int actorIndex, ActorSummary actorSummary) {
+            var indexToStateId = new Dictionary<int, string> {
+                [1] = "status"
+            };
+            var actor = actorSummary.Actor;
+            var index = Selections.GetIndex();
+            var stateId = indexToStateId[index];
+            StateMachine.Change(stateId, new StatusArgs{Actor = actor});
+        }
     }
 
     public class ActorSummary  {
@@ -260,5 +287,9 @@ namespace MonoRpg.Engine.GameStates {
 
     public class ActorSummaryArgs {
         public bool ShowXP { get; set; }
+    }
+
+    public class StatusArgs : EnterArgs {
+        public Actor Actor { get; set; }
     }
 }
