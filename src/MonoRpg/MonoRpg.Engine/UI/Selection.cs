@@ -56,14 +56,19 @@ namespace MonoRpg.Engine.UI {
         }
 
         private void RenderItemFunc(Renderer renderer, int x, int y, T item) {
+            RenderItemFunc(this, renderer, x, y, item);
+
+        }
+
+        public static void RenderItemFunc(Selection<T> select, Renderer renderer, int x, int y, T item) {
             if (item == null) {
                 return;
             }
             var itemName = item.ToString();
             if (string.IsNullOrEmpty(itemName)) {
-                renderer.DrawText2D(x, y, "--", Color.White, Scale * TextScale);
+                renderer.DrawText2D(x, y, "--", Color.White, select.Scale * select.TextScale);
             } else {
-                renderer.DrawText2D(x, y, itemName, Color.White, Scale * TextScale);
+                renderer.DrawText2D(x, y, itemName, Color.White, select.Scale * select.TextScale);
             }
 
         }
