@@ -13,6 +13,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoRpg.Engine.Tests", "Mon
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arena", "Arena\Arena.csproj", "{2F6DCCB0-5BC6-45C9-A043-C149D5AAD131}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TiledImporter.Tests", "TiledImporter.Tests\TiledImporter.Tests.csproj", "{8EDF4429-251A-416D-BB68-93F227191BCF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TiledImporter", "TiledImporter\TiledImporter.csproj", "{7F45F9BA-B215-46F0-995B-4511FF32D071}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +59,22 @@ Global
 		{2F6DCCB0-5BC6-45C9-A043-C149D5AAD131}.Release|Any CPU.ActiveCfg = Release|x86
 		{2F6DCCB0-5BC6-45C9-A043-C149D5AAD131}.Release|x86.ActiveCfg = Release|x86
 		{2F6DCCB0-5BC6-45C9-A043-C149D5AAD131}.Release|x86.Build.0 = Release|x86
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Debug|x86.Build.0 = Debug|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Release|x86.ActiveCfg = Release|Any CPU
+		{8EDF4429-251A-416D-BB68-93F227191BCF}.Release|x86.Build.0 = Release|Any CPU
+		{7F45F9BA-B215-46F0-995B-4511FF32D071}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7F45F9BA-B215-46F0-995B-4511FF32D071}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7F45F9BA-B215-46F0-995B-4511FF32D071}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7F45F9BA-B215-46F0-995B-4511FF32D071}.Debug|x86.Build.0 = Debug|Any CPU
+		{7F45F9BA-B215-46F0-995B-4511FF32D071}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7F45F9BA-B215-46F0-995B-4511FF32D071}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7F45F9BA-B215-46F0-995B-4511FF32D071}.Release|x86.ActiveCfg = Release|Any CPU
+		{7F45F9BA-B215-46F0-995B-4511FF32D071}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
