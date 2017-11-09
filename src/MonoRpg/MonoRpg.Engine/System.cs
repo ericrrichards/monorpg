@@ -11,8 +11,9 @@
         public static void Init(GraphicsDeviceManager graphics) {
             _graphics = graphics;
         }
-        public static int ScreenWidth => _graphics.PreferredBackBufferWidth;
-        public static int ScreenHeight => _graphics.PreferredBackBufferHeight;
+
+
+
         public static Content Content { get; set; }
 
         public static GraphicsDevice Device => _graphics.GraphicsDevice;
@@ -20,20 +21,29 @@
         public static Action Exit { get; set; }
         public static readonly Keyboard Keys= new Keyboard();
 
-        
+        public static class Screen {
+            public static int Width => _graphics.PreferredBackBufferWidth;
+            public static int HalfWidth => Width / 2;
+            public static int Height => _graphics.PreferredBackBufferHeight;
+            public static int HalfHeight => Height / 2;
+            public static Rectangle Bounds => RectangleEx.Create(-HalfWidth, HalfHeight, HalfWidth, -HalfHeight);
+        }
     }
+
+    
+
     public class Keyboard {
         private KeyboardState CurrentState { get; set; }
         private KeyboardState LastState { get; set; }
 
-        public Keyboard() {
+        internal Keyboard() {
             CurrentState = new KeyboardState();
             LastState = new KeyboardState();
         }
 
-        public void Update() {
+        public void Update(KeyboardState state) {
             LastState = CurrentState;
-            CurrentState = Microsoft.Xna.Framework.Input.Keyboard.GetState();
+            CurrentState = state;
         }
 
         public bool WasPressed(Keys key) {
@@ -50,6 +60,12 @@
 
         public bool IsUp(Keys key) {
             return CurrentState.IsKeyUp(key);
+        }
+    }
+
+    public static class RectangleEx {
+        public static Rectangle Create(int left, int top, int right, int bottom) {
+            return new Rectangle(left, top, right-left, bottom - top);
         }
     }
 }

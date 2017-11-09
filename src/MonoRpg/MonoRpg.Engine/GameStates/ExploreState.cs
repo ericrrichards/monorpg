@@ -85,11 +85,9 @@ namespace MonoRpg.Engine.GameStates {
         public void UpdateCamera(Map map) {
             if (FollowCam) {
                 var pos = Hero.Entity.Sprite.Position.ToPoint();
-                map.CamX = pos.X;
-                map.CamY = pos.Y;
+                map.SetCameraPosition(pos.X, pos.Y);
             } else {
-                map.CamX = ManualCamX;
-                map.CamY = ManualCamY;
+                map.SetCameraPosition(ManualCamX, ManualCamY);
             }
         }
 

@@ -1,6 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 
 namespace Arena {
     using System.Collections.Generic;
@@ -156,7 +154,7 @@ namespace Arena {
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime) {
             var dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            System.Keys.Update();
+            System.Keys.Update(Keyboard.GetState());
 
             _stack.Update(dt);
             World.Instance.Update(dt);

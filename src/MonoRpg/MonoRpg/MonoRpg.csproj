@@ -122,12 +122,16 @@
     <None Include="Content\example_map.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Content\example_map.tmx">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Content\larger_map.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Content\small_room.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Content\small_room.tmx" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

@@ -17,8 +17,8 @@ namespace MonoRpg.Engine.UI {
             Panels["screen"] = new LayoutPanel {
                 X = 0,
                 Y = 0,
-                Width = System.ScreenWidth,
-                Height = System.ScreenHeight
+                Width = System.Screen.Width,
+                Height = System.Screen.Height
             };
         }
 

@@ -1,22 +1,14 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
+
 using MonoRpg.Engine;
 
 namespace MonoRpg {
-    using System;
     using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
-    using System.Text;
-
-    using Microsoft.Xna.Framework.Graphics;
 
     using MonoRpg.Engine.GameStates;
     using MonoRpg.Engine.RenderEngine;
     using MonoRpg.Engine.Tiled;
     using MonoRpg.Engine.UI;
-
-    using Newtonsoft.Json;
 
     using System = MonoRpg.Engine.System;
 
@@ -135,7 +127,7 @@ namespace MonoRpg {
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime) {
             var dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            System.Keys.Update();
+            System.Keys.Update(Microsoft.Xna.Framework.Input.Keyboard.GetState());
 
             World.Instance.Update(dt);
 

@@ -7,58 +7,49 @@
     using JetBrains.Annotations;
 
     using Microsoft.Xna.Framework;
-    using Microsoft.Xna.Framework.Graphics;
 
     using MonoRpg.Engine.RenderEngine;
     using MonoRpg.Engine.Tiled;
 
     public class Map {
-        public int X { get; set; }
-        public int Y { get; set; }
+        private int Left { get; }
+        private int Top { get; }
 
-        public int CamX { get; set; }
-        public int CamY { get; set; }
+        public int CamX { get; private set; }
+        public int CamY { get; private set; }
 
-        public TiledMap MapDef { get; set; }
-        public Texture2D TextureAtlas { get; set; }
-        public Sprite Sprite { get; set; }
-        public TileLayer Layer { get; set; }
+        private TiledMap MapDef { get; }
+        private Sprite Sprite { get; }
 
-        public int Width { get; set; }
-        public int Height { get; set; }
-        public List<int> Tiles { get; set; }
-        public int TileWidth { get; set; }
-        public int TileHeight { get; set; }
+        private int WidthInTiles { get; }
+        private int HeightInTiles { get; }
+        public int TileWidth { get; }
+        public int TileHeight { get; }
+        public int LayerCount => MapDef.Layers.Count / 3;
 
-        public int WidthInPixels { get; set; }
-        public int HeightInPixels { get; set; }
-        public List<Rectangle> UVs { get; set; }
-        public int BlockingTile { get; set; }
+        private int WidthInPixels => WidthInTiles * TileWidth;
+        private int HeightInPixels => HeightInTiles * TileHeight;
+        private List<Rectangle> UVs { get; }
+        private int BlockingTile { get; }
 
-        public Dictionary<int, Dictionary<int, Trigger>> Triggers { get; set; }
-        public Dictionary<int, Dictionary<int, Entity>> Entities { get; set; }
-        public List<Character> NPCs { get; set; }
-        public Dictionary<string, Action<Entity>> Actions { get; set; }
-        public Dictionary<string, Trigger> TriggerTypes { get; set; }
+        private Dictionary<int, Dictionary<int, Trigger>> Triggers { get; }
+        private Dictionary<int, Dictionary<int, Entity>> Entities { get; }
 
-        public int LayerCount {
-            get {
-                Debug.Assert(MapDef.Layers.Count % 3 == 0);
-                return MapDef.Layers.Count / 3;
-            }
-        }
-        public Dictionary<string, Character> NpcById { get; set; }
+        private Dictionary<string, Action<Entity>> Actions { get; }
+        private Dictionary<string, Trigger> TriggerTypes { get; }
+
+
+        public List<Character> NPCs { get; }
+        public Dictionary<string, Character> NpcById { get; }
 
         public Map(TiledMap mapDef) {
             MapDef = mapDef;
-            TextureAtlas = System.Content.FindTexture(mapDef.TileSets[0].Image);
+            var baseTexture = System.Content.FindTexture(mapDef.TileSets[0].Image);
             Sprite = new Sprite();
-            Layer = mapDef.Layers[0];
-            Width = Layer.Width;
-            Height = Layer.Height;
-            Tiles = Layer.Data;
-            TileWidth = mapDef.TileSets[0].TileWidth;
-            TileHeight = mapDef.TileSets[0].TileHeight;
+            WidthInTiles = mapDef.Width;
+            HeightInTiles = mapDef.Height;
+            TileWidth = mapDef.TileWidth;
+            TileHeight = mapDef.TileHeight;
 
             Triggers = new Dictionary<int, Dictionary<int, Trigger>>();
             Entities = new Dictionary<int, Dictionary<int, Entity>>();
@@ -67,15 +58,12 @@
 
 
 
-            Sprite.Texture = TextureAtlas;
+            Sprite.Texture = baseTexture;
 
-            X = -System.ScreenWidth / 2 + TileWidth / 2;
-            Y = System.ScreenHeight / 2 - TileHeight / 2;
+            Left = -System.Screen.HalfWidth + TileWidth / 2;
+            Top = System.Screen.HalfHeight - TileHeight / 2;
 
-            WidthInPixels = Width * TileWidth;
-            HeightInPixels = Height * TileHeight;
-
-            UVs = TextureAtlas.GenerateUVs(TileWidth, TileHeight);
+            UVs = baseTexture.GenerateUVs(TileWidth, TileHeight);
 
             foreach (var tileSet in mapDef.TileSets) {
                 if (tileSet.Name == "collision_graphic") {
@@ -87,8 +75,8 @@
 
             Actions = new Dictionary<string, Action<Entity>>();
             foreach (var mapDefAction in mapDef.Actions) {
-                Debug.Assert(global::MonoRpg.Engine.Actions.ActionFuncs.ContainsKey(mapDefAction.Value.ID));
-                void Action(Entity entity) => global::MonoRpg.Engine.Actions.ActionFuncs[mapDefAction.Value.ID](this, mapDefAction.Value.Params, entity);
+                Debug.Assert(Engine.Actions.ActionFuncs.ContainsKey(mapDefAction.Value.ID));
+                void Action(Entity entity) => Engine.Actions.ActionFuncs[mapDefAction.Value.ID](this, mapDefAction.Value.Params, entity);
                 Actions[mapDefAction.Key] = Action;
             }
             TriggerTypes = new Dictionary<string, Trigger>();
@@ -116,25 +104,21 @@
 
 
             foreach (var mapAction in mapDef.OnWake) {
-                var action = global::MonoRpg.Engine.Actions.ActionFuncs[mapAction.ID];
+                var action = Engine.Actions.ActionFuncs[mapAction.ID];
                 action(this, mapAction.Params, null);
             }
 
         }
 
-        
+
 
         private (int x, int y) PointToTile(int x, int y) {
-            x += TileWidth / 2;
-            y -= TileHeight / 2;
 
-            x = Math.Max(X, x);
-            y = Math.Min(Y, y);
-            x = Math.Min(X + WidthInPixels - 1, x);
-            y = Math.Max(Y - HeightInPixels + 1, y);
+            x = Math.Min(Left + WidthInPixels - 1, Math.Max(Left, x + TileWidth / 2));
+            y = Math.Max(Top - HeightInPixels + 1, Math.Min(Top, y - TileHeight / 2));
 
-            var tileX = (int)Math.Floor((double)(x - X) / TileWidth);
-            var tileY = (int)Math.Floor((double)(Y - y) / TileHeight);
+            var tileX = (int)Math.Floor((double)(x - Left) / TileWidth);
+            var tileY = (int)Math.Floor((double)(Top - y) / TileHeight);
 
             return (tileX, tileY);
         }
@@ -170,14 +154,18 @@
             return null;
         }
 
-        public int CoordToIndex(int x, int y) {
-            var index = x + y * Width;
+        private int CoordToIndex(int x, int y) {
+            var index = x + y * WidthInTiles;
             return index;
         }
 
         public void Goto(int x, int y) {
-            CamX = x - System.ScreenWidth / 2;
-            CamY = -y + System.ScreenHeight / 2;
+            SetCameraPosition(x - System.Screen.HalfWidth, -y + System.Screen.HalfHeight);
+        }
+
+        public void SetCameraPosition(int x, int y) {
+            CamX = x;
+            CamY = y;
         }
 
         public void GotoTile(int x, int y) {
@@ -185,7 +173,7 @@
         }
 
         public Point GetTileFoot(int x, int y) {
-            return new Point(X + x * TileWidth, Y - y * TileHeight - TileHeight / 2);
+            return new Point(Left + x * TileWidth, Top - y * TileHeight - TileHeight / 2);
         }
 
 
@@ -197,23 +185,23 @@
         public void RenderLayer(Renderer renderer, int layer, Entity hero = null) {
             var layerIndex = layer * 3;
 
-            var (left, bottom) = PointToTile(CamX - System.ScreenWidth / 2, CamY - System.ScreenHeight / 2);
-            var (right, top) = PointToTile(CamX + System.ScreenWidth / 2, CamY + System.ScreenHeight / 2);
+            var (left, bottom) = PointToTile(CamX - System.Screen.HalfWidth, CamY - System.Screen.HalfHeight);
+            var (right, top) = PointToTile(CamX + System.Screen.HalfWidth, CamY + System.Screen.HalfHeight);
 
 
             for (var j = top; j <= bottom; j++) {
                 for (var i = left; i <= right; i++) {
                     var tile = GetTile(i, j, layerIndex);
                     Rectangle uvs;
-                    Sprite.Position = new Vector2(X + i * TileWidth, Y - j * TileHeight);
+                    Sprite.Position = new Vector2(Left + i * TileWidth, Top - j * TileHeight);
                     if (tile > 0) {
-                        uvs = UVs[tile-1];
+                        uvs = UVs[tile - 1];
                         Sprite.SetUVs(uvs);
                         renderer.DrawSprite(Sprite);
                     }
                     tile = GetTile(i, j, layerIndex + 1);
                     if (tile > 0) {
-                        uvs = UVs[tile-1];
+                        uvs = UVs[tile - 1];
                         Sprite.SetUVs(uvs);
                         renderer.DrawSprite(Sprite);
                     }
@@ -280,15 +268,15 @@
             var tiles = MapDef.Layers[layer].Data;
             tiles[index] = tile;
 
-            tiles = MapDef.Layers[layer+1].Data;
+            tiles = MapDef.Layers[layer + 1].Data;
             tiles[index] = detail;
 
-            tiles = MapDef.Layers[layer+2].Data;
+            tiles = MapDef.Layers[layer + 2].Data;
             tiles[index] = collision;
         }
 
-        public void RemoveTrigger(int x, int y, int layer=0) {
-            Debug.Assert(Triggers[layer]!=null);
+        public void RemoveTrigger(int x, int y, int layer = 0) {
+            Debug.Assert(Triggers[layer] != null);
             var triggers = Triggers[layer];
             var index = CoordToIndex(x, y);
             Debug.Assert(triggers.ContainsKey(index));

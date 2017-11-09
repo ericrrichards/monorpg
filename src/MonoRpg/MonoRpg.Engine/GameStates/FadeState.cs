@@ -33,13 +33,7 @@
         }
 
         public override void Render(Renderer renderer) {
-            renderer.DrawRect2D(
-                -System.ScreenWidth / 2, 
-                System.ScreenHeight / 2, 
-                System.ScreenWidth / 2, 
-                -System.ScreenHeight / 2, 
-                Color
-            );
+            renderer.DrawRect2D(System.Screen.Bounds, Color);
         }
     }
 

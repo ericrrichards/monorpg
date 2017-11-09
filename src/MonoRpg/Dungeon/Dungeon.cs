@@ -206,7 +206,7 @@ namespace Dungeon {
         protected override void Update(GameTime gameTime) {
 
             var dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            System.Keys.Update();
+            System.Keys.Update(Microsoft.Xna.Framework.Input.Keyboard.GetState());
             //if (System.Keys.WasPressed(Keys.S)) {
             //    _start = true;
             //}
@@ -322,7 +322,7 @@ namespace Dungeon {
                 var height = 102;
                 var width = 500;
                 var x = 0;
-                var y = -System.ScreenHeight / 2 + height / 2;
+                var y = -System.Screen.HalfHeight + height / 2;
                 _stack.PushFix(
                                Renderer,
                                x,

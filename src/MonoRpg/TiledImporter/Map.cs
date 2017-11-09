@@ -1,11 +1,7 @@
-﻿using System;
-
-namespace TiledImporter
+﻿namespace TiledImporter
 {
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
-    using System.IO;
-    using System.IO.Compression;
     using System.Linq;
     using System.Xml.Linq;
 
@@ -22,6 +18,11 @@ namespace TiledImporter
         public int TileHeight { get; }
         public IReadOnlyList<TileSet> TileSets { get; }
         private IReadOnlyList<Layer> Layers { get; }
+
+        public static Map LoadFromFile(string mapFile) {
+            var xml = XDocument.Load(mapFile);
+            return new Map(xml.Element("map"));
+        }
 
         public Map(XElement mapElement) {
             Guard.Against.Null(mapElement, nameof(mapElement));

@@ -66,6 +66,9 @@
             var pos = TranslateCoords(new Vector2(left, top));
             _drawQueue.Enqueue(new DrawRectCommand(new Rectangle(pos.ToPoint(), new Point(right - left, top - bottom)), color));
         }
+        public void DrawRect2D(Rectangle bounds, Color color) {
+            DrawRect2D(bounds.Left, bounds.Top, bounds.Right, bounds.Bottom, color);
+        }
 
         private Vector2 AlignText(Vector2 p, SpriteFont font, string text, float scale) {
             var size = font.MeasureString(text)*scale;
