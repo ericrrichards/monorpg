@@ -79,7 +79,7 @@
     <Compile Include="RenderEngine\IDrawCommand.cs" />
     <Compile Include="ItemDB.cs" />
     <Compile Include="Map.cs" />
-    <Compile Include="MapDB.cs" />
+    <Compile Include="Maps.cs" />
     <Compile Include="MoveParams.cs" />
     <Compile Include="RenderEngine\Renderer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

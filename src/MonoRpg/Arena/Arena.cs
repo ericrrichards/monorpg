@@ -136,9 +136,9 @@ namespace Arena {
 
             EntityDefs.Load("Content/entityDefs.json");
 
-            MapDB.AddMap("arena.json");
+            Maps.Instance.AddMap("arena.json");
 
-            _stack.Push(new ExploreState(_stack, MapDB.Maps["arena.json"](), new Vector3(30,18,0)));
+            _stack.Push(new ExploreState(_stack, Maps.Instance.GetMap("arena.json"), new Vector3(30,18,0)));
         }
 
         /// <summary>

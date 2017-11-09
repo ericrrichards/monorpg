@@ -5,15 +5,25 @@ namespace MonoRpg.Engine {
 
     using MonoRpg.Engine.Tiled;
 
-    public static class MapDB {
-        public static Dictionary<string, Func<TiledMap>> Maps = new Dictionary<string, Func<TiledMap>>();
+    public class Maps {
+        private static readonly Lazy<Maps> _lazy = new Lazy<Maps>(() => new Maps());
+        public static Maps Instance => _lazy.Value;
 
-        public static void AddMap(string mapFile, Dictionary<string, MapAction> actions = null, Dictionary<string, TriggerTypeDef> triggerTypes = null, List<TriggerDef> triggers = null, List<MapAction> onWake=null) {
+        private readonly Dictionary<string, Func<TiledMap>> _maps = new Dictionary<string, Func<TiledMap>>();
+
+        public TiledMap GetMap(string mapName) {
+            if (_maps.ContainsKey(mapName)) {
+                return _maps[mapName]();
+            }
+            throw new ArgumentException($"Map not found: {mapName}", nameof(mapName));
+        }
+
+        public void AddMap(string mapFile, Dictionary<string, MapAction> actions = null, Dictionary<string, TriggerTypeDef> triggerTypes = null, List<TriggerDef> triggers = null, List<MapAction> onWake=null) {
             var path = mapFile;
             if (!File.Exists(path) && File.Exists(Path.Combine("Content", path))) {
                 path = Path.Combine("Content", path);
             }
-            Maps.Add(mapFile,
+            _maps.Add(mapFile,
                      () => {
                          var map = System.Content.LoadMap(path);
                          if (actions != null) {

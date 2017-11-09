@@ -130,7 +130,7 @@ namespace MonoRpg.Engine {
             return storyboard => {
 
                 var id = args.Name ?? args.Map;
-                var map = MapDB.Maps[args.Map]();
+                var map = Maps.Instance.GetMap(args.Map);
                 var focus = new Vector3(args.FocusX, args.FocusY, args.FocusZ);
                 var state = new ExploreState(null, map, focus);
                 if (args.HideHero) {
@@ -150,7 +150,7 @@ namespace MonoRpg.Engine {
                 var id = args.Name ?? args.Map;
                 storyboard.States.Remove(sceneToReplace);
                 storyboard.States[id] = state;
-                var mapDef = MapDB.Maps[args.Map]();
+                var mapDef = Maps.Instance.GetMap(args.Map);
                 state.Map = new Map(mapDef);
                 state.Map.GotoTile(args.FocusX, args.FocusY);
                 state.Hero = new Character(EntityDefs.Instance.Characters["hero"], state.Map);

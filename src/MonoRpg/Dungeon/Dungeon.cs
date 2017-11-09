@@ -131,7 +131,7 @@ namespace Dungeon {
         }
 
         private void LoadMaps() {
-            MapDB.AddMap("sontos_house.json");
+            Maps.Instance.AddMap("sontos_house.json");
 
             var bustedWallTrigger = new TriggerDef("cracked_stone", 60, 11);
             var skeleton1 = new TriggerDef("skeleton", 73, 11);
@@ -140,7 +140,7 @@ namespace Dungeon {
             var gregorTalkTrigger = new TriggerDef("gregor_talk_trigger", 50, 13);
             var grateTrigger1 = new TriggerDef("grate_close", 57, 6);
             var grateTrigger2 = new TriggerDef("grate_close", 58, 6);
-            MapDB.AddMap(
+            Maps.Instance.AddMap(
                 "jail.json",
                 new Dictionary<string, MapAction> {
                     ["break_wall_script"] = MapAction.RunScript(CrumbleScript, bustedWallTrigger),
@@ -171,7 +171,7 @@ namespace Dungeon {
                     MapAction.AddNpc("gregor", "prisoner", 44, 12)
                 }
             );
-            MapDB.AddMap(
+            Maps.Instance.AddMap(
                 "sewer.json",
                 new Dictionary<string, MapAction> {
                     ["exit_sewer_script"] = MapAction.RunScript(SewerExit, new TriggerDef())
