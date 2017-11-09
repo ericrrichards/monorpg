@@ -52,6 +52,7 @@ namespace Dungeon {
         protected override void LoadContent() {
             _content = MonoRpg.Engine.Content.Create(Content, GraphicsDevice);
             Renderer = Renderer.Create(GraphicsDevice, _content);
+            Renderer.ClearColor = new Color(0x13,0x16, 0x19);
             System.Exit = Exit;
 
 
@@ -288,7 +289,7 @@ namespace Dungeon {
 
         private void MoveGregor(Map map, TriggerDef def, Entity entity) {
             if (World.Instance.HasKey(BoneItemId)) {
-                var gregor = map.NpcById["gregor"];
+                var gregor = map.GetNpc("gregor");
                 gregor.FollowPath(
                     Facing.Up,
                     Facing.Up,
@@ -308,7 +309,7 @@ namespace Dungeon {
         }
 
         private void TalkGregor(Map map, TriggerDef def, Entity entity) {
-            var gregor = map.NpcById["gregor"];
+            var gregor = map.GetNpc("gregor");
             if (gregor.Entity.TileX == def.X && gregor.Entity.TileY == def.Y - 1) {
                 var speech = new[] {
                     "You're another black blood aren't you?",

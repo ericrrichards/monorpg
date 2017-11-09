@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MonoRpg.Engine.GameStates {
+﻿namespace MonoRpg.Engine.GameStates {
     using Microsoft.Xna.Framework;
     using Microsoft.Xna.Framework.Input;
 
@@ -13,7 +7,7 @@ namespace MonoRpg.Engine.GameStates {
     using MonoRpg.Engine.UI;
 
     public class ExploreState : BaseStateObject {
-        public TiledMap MapDef { get; set; }
+        public TiledMap MapDef { get; }
         public Map Map { get; set; }
         public Character Hero { get; set; }
         public bool FollowCam { get; set; }
@@ -40,23 +34,14 @@ namespace MonoRpg.Engine.GameStates {
 
             UpdateCamera(Map);
             
-            foreach (var npc in Map.NPCs) {
+            foreach (var npc in Map.Characters) {
                 npc.Controller.Update(dt);
             }
             return false;
         }
 
         public override void Render(Renderer renderer) {
-            renderer.Translate(-Map.CamX, -Map.CamY);
-            var layerCount = Map.LayerCount;
-            for (var i = 0; i < layerCount; i++) {
-                Entity heroEntity = null;
-                if (i == Hero.Entity.Layer) {
-                    heroEntity = Hero.Entity;
-                }
-                Map.RenderLayer(renderer, i, heroEntity);
-            }
-            renderer.Translate(0,0);
+            Map.Render(renderer, Hero.Entity);
         }
 
         public override void HandleInput(float dt) {
@@ -70,7 +55,6 @@ namespace MonoRpg.Engine.GameStates {
             if (System.Keys.WasPressed(Keys.LeftAlt)) {
                 var menu = new InGameMenu(Stack);
                 Stack.Push(menu);
-                return;
             }
         }
 

@@ -189,7 +189,7 @@ namespace MonoRpg.Engine {
         public static StoryBoardFunc MoveNpc(string id, string mapId, params Facing[] path) {
             return storyboard => {
                 var map = GetMapRef(storyboard, mapId);
-                var npc = map.NpcById[id];
+                var npc = map.GetNpc(id);
                 npc.FollowPath(path.ToList());
                 return new BlockUntilEvent(() => npc.PathIndex >= npc.Path.Count);
             };
@@ -200,7 +200,7 @@ namespace MonoRpg.Engine {
             return storyboard => {
                 var map = GetMapRef(storyboard, mapId);
                 var npc = npcId != "hero" 
-                    ? map.NpcById[npcId] 
+                    ? map.GetNpc(npcId) 
                     : ((ExploreState)storyboard.States[mapId]).Hero;
                 var pos = npc.Entity.Sprite.Position;
                 var box = storyboard.Stack.PushFit(System.Renderer, (int)(-map.CamX + pos.X), (int)(-map.CamY + pos.Y + 32), text, -1, args);
@@ -228,7 +228,7 @@ namespace MonoRpg.Engine {
                 if (npcId == "hero") {
                     npc = ((ExploreState)storyboard.States[mapId]).Hero;
                 } else {
-                    npc = map.NpcById[npcId];
+                    npc = map.GetNpc(npcId);
                 }
 
                 return new TweenEvent<Sprite>(new Tween(1, 0, duration), npc.Entity.Sprite,

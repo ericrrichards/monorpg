@@ -27,10 +27,9 @@ namespace MonoRpg.Engine {
             var layer = npc.Layer ?? character.Entity.Layer;
 
             character.Entity.SetTilePosition(x, y, layer, map);
-            Debug.Assert(!map.NpcById.ContainsKey(npc.Id));
+            
             character.Id = npc.Id;
-            map.NpcById[npc.Id] = character;
-            map.NPCs.Add(character);
+            map.AddCharacter(character);
 
         }
 
