@@ -165,7 +165,9 @@
     <Content Include="Content\arena.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <None Include="Content\arena.tmx" />
+    <Content Include="Content\arena.tmx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="Content\contra_italic.spritefont" />
     <None Include="Content\contra_italic.ttf" />
     <None Include="Content\default.spritefont" />

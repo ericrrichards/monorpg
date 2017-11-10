@@ -27,7 +27,7 @@
         private int HalfTileWidth => TileWidth / 2;
         public int TileHeight { get; }
         private int HalfTileHeight => TileHeight / 2;
-        private int LayerCount => MapDef.Layers.Count / 3;
+        private int LayerCount => MapDef.MapDef.LayerCount / 3;
 
         private int WidthInPixels => WidthInTiles * TileWidth;
         private int HeightInPixels => HeightInTiles * TileHeight;
@@ -45,12 +45,12 @@
 
         public Map(TiledMap mapDef) {
             MapDef = mapDef;
-            var baseTexture = System.Content.FindTexture(mapDef.TileSets[0].Image);
+            var baseTexture = System.Content.FindTexture(mapDef.MapDef.TileSets[0].GetImageFilename());
             Sprite = new Sprite();
-            WidthInTiles = mapDef.Width;
-            HeightInTiles = mapDef.Height;
-            TileWidth = mapDef.TileWidth;
-            TileHeight = mapDef.TileHeight;
+            WidthInTiles = mapDef.MapDef.Width;
+            HeightInTiles = mapDef.MapDef.Height;
+            TileWidth = mapDef.MapDef.TileWidth;
+            TileHeight = mapDef.MapDef.TileHeight;
 
             Triggers = new Dictionary<int, Dictionary<int, Trigger>>();
             Entities = new Dictionary<int, Dictionary<int, Entity>>();
@@ -66,7 +66,7 @@
 
             UVs = baseTexture.GenerateUVs(TileWidth, TileHeight);
 
-            BlockingTile = (mapDef.TileSets.FirstOrDefault(ts => ts.Name == "collision_graphic")?.FirstGid).GetValueOrDefault();
+            BlockingTile = (mapDef.MapDef.TileSets.FirstOrDefault(ts => ts.Name == "collision_graphic")?.FirstGID).GetValueOrDefault();
             
             Debug.Assert(BlockingTile > 0);
             
@@ -128,11 +128,7 @@
         }
 
         private int GetTile(int x, int y, int layer = 0) {
-            var tiles = MapDef.Layers[layer].Data;
-            var index = CoordToIndex(x, y);
-            if (index < 0 || index >= tiles.Count)
-                throw new IndexOutOfRangeException();
-            return tiles[index]; // Tiled uses 1 as the first ID, instead of 0 like everything else in the world does.
+            return MapDef.MapDef.GetTile(x, y, layer);
         }
 
         [CanBeNull]
@@ -264,16 +260,9 @@
         public void WriteTile(WriteTileArgs args) {
             var layer = args.Layer;
             layer = layer * 3;
-
-            var index = CoordToIndex(args.X, args.Y);
-            var tiles = MapDef.Layers[layer].Data;
-            tiles[index] = args.Tile;
-
-            tiles = MapDef.Layers[layer + 1].Data;
-            tiles[index] = args.Detail;
-
-            tiles = MapDef.Layers[layer + 2].Data;
-            tiles[index] = args.Collision ? BlockingTile : 0;
+            MapDef.MapDef.WriteTile(args.X, args.Y, layer, args.Tile);
+            MapDef.MapDef.WriteTile(args.X, args.Y, layer+1, args.Detail);
+            MapDef.MapDef.WriteTile(args.X, args.Y, layer+2, args.Collision ? BlockingTile : 0);
         }
 
         public void RemoveTrigger(int x, int y, int layer = 0) {

@@ -150,9 +150,10 @@
     <None Include="Content\jail.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Content\jail.tmx">
+    <Content Include="Content\jail.tmx">
       <SubType>Designer</SubType>
-    </None>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="Content\junction.spritefont" />
     <None Include="Content\junction.ttf" />
     <Content Include="Content\sontos_house.json">
@@ -161,8 +162,12 @@
     <Content Include="Content\sewer.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <None Include="Content\sewer.tmx" />
-    <None Include="Content\sontos_house.tmx" />
+    <Content Include="Content\sewer.tmx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\sontos_house.tmx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MonoRpg.Engine\MonoRpg.Engine.csproj">

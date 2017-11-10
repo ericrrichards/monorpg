@@ -54,7 +54,7 @@ namespace MonoRpg {
             Renderer = Renderer.Create(GraphicsDevice, _content);
 
 
-            var mapDef = _content.LoadMap("Content/small_room.json");
+            var mapDef = Engine.Content.LoadMap("Content/small_room.tmx");
 
             mapDef.OnWake = new List<MapAction> {
             };

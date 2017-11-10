@@ -74,9 +74,9 @@ namespace Dungeon {
             var storyboard = new Storyboard(
                 _stack,
                 false,
-                Events.Scene(new SceneArgs("sontos_house.json", 14, 19, true)),
+                Events.Scene(new SceneArgs("sontos_house", 14, 19, true)),
                 Events.BlackScreen(),
-                Events.RunAction("AddNPC", "sontos_house.json", new AddNPCParams("sleeper", "sleeper", 14, 19), Events.GetMapRef),
+                Events.RunAction("AddNPC", "sontos_house", new AddNPCParams("sleeper", "sleeper", 14, 19), Events.GetMapRef),
                 Events.Play("rain.wav"),
                 Events.NoBlock(Events.FadeSound("rain.wav", 0, 1, 3)),
                 Events.Caption("place", "title", "Village of Sontos"),
@@ -89,15 +89,15 @@ namespace Dungeon {
                 Events.FadeOutScreen(),
                 Events.Wait(2),
                 Events.FadeInScreen(),
-                Events.RunAction("AddNPC", "sontos_house.json", new AddNPCParams("guard", "guard1", 19, 22), Events.GetMapRef),
+                Events.RunAction("AddNPC", "sontos_house", new AddNPCParams("guard", "guard1", 19, 22), Events.GetMapRef),
                 Events.Wait(1),
                 Events.Play("door_break.wav"),
                 Events.NoBlock(Events.FadeOutScreen()),
-                Events.MoveNpc("guard1", "sontos_house.json", Facing.Up, Facing.Up, Facing.Up, Facing.Left, Facing.Left, Facing.Left),
+                Events.MoveNpc("guard1", "sontos_house", Facing.Up, Facing.Up, Facing.Up, Facing.Left, Facing.Left, Facing.Left),
                 Events.Wait(1f),
-                Events.Say("sontos_house.json", "guard1", "Found you!", 2.5f),
+                Events.Say("sontos_house", "guard1", "Found you!", 2.5f),
                 Events.Wait(1),
-                Events.Say("sontos_house.json", "guard1", "You're coming with me!", 3),
+                Events.Say("sontos_house", "guard1", "You're coming with me!", 3),
                 Events.FadeInScreen(),
 
                 // Kidnap
@@ -122,17 +122,17 @@ namespace Dungeon {
                 Events.Wait(2),
                 Events.FadeOutCaption("place", 3),
                 Events.KillState("place"),
-                Events.ReplaceScene("sontos_house.json", new SceneArgs("jail.json", 56, 11, false)),
+                Events.ReplaceScene("sontos_house", new SceneArgs("jail", 56, 11, false)),
                 Events.FadeOutScreen(),
                 Events.Wait(0.5f),
-                Events.Say("jail.json", "hero", "Where am I?", 3),
+                Events.Say("jail", "hero", "Where am I?", 3),
                 Events.Wait(3),
-                Events.HandOff("jail.json", _stack));
+                Events.HandOff("jail", _stack));
             return storyboard;
         }
 
         private void LoadMaps() {
-            Maps.Instance.AddMap("sontos_house.json");
+            Maps.Instance.AddMap("sontos_house.tmx");
 
             var bustedWallTrigger = new TriggerDef("cracked_stone", 60, 11);
             var skeleton1 = new TriggerDef("skeleton", 73, 11);
@@ -142,7 +142,7 @@ namespace Dungeon {
             var grateTrigger1 = new TriggerDef("grate_close", 57, 6);
             var grateTrigger2 = new TriggerDef("grate_close", 58, 6);
             Maps.Instance.AddMap(
-                "jail.json",
+                "jail.tmx",
                 new Dictionary<string, MapAction> {
                     ["break_wall_script"] = MapAction.RunScript(CrumbleScript, bustedWallTrigger),
                     ["bone_script"] = MapAction.RunScript(BoneScript, skeleton1),
@@ -173,7 +173,7 @@ namespace Dungeon {
                 }
             );
             Maps.Instance.AddMap(
-                "sewer.json",
+                "sewer.tmx",
                 new Dictionary<string, MapAction> {
                     ["exit_sewer_script"] = MapAction.RunScript(SewerExit, new TriggerDef())
                 },
@@ -453,9 +453,9 @@ namespace Dungeon {
                     Facing.Left
                 )),
                 Events.FadeInScreen(),
-                Events.ReplaceScene("handin", new SceneArgs("sewer.json", 35, 15, false)),
+                Events.ReplaceScene("handin", new SceneArgs("sewer", 35, 15, false)),
                 Events.FadeOutScreen(),
-                Events.HandOff("sewer.json", _stack)
+                Events.HandOff("sewer", _stack)
 
             );
             _stack.Push(storyboard);

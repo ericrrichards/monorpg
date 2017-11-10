@@ -5,19 +5,14 @@ namespace MonoRpg.Engine.Tiled {
     using global::System.Linq;
 
     public class TiledMap {
-        public int Width { get; set; }
-        public int Height { get; set; }
-        public int TileWidth { get; set; }
-        public int TileHeight { get; set; }
-
-        public List<TileLayer> Layers { get; set; }
-        public List<TileSet> TileSets { get; set; }
+        public TiledImporter.Map MapDef { get; }
         public List<MapAction> OnWake { get; set; }
         public Dictionary<string, MapAction> Actions { get; set; }
         public Dictionary<string, TriggerTypeDef> TriggerTypes { get; set; }
         public List<TriggerDef> Triggers { get; set; }
 
-        public TiledMap() {
+        public TiledMap(TiledImporter.Map map) {
+            MapDef = map;
             OnWake = new List<MapAction>();
             Actions = new Dictionary<string, MapAction>();
             TriggerTypes = new Dictionary<string, TriggerTypeDef>();

@@ -100,7 +100,7 @@ namespace MonoRpg.Engine {
             }
         }
 
-        public TiledMap LoadMap(string mapFile) { return JsonConvert.DeserializeObject<TiledMap>(File.ReadAllText(mapFile)); }
+        public static TiledMap LoadMap(string mapFile) { return new TiledMap(TiledImporter.Map.LoadFromFile(mapFile)); }
         
     }
 }

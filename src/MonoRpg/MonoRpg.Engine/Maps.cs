@@ -23,24 +23,25 @@ namespace MonoRpg.Engine {
             if (!File.Exists(path) && File.Exists(Path.Combine("Content", path))) {
                 path = Path.Combine("Content", path);
             }
-            _maps.Add(mapFile,
-                     () => {
-                         var map = System.Content.LoadMap(path);
-                         if (actions != null) {
-                             map.Actions = actions;
-                         }
-                         if (triggerTypes != null) {
-                             map.TriggerTypes = triggerTypes;
-                         }
-                         if (triggers != null) {
-                             map.Triggers = triggers;
-                         }
-                         if (onWake != null) {
-                             map.OnWake = onWake;
-                         }
+            Func<TiledMap> func = () => {
+                var map = Content.LoadMap(path);
+                if (actions != null) {
+                    map.Actions = actions;
+                }
+                if (triggerTypes != null) {
+                    map.TriggerTypes = triggerTypes;
+                }
+                if (triggers != null) {
+                    map.Triggers = triggers;
+                }
+                if (onWake != null) {
+                    map.OnWake = onWake;
+                }
 
-                         return map;
-                     });
+                return map;
+            };
+            _maps.Add(mapFile, func);
+            _maps.Add(Path.GetFileNameWithoutExtension(mapFile), func);
         }
     }
 }

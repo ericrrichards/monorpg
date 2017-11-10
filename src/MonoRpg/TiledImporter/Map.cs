@@ -18,6 +18,7 @@
         public int TileHeight { get; }
         public IReadOnlyList<TileSet> TileSets { get; }
         private IReadOnlyList<Layer> Layers { get; }
+        public int LayerCount => Layers.Count;
 
         public static Map LoadFromFile(string mapFile) {
             var xml = XDocument.Load(mapFile);
@@ -45,6 +46,13 @@
             Guard.Against.OutOfRange(y, nameof(y), 0, Height-1);
             Guard.Against.OutOfRange(layer, nameof(layer), 0, Layers.Count-1);
             return Layers[layer].GetTile(x, y);
+        }
+
+        public void WriteTile(int x, int y, int layer, int gid) {
+            Guard.Against.OutOfRange(x, nameof(x), 0, Width - 1);
+            Guard.Against.OutOfRange(y, nameof(y), 0, Height - 1);
+            Guard.Against.OutOfRange(layer, nameof(layer), 0, Layers.Count - 1);
+            Layers[layer].SetTile(x, y, gid);
         }
     }
 
